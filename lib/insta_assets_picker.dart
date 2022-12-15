@@ -1,7 +1,9 @@
 library insta_assets_picker;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'src/widget/assets_picker.dart';
+export 'package:wechat_assets_picker/wechat_assets_picker.dart'
+    show
+        AssetPicker,
+        DefaultAssetPickerProvider,
+        AssetEntity,
+        AssetEntityImageProvider;
