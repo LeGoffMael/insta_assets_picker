@@ -12,6 +12,7 @@ class InstaAssetPicker {
     DefaultAssetPickerProvider? defaultProvider,
     ThemeData? pickerTheme,
     AssetPickerTextDelegate? textDelegate,
+    String? title,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -44,6 +45,7 @@ class InstaAssetPicker {
 
     final InstaAssetPickerBuilder builder = InstaAssetPickerBuilder(
       provider: provider,
+      title: title,
       gridCount: gridCount,
       pickerTheme:
           pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),

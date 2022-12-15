@@ -5,6 +5,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -15,12 +16,15 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.gridCount = 4,
     super.pickerTheme,
     super.textDelegate,
+    this.title,
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
           specialPickerType: SpecialPickerType.noPreview,
           specialItemPosition: SpecialItemPosition.none,
         );
+
+  final String? title;
 
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
@@ -37,15 +41,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
             isSwitchingPath.value = !isSwitchingPath.value;
           },
           child: Container(
-            height: appBarItemHeight,
+            height: 42,
             constraints: BoxConstraints(
               maxWidth: MediaQuery.of(context).size.width * 0.5,
             ),
             padding: const EdgeInsetsDirectional.only(start: 12, end: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              color: theme.dividerColor,
-            ),
             child: Selector<DefaultAssetPickerProvider,
                 PathWrapper<AssetPathEntity>?>(
               selector: (_, DefaultAssetPickerProvider p) => p.currentPath,
@@ -58,10 +58,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                         isPermissionLimited && p.path.isAll
                             ? textDelegate.accessiblePathName
                             : p.path.name,
-                        style: const TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.normal,
-                        ),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodyLarge
+                            ?.copyWith(fontSize: 16),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -71,24 +71,18 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               ),
               child: Padding(
                 padding: const EdgeInsetsDirectional.only(start: 5),
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: theme.iconTheme.color!.withOpacity(0.5),
-                  ),
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: isSwitchingPath,
-                    builder: (_, bool isSwitchingPath, Widget? w) {
-                      return Transform.rotate(
-                        angle: isSwitchingPath ? math.pi : 0,
-                        child: w,
-                      );
-                    },
-                    child: Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 20,
-                      color: theme.colorScheme.primary,
-                    ),
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: isSwitchingPath,
+                  builder: (_, bool isSwitchingPath, Widget? w) {
+                    return Transform.rotate(
+                      angle: isSwitchingPath ? math.pi : 0,
+                      child: w,
+                    );
+                  },
+                  child: Icon(
+                    Icons.keyboard_arrow_down,
+                    size: 20,
+                    color: theme.iconTheme.color,
                   ),
                 ),
               ),
@@ -135,18 +129,27 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   Widget androidLayout(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: backButton(context),
+        title: title != null ? Text(title!) : null,
+        leading: Transform.translate(
+          offset: const Offset(-8, 0),
+          child: backButton(context),
+        ),
         actions: <Widget>[confirmButton(context)],
       ),
       body: ChangeNotifierProvider<DefaultAssetPickerProvider>.value(
         value: provider,
         builder: (BuildContext context, _) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          return Stack(
             children: [
-              _buildViewer(provider),
-              pathEntitySelector(context),
-              Expanded(child: _buildGrid(context)),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildViewer(provider),
+                  pathEntitySelector(context),
+                  Expanded(child: _buildGrid(context)),
+                ],
+              ),
+              _buildListAlbums(context),
             ],
           );
         },
@@ -157,20 +160,29 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Widget appleOSLayout(BuildContext context) => androidLayout(context);
 
+  Widget _buildListAlbums(context) {
+    return Consumer<DefaultAssetPickerProvider>(
+      builder: (BuildContext context, _, __) => MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          padding: const EdgeInsets.only(top: -kToolbarHeight),
+        ),
+        child: Builder(
+          builder: (BuildContext context) => pathEntityListWidget(context),
+        ),
+      ),
+    );
+  }
+
   Widget _buildViewer(DefaultAssetPickerProvider provider) {
     final List<AssetEntity> current = provider.currentAssets
         .where((AssetEntity e) => e.type == AssetType.image)
         .toList();
     final List<AssetEntity> selected = provider.selectedAssets;
 
-    if (selected.isEmpty) {
-      return const SizedBox.shrink();
-    }
+    final int effectiveIndex =
+        selected.isEmpty ? 0 : current.indexOf(selected.last);
 
-    final int effectiveIndex = current.indexOf(selected.last);
-
-    // TODO : add crop view
-    return Text('Viewer');
+    return const CropViewer();
 
     // return AssetPickerViewer<AssetEntity, AssetPathEntity>(
     //   builder: DefaultAssetPickerViewerBuilderDelegate(
@@ -204,21 +216,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                   data: MediaQuery.of(context).copyWith(
                     padding: const EdgeInsets.only(top: -kToolbarHeight),
                   ),
-                  child: Builder(
-                    builder: (BuildContext context) => MediaQuery(
-                      data: MediaQuery.of(context).copyWith(
-                        padding: const EdgeInsets.only(top: -kToolbarHeight),
-                      ),
-                      child: Builder(
-                        builder: (BuildContext context) => Stack(
-                          children: <Widget>[
-                            RepaintBoundary(child: assetsGridBuilder(context)),
-                            pathEntityListBackdrop(context),
-                            pathEntityListWidget(context),
-                          ],
-                        ),
-                      ),
-                    ),
+                  child: Stack(
+                    children: <Widget>[
+                      RepaintBoundary(child: assetsGridBuilder(context)),
+                      pathEntityListBackdrop(context),
+                    ],
                   ),
                 )
               : loadingIndicator(context),
