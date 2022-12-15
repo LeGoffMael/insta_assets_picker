@@ -26,21 +26,15 @@ class _CropViewerState extends State<CropViewer> {
   Widget build(BuildContext context) {
     return Consumer<DefaultAssetPickerProvider>(builder:
         (BuildContext context, DefaultAssetPickerProvider provider, __) {
-      final List<AssetEntity> current = provider.currentAssets
-          .where((AssetEntity e) => e.type == AssetType.image)
-          .toList();
       final List<AssetEntity> selected = provider.selectedAssets;
       final int effectiveIndex =
-          selected.isEmpty ? 0 : current.indexOf(selected.last);
+          selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
       print('preview = ${provider.previewAsset}');
 
-      if (provider.previewAsset == null) {
+      if (provider.previewAsset == null && selected.isEmpty) {
         // TODO : crop view
-        return SizedBox.square(
-          dimension: MediaQuery.of(context).size.width,
-          child: Text('Crop Viewer (${selected.length})'),
-        );
+        return SizedBox.square(dimension: MediaQuery.of(context).size.width);
       }
 
       return SizedBox.square(
@@ -51,7 +45,7 @@ class _CropViewerState extends State<CropViewer> {
               child: Crop(
                 key: _cropKey,
                 image: AssetEntityImageProvider(
-                  provider.previewAsset!,
+                  provider.previewAsset ?? selected[effectiveIndex],
                   isOriginal: true,
                 ),
                 maximumScale: 10,

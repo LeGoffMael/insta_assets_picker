@@ -1,6 +1,6 @@
 library insta_assets_picker;
 
-export 'src/widget/assets_picker.dart';
+export 'assets_picker.dart';
 export 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show
         AssetPicker,
