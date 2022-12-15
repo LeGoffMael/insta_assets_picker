@@ -10,8 +10,12 @@ import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
-  InstaAssetPickerBuilder({required super.provider})
-      : super(
+  InstaAssetPickerBuilder({
+    required super.provider,
+    super.gridCount = 4,
+    super.pickerTheme,
+    super.textDelegate,
+  }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
           specialPickerType: SpecialPickerType.noPreview,
@@ -104,31 +108,19 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   Widget confirmButton(BuildContext context) {
     final Widget button = Consumer<DefaultAssetPickerProvider>(
       builder: (_, DefaultAssetPickerProvider p, __) {
-        return MaterialButton(
-          minWidth: p.isSelectedNotEmpty ? 48 : 20,
-          height: 10,
-          padding: const EdgeInsets.symmetric(horizontal: 12),
-          disabledColor: theme.dividerColor,
-          color: p.isSelectedNotEmpty ? themeColor : theme.dividerColor,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(3),
+        return TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor:
+                p.isSelectedNotEmpty ? themeColor : theme.dividerColor,
           ),
           onPressed: p.isSelectedNotEmpty
               ? () => Navigator.of(context).maybePop(p.selectedAssets)
               : null,
-          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           child: Text(
             p.isSelectedNotEmpty && !isSingleAssetMode
                 ? '${textDelegate.confirm}'
                     ' (${p.selectedAssets.length}/${p.maxAssets})'
                 : textDelegate.confirm,
-            style: TextStyle(
-              color: p.isSelectedNotEmpty
-                  ? theme.textTheme.bodyText1?.color
-                  : theme.textTheme.caption?.color,
-              fontSize: 17,
-              fontWeight: FontWeight.normal,
-            ),
           ),
         );
       },
@@ -207,12 +199,27 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: shouldDisplayAssets
-              ? Stack(
-                  children: <Widget>[
-                    RepaintBoundary(child: assetsGridBuilder(context)),
-                    pathEntityListBackdrop(context),
-                    pathEntityListWidget(context),
-                  ],
+              ? MediaQuery(
+                  // fix: https://github.com/fluttercandies/flutter_wechat_assets_picker/issues/395
+                  data: MediaQuery.of(context).copyWith(
+                    padding: const EdgeInsets.only(top: -kToolbarHeight),
+                  ),
+                  child: Builder(
+                    builder: (BuildContext context) => MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        padding: const EdgeInsets.only(top: -kToolbarHeight),
+                      ),
+                      child: Builder(
+                        builder: (BuildContext context) => Stack(
+                          children: <Widget>[
+                            RepaintBoundary(child: assetsGridBuilder(context)),
+                            pathEntityListBackdrop(context),
+                            pathEntityListWidget(context),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 )
               : loadingIndicator(context),
         );

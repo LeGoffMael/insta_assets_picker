@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
-
-const Color _themeColor = Color(0xff405de6); // insta blue
 
 void main() => runApp(const MyApp());
 
@@ -16,6 +15,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const PickerScren(),
+      localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
+        GlobalWidgetsLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
     );
   }
 }
@@ -28,14 +32,15 @@ class PickerScren extends StatefulWidget {
 }
 
 class _PickerScrenState extends State<PickerScren> {
-  final int maxAssets = 5;
-  late final ThemeData theme = AssetPicker.themeData(_themeColor);
-
+  final int maxAssets = 10;
   List<AssetEntity> entities = <AssetEntity>[];
 
   Future<void> callPicker(BuildContext context) async {
-    final List<AssetEntity>? result =
-        await InstaAssetPicker.pickAssets(context);
+    final List<AssetEntity>? result = await InstaAssetPicker.pickAssets(
+      context,
+      maxAssets: maxAssets,
+      textDelegate: const EnglishAssetPickerTextDelegate(),
+    );
 
     if (result != null) {
       entities = result;
@@ -49,7 +54,7 @@ class _PickerScrenState extends State<PickerScren> {
     return AnimatedContainer(
       duration: kThemeChangeDuration,
       curve: Curves.easeInOut,
-      height: entities.isNotEmpty ? 80.0 : 40.0,
+      height: entities.isNotEmpty ? 200.0 : 40.0,
       child: Column(
         children: <Widget>[
           SizedBox(
@@ -59,13 +64,11 @@ class _PickerScrenState extends State<PickerScren> {
               children: <Widget>[
                 const Text('Selected Assets'),
                 Container(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 10.0,
-                  ),
+                  margin: const EdgeInsets.symmetric(horizontal: 10.0),
                   padding: const EdgeInsets.all(4.0),
                   decoration: const BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.grey,
+                    color: Colors.blueGrey,
                   ),
                   child: Text(
                     '${entities.length}',
@@ -97,19 +100,24 @@ class _PickerScrenState extends State<PickerScren> {
               horizontal: 8.0,
               vertical: 16.0,
             ),
-            child: AspectRatio(
-              aspectRatio: 1.0,
-              child: Stack(
-                children: <Widget>[
-                  Positioned.fill(child: _selectedAssetWidget(index)),
-                  AnimatedPositionedDirectional(
-                    duration: kThemeAnimationDuration,
-                    top: -30.0,
-                    end: -30.0,
-                    child: _selectedAssetDeleteButton(index),
+            child: Stack(
+              children: <Widget>[
+                _selectedAssetWidget(index),
+                AnimatedPositionedDirectional(
+                  duration: kThemeAnimationDuration,
+                  top: 5.0,
+                  end: 5.0,
+                  child: GestureDetector(
+                    onTap: () => setState(() => entities.removeAt(index)),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: const Icon(Icons.close, size: 18.0),
+                    ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           );
         },
@@ -123,33 +131,8 @@ class _PickerScrenState extends State<PickerScren> {
     return RepaintBoundary(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(8.0),
-        child: _assetWidgetBuilder(asset),
+        child: Image(image: AssetEntityImageProvider(asset)),
       ),
-    );
-  }
-
-  Widget _assetWidgetBuilder(AssetEntity asset) {
-    return Image(image: AssetEntityImageProvider(asset), fit: BoxFit.cover);
-  }
-
-  Widget _selectedAssetDeleteButton(int index) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4.0),
-        color: theme.canvasColor.withOpacity(0.5),
-      ),
-      child: Icon(
-        Icons.close,
-        color: theme.iconTheme.color,
-        size: 18.0,
-      ),
-    );
-  }
-
-  Widget paddingText(String text) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: SelectableText(text),
     );
   }
 
@@ -166,12 +149,12 @@ class _PickerScrenState extends State<PickerScren> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  paddingText('The picker reproduce Instagram picker'),
+                  const Text('The picker reproduces Instagram picker'),
                   TextButton(
                     onPressed: () => callPicker(context),
                     child: const Text(
                       'Open the Picker',
-                      style: TextStyle(fontSize: 22),
+                      style: TextStyle(fontSize: 20),
                     ),
                   ),
                 ],

@@ -8,7 +8,10 @@ class InstaAssetPicker {
     Key? key,
     bool useRootNavigator = true,
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
+    int gridCount = 4,
     DefaultAssetPickerProvider? defaultProvider,
+    ThemeData? pickerTheme,
+    AssetPickerTextDelegate? textDelegate,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -39,8 +42,13 @@ class InstaAssetPicker {
           initializeDelayDuration: initializeDelayDuration,
         );
 
-    final InstaAssetPickerBuilder builder =
-        InstaAssetPickerBuilder(provider: provider);
+    final InstaAssetPickerBuilder builder = InstaAssetPickerBuilder(
+      provider: provider,
+      gridCount: gridCount,
+      pickerTheme:
+          pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
+      textDelegate: textDelegate,
+    );
 
     return AssetPicker.pickAssetsWithDelegate(
       context,
