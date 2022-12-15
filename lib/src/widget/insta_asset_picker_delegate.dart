@@ -20,7 +20,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
-          specialPickerType: SpecialPickerType.noPreview,
+          specialPickerType: SpecialPickerType.customPreview,
           specialItemPosition: SpecialItemPosition.none,
         );
 
@@ -144,11 +144,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildViewer(provider),
+                  CropViewer(provider: provider, theme: pickerTheme),
                   pathEntitySelector(context),
                   Expanded(child: _buildGrid(context)),
                 ],
               ),
+              pathEntityListBackdrop(context),
               _buildListAlbums(context),
             ],
           );
@@ -173,36 +174,6 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     );
   }
 
-  Widget _buildViewer(DefaultAssetPickerProvider provider) {
-    final List<AssetEntity> current = provider.currentAssets
-        .where((AssetEntity e) => e.type == AssetType.image)
-        .toList();
-    final List<AssetEntity> selected = provider.selectedAssets;
-
-    final int effectiveIndex =
-        selected.isEmpty ? 0 : current.indexOf(selected.last);
-
-    return const CropViewer();
-
-    // return AssetPickerViewer<AssetEntity, AssetPathEntity>(
-    //   builder: DefaultAssetPickerViewerBuilderDelegate(
-    //     currentIndex: effectiveIndex,
-    //     previewAssets: current,
-    //     provider: AssetPickerViewerProvider<AssetEntity>(
-    //       selected,
-    //       maxAssets: this.provider.maxAssets,
-    //     ),
-    //     themeData: AssetPicker.themeData(themeColor),
-    //     previewThumbnailSize: previewThumbnailSize,
-    //     specialPickerType: specialPickerType,
-    //     selectedAssets: selected,
-    //     selectorProvider: provider,
-    //     maxAssets: this.provider.maxAssets,
-    //     selectPredicate: selectPredicate,
-    //   ),
-    // );
-  }
-
   Widget _buildGrid(BuildContext context) {
     return Consumer<DefaultAssetPickerProvider>(
       builder: (BuildContext context, DefaultAssetPickerProvider p, __) {
@@ -216,12 +187,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                   data: MediaQuery.of(context).copyWith(
                     padding: const EdgeInsets.only(top: -kToolbarHeight),
                   ),
-                  child: Stack(
-                    children: <Widget>[
-                      RepaintBoundary(child: assetsGridBuilder(context)),
-                      pathEntityListBackdrop(context),
-                    ],
-                  ),
+                  child: RepaintBoundary(child: assetsGridBuilder(context)),
                 )
               : loadingIndicator(context),
         );

@@ -38,6 +38,7 @@ class _PickerScrenState extends State<PickerScren> {
   Future<void> callPicker(BuildContext context) async {
     final List<AssetEntity>? result = await InstaAssetPicker.pickAssets(
       context,
+      selectedAssets: entities,
       title: 'Select images',
       maxAssets: maxAssets,
       textDelegate: const EnglishAssetPickerTextDelegate(),
