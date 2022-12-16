@@ -50,11 +50,11 @@ class _CropViewerState extends State<CropViewer> {
       final int effectiveIndex =
           selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
-      print('preview = ${provider.previewAsset}');
-
       if (provider.previewAsset == null && selected.isEmpty) {
-        // TODO : crop view
-        return SizedBox.square(dimension: MediaQuery.of(context).size.width);
+        return SizedBox.square(
+          dimension: MediaQuery.of(context).size.width,
+          child: _buildIndicator(),
+        );
       }
 
       final asset = provider.previewAsset ?? selected[effectiveIndex];
@@ -76,9 +76,8 @@ class _CropViewerState extends State<CropViewer> {
                         alignment: isSquare
                             ? Alignment.center
                             : Alignment.bottomCenter,
-                        height: MediaQuery.of(context).size.width - 1,
-                        width: (MediaQuery.of(context).size.width - 1) *
-                            aspectRatio,
+                        height: MediaQuery.of(context).size.width,
+                        width: MediaQuery.of(context).size.width * aspectRatio,
                         image:
                             AssetEntityImageProvider(asset, isOriginal: false),
                         enableMemoryCache: false,

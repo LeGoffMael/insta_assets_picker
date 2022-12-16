@@ -34,57 +34,53 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Widget pathEntitySelector(BuildContext context) {
     Widget selector(BuildContext context) {
-      return UnconstrainedBox(
-        child: GestureDetector(
-          onTap: () {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4)
+            .copyWith(top: 4, bottom: 8),
+        child: TextButton(
+          style: TextButton.styleFrom(
+            foregroundColor: theme.splashColor,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            visualDensity: VisualDensity.compact,
+            padding: const EdgeInsets.all(4).copyWith(left: 6),
+          ),
+          onPressed: () {
             Feedback.forTap(context);
             isSwitchingPath.value = !isSwitchingPath.value;
           },
-          child: Container(
-            height: 42,
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.5,
-            ),
-            padding: const EdgeInsetsDirectional.only(start: 12, end: 6),
-            child: Selector<DefaultAssetPickerProvider,
-                PathWrapper<AssetPathEntity>?>(
-              selector: (_, DefaultAssetPickerProvider p) => p.currentPath,
-              builder: (_, PathWrapper<AssetPathEntity>? p, Widget? w) => Row(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  if (p != null)
-                    Flexible(
-                      child: Text(
-                        isPermissionLimited && p.path.isAll
-                            ? textDelegate.accessiblePathName
-                            : p.path.name,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodyLarge
-                            ?.copyWith(fontSize: 16),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+          child: Selector<DefaultAssetPickerProvider,
+              PathWrapper<AssetPathEntity>?>(
+            selector: (_, DefaultAssetPickerProvider p) => p.currentPath,
+            builder: (_, PathWrapper<AssetPathEntity>? p, Widget? w) => Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                if (p != null)
+                  Flexible(
+                    child: Text(
+                      isPermissionLimited && p.path.isAll
+                          ? textDelegate.accessiblePathName
+                          : p.path.name,
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(fontSize: 16),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                  w!,
-                ],
-              ),
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 5),
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: isSwitchingPath,
-                  builder: (_, bool isSwitchingPath, Widget? w) {
-                    return Transform.rotate(
-                      angle: isSwitchingPath ? math.pi : 0,
-                      child: w,
-                    );
-                  },
-                  child: Icon(
-                    Icons.keyboard_arrow_down,
-                    size: 20,
-                    color: theme.iconTheme.color,
                   ),
-                ),
+                w!,
+              ],
+            ),
+            child: ValueListenableBuilder<bool>(
+              valueListenable: isSwitchingPath,
+              builder: (_, bool isSwitchingPath, Widget? w) => Transform.rotate(
+                angle: isSwitchingPath ? math.pi : 0,
+                child: w,
+              ),
+              child: Icon(
+                Icons.keyboard_arrow_down,
+                size: 20,
+                color: theme.iconTheme.color,
               ),
             ),
           ),
@@ -164,6 +160,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   Widget _buildListAlbums(context) {
     return Consumer<DefaultAssetPickerProvider>(
       builder: (BuildContext context, _, __) => MediaQuery(
+        // fix: https://github.com/fluttercandies/flutter_wechat_assets_picker/issues/395
         data: MediaQuery.of(context).copyWith(
           padding: const EdgeInsets.only(top: -kToolbarHeight),
         ),
@@ -179,6 +176,18 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       builder: (BuildContext context, DefaultAssetPickerProvider p, __) {
         final bool shouldDisplayAssets =
             p.hasAssetsToDisplay || shouldBuildSpecialItem;
+        // when asset list is available and no asset is selected,
+        // select the first of the list
+        if (shouldDisplayAssets && p.selectedAssets.isEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            final list =
+                await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
+            if (list?.isNotEmpty ?? false) {
+              p.selectAsset(list!.first);
+            }
+          });
+        }
+
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: shouldDisplayAssets
