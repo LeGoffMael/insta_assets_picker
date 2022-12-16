@@ -4,11 +4,15 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+
+/// The reduced height of the crop view
+const _kReducedCropViewHeight = 80;
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
@@ -26,9 +30,57 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final String? title;
 
+  /// Save last position of the grid view scroll controller
+  double _lastScrollOffset = 0.0;
+  final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
+
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
     super.initState(state);
+  }
+
+  /// Handle scroll on grid view to hide/expand the crop view
+  bool _handleScroll(
+    BuildContext context,
+    ScrollNotification notification,
+    double position,
+    double minHeight,
+  ) {
+    final scrollController = super.gridScrollController;
+    final isScrollUp = scrollController.position.userScrollDirection ==
+        ScrollDirection.reverse;
+    final isScrollDown = scrollController.position.userScrollDirection ==
+        ScrollDirection.forward;
+
+    if (notification is ScrollEndNotification) {
+      _lastScrollOffset = scrollController.offset;
+      // NOTE: causes issue when spamming small scroll gestures
+      // move _cropViewPosition to the closest limit (expanded or reduced)
+      // if (position > minHeight && position < 0) {
+      //   if (position <
+      //       -MediaQuery.of(context).size.width + _kReducedCropViewHeight) {
+      //     _cropViewPosition.value = minHeight;
+      //   } else {
+      //     _cropViewPosition.value = 0;
+      //   }
+      //   _lastScrollOffset = scrollController.offset;
+      //   return true;
+      // }
+    }
+
+    // expand crop view
+    if (isScrollDown && scrollController.offset < 0 && position < 0) {
+      _cropViewPosition.value = 0;
+    } else if (isScrollUp &&
+        (scrollController.offset - _lastScrollOffset) * 1.4 >
+            MediaQuery.of(context).size.width - position &&
+        position > minHeight) {
+      // reduce crop view
+      _cropViewPosition.value = MediaQuery.of(context).size.width -
+          (scrollController.offset - _lastScrollOffset) * 1.4;
+    }
+
+    return true;
   }
 
   @override
@@ -137,13 +189,46 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         builder: (BuildContext context, _) {
           return Stack(
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CropViewer(provider: provider, theme: pickerTheme),
-                  pathEntitySelector(context),
-                  Expanded(child: _buildGrid(context)),
-                ],
+              ValueListenableBuilder<double>(
+                valueListenable: _cropViewPosition,
+                builder: (context, position, child) {
+                  final minHeight = -(MediaQuery.of(context).size.width -
+                      _kReducedCropViewHeight);
+
+                  return AnimatedPositioned(
+                    top: position.clamp(minHeight, 0),
+                    duration: position == 0
+                        ? const Duration(milliseconds: 250)
+                        : Duration.zero,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Listener(
+                          onPointerDown: (_) => _cropViewPosition.value = 0,
+                          child: CropViewer(
+                              provider: provider, theme: pickerTheme),
+                        ),
+                        pathEntitySelector(context),
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height -
+                              kToolbarHeight -
+                              _kReducedCropViewHeight,
+                          width: MediaQuery.of(context).size.width,
+                          child: NotificationListener<ScrollNotification>(
+                            onNotification: (ScrollNotification notification) =>
+                                _handleScroll(
+                              context,
+                              notification,
+                              position,
+                              minHeight,
+                            ),
+                            child: _buildGrid(context),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
               pathEntityListBackdrop(context),
               _buildListAlbums(context),
