@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
+import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -22,13 +23,12 @@ class CropViewer extends StatefulWidget {
 
 class _CropViewerState extends State<CropViewer> {
   final _cropKey = GlobalKey<CropState>();
-  final ValueNotifier<bool> _isSquare = ValueNotifier<bool>(true);
-
-  double get aspectRatio => _isSquare.value ? 1 : 4 / 5;
+  final _cropController = InstaAssetsCropController();
+  AssetEntity? _previousAsset;
 
   @override
   void dispose() {
-    _isSquare.dispose();
+    _cropController.dispose();
     super.dispose();
   }
 
@@ -41,6 +41,34 @@ class _CropViewerState extends State<CropViewer> {
                 AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
           );
   }
+
+  Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Crop(
+        key: _cropKey,
+        image: AssetEntityImageProvider(asset, isOriginal: true),
+        placeholderWidget: Stack(
+          alignment: Alignment.center,
+          children: [
+            ExtendedImage(
+              // to match crop alignment
+              alignment: _cropController.isSquare.value
+                  ? Alignment.center
+                  : Alignment.bottomCenter,
+              height: MediaQuery.of(context).size.width,
+              width: MediaQuery.of(context).size.width *
+                  _cropController.aspectRatio,
+              image: AssetEntityImageProvider(asset, isOriginal: false),
+              enableMemoryCache: false,
+              fit: BoxFit.cover,
+            ),
+            _buildIndicator(),
+          ],
+        ),
+        maximumScale: 10,
+        aspectRatio: _cropController.aspectRatio,
+        disableResize: true,
+        backgroundColor: widget.theme!.cardColor,
+        initialParam: cropParam,
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -58,63 +86,56 @@ class _CropViewerState extends State<CropViewer> {
       }
 
       final asset = provider.previewAsset ?? selected[effectiveIndex];
+      CropInternal? savedCropParam;
+
+      if (asset != _previousAsset) {
+        if (_previousAsset != null) {
+          _cropController.onChange(
+            _previousAsset,
+            _cropKey.currentState,
+            selected,
+          );
+        }
+        savedCropParam = _cropController.get(asset)?.cropParam;
+      }
+
+      _previousAsset = asset;
+
       return SizedBox.square(
         dimension: MediaQuery.of(context).size.width,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _isSquare,
-          builder: (context, isSquare, child) => Stack(
-            children: [
-              Positioned.fill(
-                child: Crop(
-                  key: _cropKey,
-                  image: AssetEntityImageProvider(asset, isOriginal: true),
-                  placeholderWidget: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      ExtendedImage(
-                        // to match crop alignment
-                        alignment: isSquare
-                            ? Alignment.center
-                            : Alignment.bottomCenter,
-                        height: MediaQuery.of(context).size.width,
-                        width: MediaQuery.of(context).size.width * aspectRatio,
-                        image:
-                            AssetEntityImageProvider(asset, isOriginal: false),
-                        enableMemoryCache: false,
-                        fit: BoxFit.cover,
+        child: selected.length > 1
+            ? _buildCropView(asset, savedCropParam)
+            : ValueListenableBuilder<bool>(
+                valueListenable: _cropController.isSquare,
+                builder: (context, isSquare, child) => Stack(
+                  children: [
+                    Positioned.fill(
+                      child: _buildCropView(asset, savedCropParam),
+                    ),
+                    Positioned(
+                      left: 12,
+                      bottom: 12,
+                      child: GestureDetector(
+                        onTap: () => _cropController.isSquare.value = !isSquare,
+                        child: Container(
+                          height: 30,
+                          width: 30,
+                          decoration: BoxDecoration(
+                            color: widget.theme!.backgroundColor,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Transform.rotate(
+                            angle: 45 * math.pi / 180,
+                            child: Icon(
+                              isSquare ? Icons.unfold_more : Icons.unfold_less,
+                            ),
+                          ),
+                        ),
                       ),
-                      _buildIndicator(),
-                    ],
-                  ),
-                  maximumScale: 10,
-                  aspectRatio: aspectRatio,
-                  disableResize: true,
-                  backgroundColor: widget.theme!.cardColor,
+                    ),
+                  ],
                 ),
               ),
-              Positioned(
-                left: 12,
-                bottom: 12,
-                child: GestureDetector(
-                  onTap: () => _isSquare.value = !isSquare,
-                  child: Container(
-                    height: 30,
-                    width: 30,
-                    decoration: BoxDecoration(
-                      color: widget.theme!.backgroundColor,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Transform.rotate(
-                      angle: 45 * math.pi / 180,
-                      child: Icon(
-                          isSquare ? Icons.unfold_more : Icons.unfold_less),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       );
     });
   }
