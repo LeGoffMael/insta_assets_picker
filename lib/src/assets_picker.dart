@@ -1,6 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
+import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/widget/insta_asset_picker_delegate.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
@@ -15,7 +14,9 @@ class InstaAssetPicker {
     ThemeData? pickerTheme,
     AssetPickerTextDelegate? textDelegate,
     String? title,
-    required Function(Future<List<File>> croppedFilesFuture) onCropFiles,
+    required Function(Future<InstaAssetsExportDetails> exportDetails)
+        onCompleted,
+    List<InstaAssetsCrop>? initialCropParameters,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -53,7 +54,8 @@ class InstaAssetPicker {
       pickerTheme:
           pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
       textDelegate: textDelegate,
-      onCropFiles: onCropFiles,
+      initialCropParameters: initialCropParameters,
+      onCompleted: onCompleted,
     );
 
     return AssetPicker.pickAssetsWithDelegate(

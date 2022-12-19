@@ -38,6 +38,7 @@ class _PickerScrenState extends State<PickerScren> {
   List<AssetEntity> entities = <AssetEntity>[];
   List<File> files = <File>[];
   bool _isLoading = false;
+  List<InstaAssetsCrop>? cropParameters;
 
   Future<void> callPicker(BuildContext context) async {
     final List<AssetEntity>? result = await InstaAssetPicker.pickAssets(
@@ -46,15 +47,17 @@ class _PickerScrenState extends State<PickerScren> {
       title: 'Select images',
       maxAssets: maxAssets,
       textDelegate: const EnglishAssetPickerTextDelegate(),
-      onCropFiles: (f) async {
+      initialCropParameters: cropParameters,
+      onCompleted: (details) async {
         setState(() {
           files = [];
           _isLoading = true;
         });
-        final cropppedFiles = await f;
+        final exportDetails = await details;
+        cropParameters = exportDetails.cropParamsList;
         if (mounted) {
           setState(() {
-            files = cropppedFiles;
+            files = exportDetails.croppedFiles;
             _isLoading = false;
           });
         }

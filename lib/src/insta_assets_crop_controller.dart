@@ -4,7 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 
-class InstaAssets {
+class InstaAssetsExportDetails {
+  final List<InstaAssetsCrop> cropParamsList;
+  final List<File> croppedFiles;
+
+  const InstaAssetsExportDetails({
+    required this.cropParamsList,
+    required this.croppedFiles,
+  });
+}
+
+class InstaAssetsCrop {
   final AssetEntity asset;
   final CropInternal? cropParam;
 
@@ -12,18 +22,18 @@ class InstaAssets {
   final double scale;
   final Rect? area;
 
-  const InstaAssets({
+  const InstaAssetsCrop({
     required this.asset,
     required this.cropParam,
     this.scale = 1.0,
     this.area,
   });
 
-  static InstaAssets fromState({
+  static InstaAssetsCrop fromState({
     required AssetEntity asset,
     required CropState? cropState,
   }) {
-    return InstaAssets(
+    return InstaAssetsCrop(
       asset: asset,
       cropParam: cropState?.internalParameters,
       scale: cropState?.scale ?? 1.0,
@@ -31,8 +41,8 @@ class InstaAssets {
     );
   }
 
-  InstaAssets copyWith({AssetEntity? asset, CropState? cropState}) {
-    return InstaAssets(
+  InstaAssetsCrop copyWith({AssetEntity? asset, CropState? cropState}) {
+    return InstaAssetsCrop(
       asset: asset ?? this.asset,
       cropParam: cropState?.internalParameters ?? cropParam,
       scale: cropState?.scale ?? scale,
@@ -42,7 +52,10 @@ class InstaAssets {
 }
 
 class InstaAssetsCropController {
-  List<InstaAssets> list = [];
+  InstaAssetsCropController(List<InstaAssetsCrop>? initialList)
+      : list = initialList ?? [];
+
+  List<InstaAssetsCrop> list;
   final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
 
   dispose() => isSquare.dispose();
@@ -54,18 +67,18 @@ class InstaAssetsCropController {
     CropState? saveCropState,
     List<AssetEntity> selectedAssets,
   ) {
-    final List<InstaAssets> newList = [];
+    final List<InstaAssetsCrop> newList = [];
 
     for (final asset in selectedAssets) {
       final savedCropAsset = get(asset);
 
       if (asset == saveAsset && saveAsset != null) {
-        newList.add(InstaAssets.fromState(
+        newList.add(InstaAssetsCrop.fromState(
           asset: saveAsset,
           cropState: saveCropState,
         ));
       } else if (savedCropAsset == null) {
-        newList.add(InstaAssets.fromState(asset: asset, cropState: null));
+        newList.add(InstaAssetsCrop.fromState(asset: asset, cropState: null));
       } else {
         newList.add(savedCropAsset);
       }
@@ -74,14 +87,14 @@ class InstaAssetsCropController {
     list = newList;
   }
 
-  InstaAssets? get(AssetEntity asset) {
+  InstaAssetsCrop? get(AssetEntity asset) {
     if (list.isEmpty) return null;
     final index = list.indexWhere((e) => e.asset == asset);
     if (index == -1) return null;
     return list[index];
   }
 
-  Future<List<File>> cropAll() async {
+  Future<InstaAssetsExportDetails> exportCropFiles() async {
     List<File> croppedFiles = [];
 
     for (final asset in list) {
@@ -110,6 +123,9 @@ class InstaAssetsCropController {
       croppedFiles.add(croppedFile);
     }
 
-    return croppedFiles;
+    return InstaAssetsExportDetails(
+      cropParamsList: list,
+      croppedFiles: croppedFiles,
+    );
   }
 }

@@ -18,11 +18,12 @@ const _kReducedCropViewHeight = 80;
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
     required super.provider,
-    required this.onCropFiles,
+    required this.onCompleted,
     super.gridCount = 4,
     super.pickerTheme,
     super.textDelegate,
     this.title,
+    this.initialCropParameters,
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
@@ -32,14 +33,16 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final String? title;
 
-  final Function(Future<List<File>>) onCropFiles;
+  final List<InstaAssetsCrop>? initialCropParameters;
+
+  final Function(Future<InstaAssetsExportDetails>) onCompleted;
 
   /// Save last position of the grid view scroll controller
   double _lastScrollOffset = 0.0;
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
-  final _cropController = InstaAssetsCropController();
+  late final _cropController = InstaAssetsCropController(initialCropParameters);
 
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
@@ -56,7 +59,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   void onConfirm(BuildContext context) {
     Navigator.of(context).maybePop(provider.selectedAssets);
     _cropViewerKey.currentState?.saveCurrentCropChanges();
-    onCropFiles(_cropController.cropAll());
+    onCompleted(_cropController.exportCropFiles());
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
