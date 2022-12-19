@@ -6,6 +6,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
@@ -17,6 +18,7 @@ const _kReducedCropViewHeight = 80;
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
     required super.provider,
+    required this.onCropFiles,
     super.gridCount = 4,
     super.pickerTheme,
     super.textDelegate,
@@ -30,13 +32,31 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final String? title;
 
+  final Function(Future<List<File>>) onCropFiles;
+
   /// Save last position of the grid view scroll controller
   double _lastScrollOffset = 0.0;
+
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
+  final _cropViewerKey = GlobalKey<CropViewerState>();
+  final _cropController = InstaAssetsCropController();
 
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
     super.initState(state);
+  }
+
+  @override
+  void dispose() {
+    _cropController.dispose();
+    _cropViewPosition.dispose();
+    super.dispose();
+  }
+
+  void onConfirm(BuildContext context) {
+    Navigator.of(context).maybePop(provider.selectedAssets);
+    _cropViewerKey.currentState?.saveCurrentCropChanges();
+    onCropFiles(_cropController.cropAll());
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
@@ -155,9 +175,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
             foregroundColor:
                 p.isSelectedNotEmpty ? themeColor : theme.dividerColor,
           ),
-          onPressed: p.isSelectedNotEmpty
-              ? () => Navigator.of(context).maybePop(p.selectedAssets)
-              : null,
+          onPressed: p.isSelectedNotEmpty ? () => onConfirm(context) : null,
           child: Text(
             p.isSelectedNotEmpty && !isSingleAssetMode
                 ? '${textDelegate.confirm}'
@@ -206,7 +224,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                         Listener(
                           onPointerDown: (_) => _cropViewPosition.value = 0,
                           child: CropViewer(
-                              provider: provider, theme: pickerTheme),
+                            key: _cropViewerKey,
+                            controller: _cropController,
+                            provider: provider,
+                            theme: pickerTheme,
+                          ),
                         ),
                         pathEntitySelector(context),
                         SizedBox(

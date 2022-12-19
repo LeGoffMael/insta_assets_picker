@@ -11,25 +11,33 @@ import 'package:extended_image/extended_image.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class CropViewer extends StatefulWidget {
-  const CropViewer({super.key, required this.provider, this.theme});
+  const CropViewer({
+    super.key,
+    required this.provider,
+    required this.controller,
+    this.theme,
+  });
 
   final DefaultAssetPickerProvider provider;
+
+  final InstaAssetsCropController controller;
 
   final ThemeData? theme;
 
   @override
-  State<CropViewer> createState() => _CropViewerState();
+  State<CropViewer> createState() => CropViewerState();
 }
 
-class _CropViewerState extends State<CropViewer> {
+class CropViewerState extends State<CropViewer> {
   final _cropKey = GlobalKey<CropState>();
-  final _cropController = InstaAssetsCropController();
   AssetEntity? _previousAsset;
 
-  @override
-  void dispose() {
-    _cropController.dispose();
-    super.dispose();
+  void saveCurrentCropChanges() {
+    widget.controller.onChange(
+      _previousAsset,
+      _cropKey.currentState,
+      widget.provider.selectedAssets,
+    );
   }
 
   Widget _buildIndicator() {
@@ -50,12 +58,12 @@ class _CropViewerState extends State<CropViewer> {
           children: [
             ExtendedImage(
               // to match crop alignment
-              alignment: _cropController.isSquare.value
+              alignment: widget.controller.isSquare.value
                   ? Alignment.center
                   : Alignment.bottomCenter,
               height: MediaQuery.of(context).size.width,
               width: MediaQuery.of(context).size.width *
-                  _cropController.aspectRatio,
+                  widget.controller.aspectRatio,
               image: AssetEntityImageProvider(asset, isOriginal: false),
               enableMemoryCache: false,
               fit: BoxFit.cover,
@@ -64,7 +72,7 @@ class _CropViewerState extends State<CropViewer> {
           ],
         ),
         maximumScale: 10,
-        aspectRatio: _cropController.aspectRatio,
+        aspectRatio: widget.controller.aspectRatio,
         disableResize: true,
         backgroundColor: widget.theme!.cardColor,
         initialParam: cropParam,
@@ -90,13 +98,9 @@ class _CropViewerState extends State<CropViewer> {
 
       if (asset != _previousAsset) {
         if (_previousAsset != null) {
-          _cropController.onChange(
-            _previousAsset,
-            _cropKey.currentState,
-            selected,
-          );
+          saveCurrentCropChanges();
         }
-        savedCropParam = _cropController.get(asset)?.cropParam;
+        savedCropParam = widget.controller.get(asset)?.cropParam;
       }
 
       _previousAsset = asset;
@@ -106,7 +110,7 @@ class _CropViewerState extends State<CropViewer> {
         child: selected.length > 1
             ? _buildCropView(asset, savedCropParam)
             : ValueListenableBuilder<bool>(
-                valueListenable: _cropController.isSquare,
+                valueListenable: widget.controller.isSquare,
                 builder: (context, isSquare, child) => Stack(
                   children: [
                     Positioned.fill(
@@ -116,7 +120,8 @@ class _CropViewerState extends State<CropViewer> {
                       left: 12,
                       bottom: 12,
                       child: GestureDetector(
-                        onTap: () => _cropController.isSquare.value = !isSquare,
+                        onTap: () =>
+                            widget.controller.isSquare.value = !isSquare,
                         child: Container(
                           height: 30,
                           width: 30,

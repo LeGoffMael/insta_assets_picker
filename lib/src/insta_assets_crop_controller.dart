@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
@@ -6,7 +8,16 @@ class InstaAssets {
   final AssetEntity asset;
   final CropInternal? cropParam;
 
-  const InstaAssets({required this.asset, required this.cropParam});
+  // export crop params
+  final double scale;
+  final Rect? area;
+
+  const InstaAssets({
+    required this.asset,
+    required this.cropParam,
+    this.scale = 1.0,
+    this.area,
+  });
 
   static InstaAssets fromState({
     required AssetEntity asset,
@@ -15,6 +26,8 @@ class InstaAssets {
     return InstaAssets(
       asset: asset,
       cropParam: cropState?.internalParameters,
+      scale: cropState?.scale ?? 1.0,
+      area: cropState?.area,
     );
   }
 
@@ -22,6 +35,8 @@ class InstaAssets {
     return InstaAssets(
       asset: asset ?? this.asset,
       cropParam: cropState?.internalParameters ?? cropParam,
+      scale: cropState?.scale ?? scale,
+      area: cropState?.area ?? area,
     );
   }
 }
@@ -30,9 +45,7 @@ class InstaAssetsCropController {
   List<InstaAssets> list = [];
   final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
 
-  dispose() {
-    isSquare.dispose();
-  }
+  dispose() => isSquare.dispose();
 
   double get aspectRatio => isSquare.value ? 1 : 4 / 5;
 
@@ -56,9 +69,6 @@ class InstaAssetsCropController {
       } else {
         newList.add(savedCropAsset);
       }
-
-      print(
-          'onChange inside $asset, area=${savedCropAsset?.cropParam?.area} view=${savedCropAsset?.cropParam?.view} scale=${savedCropAsset?.cropParam?.scale} ratio=${savedCropAsset?.cropParam?.ratio}');
     }
 
     list = newList;
@@ -71,8 +81,35 @@ class InstaAssetsCropController {
     return list[index];
   }
 
-  // TODO
-  List<AssetEntity>? cropAll() {
-    return null;
+  Future<List<File>> cropAll() async {
+    List<File> croppedFiles = [];
+
+    for (final asset in list) {
+      final file = await asset.asset.file;
+
+      final scale = asset.scale;
+      final area = asset.area;
+
+      if (file == null) {
+        throw 'error file is null';
+      }
+
+      if (area == null) {
+        croppedFiles.add(file);
+        break;
+      }
+
+      final sampledFile = await ImageCrop.sampleImage(
+        file: file,
+        preferredSize: (1024 / scale).round(),
+      );
+
+      final croppedFile =
+          await ImageCrop.cropImage(file: sampledFile, area: area);
+
+      croppedFiles.add(croppedFile);
+    }
+
+    return croppedFiles;
   }
 }

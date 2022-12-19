@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
@@ -34,6 +36,8 @@ class PickerScren extends StatefulWidget {
 class _PickerScrenState extends State<PickerScren> {
   final int maxAssets = 10;
   List<AssetEntity> entities = <AssetEntity>[];
+  List<File> files = <File>[];
+  bool _isLoading = false;
 
   Future<void> callPicker(BuildContext context) async {
     final List<AssetEntity>? result = await InstaAssetPicker.pickAssets(
@@ -42,6 +46,19 @@ class _PickerScrenState extends State<PickerScren> {
       title: 'Select images',
       maxAssets: maxAssets,
       textDelegate: const EnglishAssetPickerTextDelegate(),
+      onCropFiles: (f) async {
+        setState(() {
+          files = [];
+          _isLoading = true;
+        });
+        final cropppedFiles = await f;
+        if (mounted) {
+          setState(() {
+            files = cropppedFiles;
+            _isLoading = false;
+          });
+        }
+      },
     );
 
     if (result != null) {
@@ -52,37 +69,88 @@ class _PickerScrenState extends State<PickerScren> {
     }
   }
 
+  Widget _buildTitle(String title) {
+    return SizedBox(
+      height: 20.0,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Text(title),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 10.0),
+            padding: const EdgeInsets.all(4.0),
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.blueGrey,
+            ),
+            child: Text(
+              '${entities.length}',
+              style: const TextStyle(
+                color: Colors.white,
+                height: 1.0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget get croppedImagesWidget {
+    return AnimatedContainer(
+      duration: kThemeChangeDuration,
+      curve: Curves.easeInOut,
+      height: files.isNotEmpty ? 300.0 : 40.0,
+      child: Column(
+        children: <Widget>[
+          _buildTitle('Cropped Images'),
+          croppedImagesListView,
+        ],
+      ),
+    );
+  }
+
+  Widget get croppedImagesListView {
+    if (_isLoading) {
+      return const Expanded(
+        child: SizedBox.square(
+          child: Center(child: CircularProgressIndicator()),
+        ),
+      );
+    }
+
+    return Expanded(
+      child: ListView.builder(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        scrollDirection: Axis.horizontal,
+        itemCount: files.length,
+        itemBuilder: (BuildContext _, int index) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8.0,
+              vertical: 16.0,
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4.0),
+              ),
+              child: Image.file(files[index]),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   Widget get selectedAssetsWidget {
     return AnimatedContainer(
       duration: kThemeChangeDuration,
       curve: Curves.easeInOut,
-      height: entities.isNotEmpty ? 200.0 : 40.0,
+      height: entities.isNotEmpty ? 120.0 : 40.0,
       child: Column(
         children: <Widget>[
-          SizedBox(
-            height: 20.0,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Text('Selected Assets'),
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 10.0),
-                  padding: const EdgeInsets.all(4.0),
-                  decoration: const BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.blueGrey,
-                  ),
-                  child: Text(
-                    '${entities.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      height: 1.0,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _buildTitle('Selected Assets'),
           selectedAssetsListView,
         ],
       ),
@@ -102,24 +170,32 @@ class _PickerScrenState extends State<PickerScren> {
               horizontal: 8.0,
               vertical: 16.0,
             ),
-            child: Stack(
-              children: <Widget>[
-                _selectedAssetWidget(index),
-                AnimatedPositionedDirectional(
-                  duration: kThemeAnimationDuration,
-                  top: 5.0,
-                  end: 5.0,
-                  child: GestureDetector(
-                    onTap: () => setState(() => entities.removeAt(index)),
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  entities.removeAt(index);
+                  files.removeAt(index);
+                });
+              },
+              child: Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  _selectedAssetWidget(index),
+                  Positioned.fill(
                     child: DecoratedBox(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4.0),
+                        color: Colors.black.withOpacity(0.3),
                       ),
-                      child: const Icon(Icons.close, size: 18.0),
+                      child: const Icon(
+                        Icons.delete,
+                        color: Colors.white,
+                        size: 18.0,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -163,6 +239,7 @@ class _PickerScrenState extends State<PickerScren> {
               ),
             ),
           ),
+          croppedImagesWidget,
           selectedAssetsWidget,
         ],
       ),
