@@ -14,6 +14,7 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// The reduced height of the crop view
 const _kReducedCropViewHeight = 80;
+const _kIndicatorSize = 20.0;
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
@@ -67,6 +68,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     int index,
     AssetEntity currentAsset,
   ) async {
+    // if is preview asset, unselect it
+    if (_cropController.previewAsset.value == currentAsset) {
+      provider.unSelectAsset(currentAsset);
+      _cropController.previewAsset.value =
+          provider.selectedAssets.isEmpty ? null : provider.selectedAssets.last;
+      return;
+    }
+
     _cropController.previewAsset.value = currentAsset;
     provider.selectAsset(currentAsset);
   }
@@ -81,10 +90,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     await super.selectAsset(context, asset, selected);
 
     // update preview asset with selected
-    if (prevCount < provider.selectedAssets.length) {
+    final selectedAssets = provider.selectedAssets;
+    if (prevCount < selectedAssets.length) {
       _cropController.previewAsset.value = asset;
     } else if (selected && asset == _cropController.previewAsset.value) {
-      _cropController.previewAsset.value = null;
+      _cropController.previewAsset.value =
+          selectedAssets.isEmpty ? null : selectedAssets.last;
     }
   }
 
@@ -320,6 +331,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                 await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
             if (list?.isNotEmpty ?? false) {
               p.selectAsset(list!.first);
+              _cropController.previewAsset.value = list.first;
             }
           });
         }
@@ -339,6 +351,73 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       },
     );
   }
+
+  /// To show selected assets indicator and preview asset overlay
+  @override
+  Widget selectIndicator(BuildContext context, int index, AssetEntity asset) {
+    final selectedAssets = provider.selectedAssets;
+    final Duration duration = switchingPathDuration * 0.75;
+
+    final int indexSelected = selectedAssets.indexOf(asset);
+    final bool isSelected = indexSelected != -1;
+
+    final Widget innerSelector = AnimatedContainer(
+      duration: duration,
+      width: _kIndicatorSize,
+      height: _kIndicatorSize,
+      padding: const EdgeInsets.all(2),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.selectedRowColor, width: 1),
+        color: isSelected ? themeColor : Colors.black.withOpacity(.30),
+        shape: BoxShape.circle,
+      ),
+      child: FittedBox(
+        child: AnimatedSwitcher(
+          duration: duration,
+          reverseDuration: duration,
+          child: isSelected
+              ? Text((indexSelected + 1).toString())
+              : const SizedBox.shrink(),
+        ),
+      ),
+    );
+
+    return ValueListenableBuilder<AssetEntity?>(
+      valueListenable: _cropController.previewAsset,
+      builder: (context, previewAsset, child) {
+        final bool isPreview = asset == _cropController.previewAsset.value;
+
+        return Positioned.fill(
+          child: GestureDetector(
+            onTap: isPreviewEnabled
+                ? () => viewAsset(context, index, asset)
+                : null,
+            child: AnimatedContainer(
+              duration: switchingPathDuration,
+              padding: const EdgeInsets.all(4),
+              color: isPreview
+                  ? theme.selectedRowColor.withOpacity(.5)
+                  : theme.backgroundColor.withOpacity(.1),
+              child: isSelected && !isSingleAssetMode
+                  ? Align(
+                      alignment: AlignmentDirectional.topEnd,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => selectAsset(context, asset, isSelected),
+                        child: innerSelector,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget selectedBackdrop(BuildContext context, int index, AssetEntity asset) =>
+      const SizedBox.shrink();
 
   @override
   Widget build(BuildContext context) {
