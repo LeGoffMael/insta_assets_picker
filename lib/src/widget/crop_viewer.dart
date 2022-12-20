@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
-import 'package:provider/provider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
@@ -80,68 +79,75 @@ class CropViewerState extends State<CropViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DefaultAssetPickerProvider>(builder:
-        (BuildContext context, DefaultAssetPickerProvider provider, __) {
-      final List<AssetEntity> selected = provider.selectedAssets;
-      final int effectiveIndex =
-          selected.isEmpty ? 0 : selected.indexOf(selected.last);
+    return AnimatedBuilder(
+        animation: Listenable.merge([
+          widget.provider,
+          widget.controller.previewAsset,
+        ]),
+        builder: (_, __) {
+          final previewAsset = widget.controller.previewAsset.value;
+          final List<AssetEntity> selected = widget.provider.selectedAssets;
+          final int effectiveIndex =
+              selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
-      if (provider.previewAsset == null && selected.isEmpty) {
-        return SizedBox.square(
-          dimension: MediaQuery.of(context).size.width,
-          child: _buildIndicator(),
-        );
-      }
+          if (previewAsset == null && selected.isEmpty) {
+            return SizedBox.square(
+              dimension: MediaQuery.of(context).size.width,
+              child: _buildIndicator(),
+            );
+          }
 
-      final asset = provider.previewAsset ?? selected[effectiveIndex];
-      CropInternal? savedCropParam;
+          final asset = previewAsset ?? selected[effectiveIndex];
+          CropInternal? savedCropParam;
 
-      if (asset != _previousAsset) {
-        if (_previousAsset != null) {
-          saveCurrentCropChanges();
-        }
-        savedCropParam = widget.controller.get(asset)?.cropParam;
-      }
+          if (asset != _previousAsset) {
+            if (_previousAsset != null) {
+              saveCurrentCropChanges();
+            }
+            savedCropParam = widget.controller.get(asset)?.cropParam;
+          }
 
-      _previousAsset = asset;
+          _previousAsset = asset;
 
-      return SizedBox.square(
-        dimension: MediaQuery.of(context).size.width,
-        child: selected.length > 1
-            ? _buildCropView(asset, savedCropParam)
-            : ValueListenableBuilder<bool>(
-                valueListenable: widget.controller.isSquare,
-                builder: (context, isSquare, child) => Stack(
-                  children: [
-                    Positioned.fill(
-                      child: _buildCropView(asset, savedCropParam),
-                    ),
-                    Positioned(
-                      left: 12,
-                      bottom: 12,
-                      child: GestureDetector(
-                        onTap: () =>
-                            widget.controller.isSquare.value = !isSquare,
-                        child: Container(
-                          height: 30,
-                          width: 30,
-                          decoration: BoxDecoration(
-                            color: widget.theme!.backgroundColor,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Transform.rotate(
-                            angle: 45 * math.pi / 180,
-                            child: Icon(
-                              isSquare ? Icons.unfold_more : Icons.unfold_less,
+          return SizedBox.square(
+            dimension: MediaQuery.of(context).size.width,
+            child: selected.length > 1
+                ? _buildCropView(asset, savedCropParam)
+                : ValueListenableBuilder<bool>(
+                    valueListenable: widget.controller.isSquare,
+                    builder: (context, isSquare, child) => Stack(
+                      children: [
+                        Positioned.fill(
+                          child: _buildCropView(asset, savedCropParam),
+                        ),
+                        Positioned(
+                          left: 12,
+                          bottom: 12,
+                          child: GestureDetector(
+                            onTap: () =>
+                                widget.controller.isSquare.value = !isSquare,
+                            child: Container(
+                              height: 30,
+                              width: 30,
+                              decoration: BoxDecoration(
+                                color: widget.theme!.backgroundColor,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Transform.rotate(
+                                angle: 45 * math.pi / 180,
+                                child: Icon(
+                                  isSquare
+                                      ? Icons.unfold_more
+                                      : Icons.unfold_less,
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
-      );
-    });
+                  ),
+          );
+        });
   }
 }

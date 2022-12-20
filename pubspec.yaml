@@ -15,10 +15,7 @@ dependencies:
     git:
       url: https://github.com/LeGoffMael/image_crop
       ref: mergedBranch
-  wechat_assets_picker:
-    git:
-      url: https://github.com/LeGoffMael/flutter_wechat_assets_picker
-      ref: previewAsset
+  wechat_assets_picker: ^8.2.0
 
 dev_dependencies:
   flutter_test:

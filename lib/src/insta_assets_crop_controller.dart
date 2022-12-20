@@ -57,8 +57,13 @@ class InstaAssetsCropController {
 
   List<InstaAssetsCrop> list;
   final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
+  final ValueNotifier<AssetEntity?> previewAsset =
+      ValueNotifier<AssetEntity?>(null);
 
-  dispose() => isSquare.dispose();
+  dispose() {
+    isSquare.dispose();
+    previewAsset.dispose();
+  }
 
   double get aspectRatio => isSquare.value ? 1 : 4 / 5;
 

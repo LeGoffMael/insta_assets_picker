@@ -27,7 +27,6 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
-          specialPickerType: SpecialPickerType.customPreview,
           specialItemPosition: SpecialItemPosition.none,
         );
 
@@ -60,6 +59,33 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     Navigator.of(context).maybePop(provider.selectedAssets);
     _cropViewerKey.currentState?.saveCurrentCropChanges();
     onCompleted(_cropController.exportCropFiles());
+  }
+
+  @override
+  Future<void> viewAsset(
+    BuildContext context,
+    int index,
+    AssetEntity currentAsset,
+  ) async {
+    _cropController.previewAsset.value = currentAsset;
+    provider.selectAsset(currentAsset);
+  }
+
+  @override
+  Future<void> selectAsset(
+    BuildContext context,
+    AssetEntity asset,
+    bool selected,
+  ) async {
+    final prevCount = provider.selectedAssets.length;
+    await super.selectAsset(context, asset, selected);
+
+    // update preview asset with selected
+    if (prevCount < provider.selectedAssets.length) {
+      _cropController.previewAsset.value = asset;
+    } else if (selected && asset == _cropController.previewAsset.value) {
+      _cropController.previewAsset.value = null;
+    }
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
