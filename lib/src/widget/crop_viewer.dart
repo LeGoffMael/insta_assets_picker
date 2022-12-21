@@ -70,6 +70,8 @@ class CropViewerState extends State<CropViewer> {
             _buildIndicator(),
           ],
         ),
+        onLoading: (isReady) => WidgetsBinding.instance.addPostFrameCallback(
+            (_) => widget.controller.isCropViewReady.value = isReady),
         maximumScale: 10,
         aspectRatio: widget.controller.aspectRatio,
         disableResize: true,

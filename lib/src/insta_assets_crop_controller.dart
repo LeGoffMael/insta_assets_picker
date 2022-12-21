@@ -56,11 +56,13 @@ class InstaAssetsCropController {
       : list = initialList ?? [];
 
   List<InstaAssetsCrop> list;
+  final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
   final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
   final ValueNotifier<AssetEntity?> previewAsset =
       ValueNotifier<AssetEntity?>(null);
 
   dispose() {
+    isCropViewReady.dispose();
     isSquare.dispose();
     previewAsset.dispose();
   }

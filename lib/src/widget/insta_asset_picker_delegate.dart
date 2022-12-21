@@ -68,6 +68,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     int index,
     AssetEntity currentAsset,
   ) async {
+    if (_cropController.isCropViewReady.value != true) {
+      return;
+    }
+
     // if is preview asset, unselect it
     if (_cropController.previewAsset.value == currentAsset) {
       provider.unSelectAsset(currentAsset);
@@ -86,6 +90,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     AssetEntity asset,
     bool selected,
   ) async {
+    if (_cropController.isCropViewReady.value != true) {
+      return;
+    }
+
     final prevCount = provider.selectedAssets.length;
     await super.selectAsset(context, asset, selected);
 
@@ -208,20 +216,27 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   @override
   Widget confirmButton(BuildContext context) {
-    final Widget button = Consumer<DefaultAssetPickerProvider>(
-      builder: (_, DefaultAssetPickerProvider p, __) {
+    final Widget button = AnimatedBuilder(
+      animation: Listenable.merge([provider, _cropController.isCropViewReady]),
+      builder: (_, __) {
+        final isLoaded = _cropController.isCropViewReady.value;
+
         return TextButton(
           style: TextButton.styleFrom(
             foregroundColor:
-                p.isSelectedNotEmpty ? themeColor : theme.dividerColor,
+                provider.isSelectedNotEmpty ? themeColor : theme.dividerColor,
           ),
-          onPressed: p.isSelectedNotEmpty ? () => onConfirm(context) : null,
-          child: Text(
-            p.isSelectedNotEmpty && !isSingleAssetMode
-                ? '${textDelegate.confirm}'
-                    ' (${p.selectedAssets.length}/${p.maxAssets})'
-                : textDelegate.confirm,
-          ),
+          onPressed: isLoaded && provider.isSelectedNotEmpty
+              ? () => onConfirm(context)
+              : null,
+          child: isLoaded
+              ? Text(
+                  provider.isSelectedNotEmpty && !isSingleAssetMode
+                      ? '${textDelegate.confirm}'
+                          ' (${provider.selectedAssets.length}/${provider.maxAssets})'
+                      : textDelegate.confirm,
+                )
+              : loadingIndicator(context),
         );
       },
     );
