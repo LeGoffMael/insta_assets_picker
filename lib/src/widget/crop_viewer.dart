@@ -2,7 +2,6 @@
 
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
@@ -15,12 +14,15 @@ class CropViewer extends StatefulWidget {
     super.key,
     required this.provider,
     required this.controller,
+    required this.loaderWidget,
     this.theme,
   });
 
   final DefaultAssetPickerProvider provider;
 
   final InstaAssetsCropController controller;
+
+  final Widget loaderWidget;
 
   final ThemeData? theme;
 
@@ -38,16 +40,6 @@ class CropViewerState extends State<CropViewer> {
       _cropKey.currentState,
       widget.provider.selectedAssets,
     );
-  }
-
-  Widget _buildIndicator() {
-    return Theme.of(context).platform == TargetPlatform.iOS
-        ? const CupertinoActivityIndicator(animating: true, radius: 16.0)
-        : CircularProgressIndicator(
-            strokeWidth: 2.0,
-            valueColor:
-                AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-          );
   }
 
   Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Crop(
@@ -68,7 +60,7 @@ class CropViewerState extends State<CropViewer> {
               enableMemoryCache: false,
               fit: BoxFit.cover,
             ),
-            _buildIndicator(),
+            widget.loaderWidget,
           ],
         ),
         onLoading: (isReady) => WidgetsBinding.instance.addPostFrameCallback(
@@ -96,7 +88,7 @@ class CropViewerState extends State<CropViewer> {
           if (previewAsset == null && selected.isEmpty) {
             return SizedBox.square(
               dimension: MediaQuery.of(context).size.width,
-              child: _buildIndicator(),
+              child: widget.loaderWidget,
             );
           }
 

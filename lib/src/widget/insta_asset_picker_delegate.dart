@@ -3,6 +3,7 @@
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -161,6 +162,21 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     return true;
   }
 
+  /// Returns a loader [Widget] to show in crop view and instead of confirm button
+  Widget _buildLoader(BuildContext context) {
+    if (super.loadingIndicatorBuilder != null) {
+      return super.loadingIndicatorBuilder!(context, provider.isAssetsEmpty);
+    }
+
+    return Theme.of(context).platform == TargetPlatform.iOS
+        ? const CupertinoActivityIndicator(animating: true, radius: 16.0)
+        : CircularProgressIndicator(
+            strokeWidth: 2.0,
+            valueColor:
+                AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+          );
+  }
+
   @override
   Widget pathEntitySelector(BuildContext context) {
     Widget selector(BuildContext context) {
@@ -246,7 +262,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                           ' (${provider.selectedAssets.length}/${provider.maxAssets})'
                       : textDelegate.confirm,
                 )
-              : loadingIndicator(context),
+              : _buildLoader(context),
         );
       },
     );
@@ -300,6 +316,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                             key: _cropViewerKey,
                             controller: _cropController,
                             provider: provider,
+                            loaderWidget: _buildLoader(context),
                             theme: pickerTheme,
                           ),
                         ),
