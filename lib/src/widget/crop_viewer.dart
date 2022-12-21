@@ -113,11 +113,14 @@ class CropViewerState extends State<CropViewer> {
                           child: _buildCropView(asset, savedCropParam),
                         ),
                         Positioned(
-                          left: 12,
+                          left: 0,
                           bottom: 12,
                           child: CircleIconButton(
-                            onTap: () =>
-                                widget.controller.isSquare.value = !isSquare,
+                            onTap: () {
+                              if (widget.controller.isCropViewReady.value) {
+                                widget.controller.isSquare.value = !isSquare;
+                              }
+                            },
                             theme: widget.theme,
                             icon: Transform.rotate(
                               angle: 45 * math.pi / 180,

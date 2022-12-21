@@ -22,7 +22,7 @@ class CircleIconButton extends StatelessWidget {
           side: theme?.iconTheme.color != null
               ? BorderSide(
                   color: theme!.iconTheme.color!.withOpacity(0.5),
-                  width: 0.3,
+                  width: 0.1,
                 )
               : BorderSide.none,
         ),
