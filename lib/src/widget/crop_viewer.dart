@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:extended_image/extended_image.dart';
+import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class CropViewer extends StatefulWidget {
@@ -122,23 +123,16 @@ class CropViewerState extends State<CropViewer> {
                         Positioned(
                           left: 12,
                           bottom: 12,
-                          child: GestureDetector(
+                          child: CircleIconButton(
                             onTap: () =>
                                 widget.controller.isSquare.value = !isSquare,
-                            child: Container(
-                              height: 30,
-                              width: 30,
-                              decoration: BoxDecoration(
-                                color: widget.theme!.backgroundColor,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Transform.rotate(
-                                angle: 45 * math.pi / 180,
-                                child: Icon(
-                                  isSquare
-                                      ? Icons.unfold_more
-                                      : Icons.unfold_less,
-                                ),
+                            theme: widget.theme,
+                            icon: Transform.rotate(
+                              angle: 45 * math.pi / 180,
+                              child: Icon(
+                                isSquare
+                                    ? Icons.unfold_more
+                                    : Icons.unfold_less,
                               ),
                             ),
                           ),

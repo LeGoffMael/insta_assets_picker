@@ -69,6 +69,11 @@ class InstaAssetsCropController {
 
   double get aspectRatio => isSquare.value ? 1 : 4 / 5;
 
+  void clear() {
+    list = [];
+    previewAsset.value = null;
+  }
+
   void onChange(
     AssetEntity? saveAsset,
     CropState? saveCropState,

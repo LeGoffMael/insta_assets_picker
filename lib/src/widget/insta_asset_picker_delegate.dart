@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
+import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
@@ -63,6 +64,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   }
 
   void _expandCropView() => _cropViewPosition.value = 0;
+
+  void unSelectAll() {
+    provider.selectedAssets = [];
+    _cropController.clear();
+  }
 
   @override
   Future<void> viewAsset(
@@ -297,7 +303,23 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                             theme: pickerTheme,
                           ),
                         ),
-                        pathEntitySelector(context),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              pathEntitySelector(context),
+                              CircleIconButton(
+                                onTap: unSelectAll,
+                                theme: pickerTheme,
+                                icon: const Icon(
+                                  Icons.layers_clear_sharp,
+                                  size: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         SizedBox(
                           height: gridHeight,
                           width: MediaQuery.of(context).size.width,
