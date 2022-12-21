@@ -13,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// The reduced height of the crop view
-const _kReducedCropViewHeight = 80;
+const _kReducedCropViewHeight = 60;
 const _kIndicatorSize = 20.0;
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
@@ -62,6 +62,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     onCompleted(_cropController.exportCropFiles());
   }
 
+  void _expandCropView() => _cropViewPosition.value = 0;
+
   @override
   Future<void> viewAsset(
     BuildContext context,
@@ -82,6 +84,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
     _cropController.previewAsset.value = currentAsset;
     provider.selectAsset(currentAsset);
+    _expandCropView();
   }
 
   @override
@@ -105,6 +108,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       _cropController.previewAsset.value =
           selectedAssets.isEmpty ? null : selectedAssets.last;
     }
+    _expandCropView();
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
@@ -129,7 +133,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       //       -MediaQuery.of(context).size.width + _kReducedCropViewHeight) {
       //     _cropViewPosition.value = minHeight;
       //   } else {
-      //     _cropViewPosition.value = 0;
+      //     _expandCropView();
       //   }
       //   _lastScrollOffset = scrollController.offset;
       //   return true;
@@ -138,7 +142,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
     // expand crop view
     if (isScrollDown && scrollController.offset < 0 && position < 0) {
-      _cropViewPosition.value = 0;
+      _expandCropView();
     } else if (isScrollUp &&
         (scrollController.offset - _lastScrollOffset) * 1.4 >
             MediaQuery.of(context).size.width - position &&
@@ -156,7 +160,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     Widget selector(BuildContext context) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4)
-            .copyWith(top: 4, bottom: 8),
+            .copyWith(top: 8, bottom: 12),
         child: TextButton(
           style: TextButton.styleFrom(
             foregroundColor: theme.splashColor,
@@ -267,6 +271,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                 builder: (context, position, child) {
                   final minHeight = -(MediaQuery.of(context).size.width -
                       _kReducedCropViewHeight);
+                  double gridHeight = MediaQuery.of(context).size.height -
+                      kToolbarHeight -
+                      _kReducedCropViewHeight;
+                  // when not assets are displayed, compute the exact height to show the loader
+                  if (!provider.hasAssetsToDisplay) {
+                    gridHeight -= MediaQuery.of(context).size.width -
+                        -_cropViewPosition.value;
+                  }
 
                   return AnimatedPositioned(
                     top: position.clamp(minHeight, 0),
@@ -277,7 +289,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Listener(
-                          onPointerDown: (_) => _cropViewPosition.value = 0,
+                          onPointerDown: (_) => _expandCropView(),
                           child: CropViewer(
                             key: _cropViewerKey,
                             controller: _cropController,
@@ -287,9 +299,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                         ),
                         pathEntitySelector(context),
                         SizedBox(
-                          height: MediaQuery.of(context).size.height -
-                              kToolbarHeight -
-                              _kReducedCropViewHeight,
+                          height: gridHeight,
                           width: MediaQuery.of(context).size.width,
                           child: NotificationListener<ScrollNotification>(
                             onNotification: (ScrollNotification notification) =>

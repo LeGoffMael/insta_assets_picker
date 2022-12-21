@@ -14,7 +14,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Insta Assets Picker Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        // update to change the main theme of app + picker
+        primarySwatch: Colors.deepPurple,
       ),
       home: const PickerScren(),
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
@@ -34,7 +35,6 @@ class PickerScren extends StatefulWidget {
 }
 
 class _PickerScrenState extends State<PickerScren> {
-  final int maxAssets = 10;
   List<AssetEntity> entities = <AssetEntity>[];
   List<File> files = <File>[];
   bool _isLoading = false;
@@ -45,7 +45,7 @@ class _PickerScrenState extends State<PickerScren> {
       context,
       selectedAssets: entities,
       title: 'Select images',
-      maxAssets: maxAssets,
+      maxAssets: 10,
       textDelegate: const EnglishAssetPickerTextDelegate(),
       initialCropParameters: cropParameters,
       onCompleted: (details) async {
@@ -84,7 +84,7 @@ class _PickerScrenState extends State<PickerScren> {
             padding: const EdgeInsets.all(4.0),
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.blueGrey,
+              color: Colors.deepPurpleAccent,
             ),
             child: Text(
               '${entities.length}',
@@ -115,10 +115,9 @@ class _PickerScrenState extends State<PickerScren> {
 
   Widget get croppedImagesListView {
     if (_isLoading) {
-      return const Expanded(
-        child: SizedBox.square(
-          child: Center(child: CircularProgressIndicator()),
-        ),
+      return const SizedBox.square(
+        dimension: 20,
+        child: CircularProgressIndicator(),
       );
     }
 
