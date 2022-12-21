@@ -100,13 +100,10 @@ class CropViewerState extends State<CropViewer> {
           }
 
           final asset = previewAsset ?? selected[effectiveIndex];
-          CropInternal? savedCropParam;
+          final savedCropParam = widget.controller.get(asset)?.cropParam;
 
-          if (asset != _previousAsset) {
-            if (_previousAsset != null) {
-              saveCurrentCropChanges();
-            }
-            savedCropParam = widget.controller.get(asset)?.cropParam;
+          if (asset != _previousAsset && _previousAsset != null) {
+            saveCurrentCropChanges();
           }
 
           _previousAsset = asset;
