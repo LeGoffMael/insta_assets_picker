@@ -192,13 +192,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   }
 
   /// Returns a loader [Widget] to show in crop view and instead of confirm button
-  Widget _buildLoader(BuildContext context) {
+  Widget _buildLoader(BuildContext context, double radius) {
     if (super.loadingIndicatorBuilder != null) {
       return super.loadingIndicatorBuilder!(context, provider.isAssetsEmpty);
     }
 
     return Theme.of(context).platform == TargetPlatform.iOS
-        ? const CupertinoActivityIndicator(animating: true, radius: 16.0)
+        ? CupertinoActivityIndicator(animating: true, radius: radius)
         : CircularProgressIndicator(
             strokeWidth: 2.0,
             valueColor:
@@ -290,7 +290,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                             ' (${p.selectedAssets.length}/${p.maxAssets})'
                         : textDelegate.confirm,
                   )
-                : _buildLoader(context),
+                : _buildLoader(context, 10),
           );
         },
       ),
@@ -345,7 +345,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                             key: _cropViewerKey,
                             controller: _cropController,
                             provider: provider,
-                            loaderWidget: _buildLoader(context),
+                            loaderWidget: _buildLoader(context, 16),
                             theme: pickerTheme,
                           ),
                         ),
