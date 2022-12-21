@@ -388,14 +388,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         final bool shouldDisplayAssets =
             p.hasAssetsToDisplay || shouldBuildSpecialItem;
         // when asset list is available and no asset is selected,
-        // select the first of the list
+        // preview the first of the list
         if (shouldDisplayAssets && p.selectedAssets.isEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final list =
                 await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
             if (list?.isNotEmpty ?? false) {
-              p.selectAsset(list!.first);
-              _cropController.previewAsset.value = list.first;
+              _cropController.previewAsset.value = list!.first;
             }
           });
         }
