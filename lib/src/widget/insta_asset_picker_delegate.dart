@@ -432,7 +432,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
         border: Border.all(color: theme.selectedRowColor, width: 1),
-        color: isSelected ? themeColor : Colors.black.withOpacity(.30),
+        color: isSelected ? themeColor : theme.selectedRowColor.withOpacity(.2),
         shape: BoxShape.circle,
       ),
       child: FittedBox(
@@ -462,16 +462,16 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               color: isPreview
                   ? theme.selectedRowColor.withOpacity(.5)
                   : theme.backgroundColor.withOpacity(.1),
-              child: isSelected && !isSingleAssetMode
-                  ? Align(
-                      alignment: AlignmentDirectional.topEnd,
-                      child: GestureDetector(
+              child: Align(
+                alignment: AlignmentDirectional.topEnd,
+                child: isSelected && !isSingleAssetMode
+                    ? GestureDetector(
                         behavior: HitTestBehavior.opaque,
                         onTap: () => selectAsset(context, asset, isSelected),
                         child: innerSelector,
-                      ),
-                    )
-                  : const SizedBox.shrink(),
+                      )
+                    : innerSelector,
+              ),
             ),
           ),
         );
