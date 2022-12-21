@@ -245,29 +245,29 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   @override
   Widget confirmButton(BuildContext context) {
-    final Widget button = AnimatedBuilder(
-      animation: Listenable.merge([provider, _cropController.isCropViewReady]),
-      builder: (_, __) {
-        final isLoaded = _cropController.isCropViewReady.value;
-
-        return TextButton(
-          style: TextButton.styleFrom(
-            foregroundColor:
-                provider.isSelectedNotEmpty ? themeColor : theme.dividerColor,
-          ),
-          onPressed: isLoaded && provider.isSelectedNotEmpty
-              ? () => onConfirm(context)
-              : null,
-          child: isLoaded
-              ? Text(
-                  provider.isSelectedNotEmpty && !isSingleAssetMode
-                      ? '${textDelegate.confirm}'
-                          ' (${provider.selectedAssets.length}/${provider.maxAssets})'
-                      : textDelegate.confirm,
-                )
-              : _buildLoader(context),
-        );
-      },
+    final Widget button = ValueListenableBuilder<bool>(
+      valueListenable: _cropController.isCropViewReady,
+      builder: (_, isLoaded, __) => Consumer<DefaultAssetPickerProvider>(
+        builder: (_, DefaultAssetPickerProvider p, __) {
+          return TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor:
+                  p.isSelectedNotEmpty ? themeColor : theme.dividerColor,
+            ),
+            onPressed: isLoaded && p.isSelectedNotEmpty
+                ? () => onConfirm(context)
+                : null,
+            child: isLoaded
+                ? Text(
+                    p.isSelectedNotEmpty && !isSingleAssetMode
+                        ? '${textDelegate.confirm}'
+                            ' (${p.selectedAssets.length}/${p.maxAssets})'
+                        : textDelegate.confirm,
+                  )
+                : _buildLoader(context),
+          );
+        },
+      ),
     );
     return ChangeNotifierProvider<DefaultAssetPickerProvider>.value(
       value: provider,
