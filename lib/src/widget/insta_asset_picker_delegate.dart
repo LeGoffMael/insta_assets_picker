@@ -71,6 +71,32 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     _cropController.clear();
   }
 
+  /// Initialize [previewAsset] with [p.selectedAssets] if not empty
+  /// otherwise if the first item of the album
+  Future<void> _initializePreviewAsset(
+    DefaultAssetPickerProvider p,
+    bool shouldDisplayAssets,
+  ) async {
+    if (_cropController.previewAsset.value != null) return;
+
+    if (p.selectedAssets.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback(
+          (_) => _cropController.previewAsset.value = p.selectedAssets.last);
+    }
+
+    // when asset list is available and no asset is selected,
+    // preview the first of the list
+    if (shouldDisplayAssets && p.selectedAssets.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final list =
+            await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
+        if (list?.isNotEmpty ?? false) {
+          _cropController.previewAsset.value = list!.first;
+        }
+      });
+    }
+  }
+
   @override
   Future<void> viewAsset(
     BuildContext context,
@@ -390,19 +416,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       builder: (BuildContext context, DefaultAssetPickerProvider p, __) {
         final bool shouldDisplayAssets =
             p.hasAssetsToDisplay || shouldBuildSpecialItem;
-        // when asset list is available and no asset is selected,
-        // preview the first of the list
-        if (shouldDisplayAssets &&
-            p.selectedAssets.isEmpty &&
-            _cropController.previewAsset.value == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            final list =
-                await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
-            if (list?.isNotEmpty ?? false) {
-              _cropController.previewAsset.value = list!.first;
-            }
-          });
-        }
+        _initializePreviewAsset(p, shouldDisplayAssets);
 
         return AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
