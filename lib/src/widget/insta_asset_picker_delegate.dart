@@ -82,10 +82,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     }
 
     // if is preview asset, unselect it
-    if (_cropController.previewAsset.value == currentAsset) {
+    if (provider.selectedAssets.isNotEmpty &&
+        _cropController.previewAsset.value == currentAsset) {
       provider.unSelectAsset(currentAsset);
-      _cropController.previewAsset.value =
-          provider.selectedAssets.isEmpty ? null : provider.selectedAssets.last;
+      _cropController.previewAsset.value = provider.selectedAssets.isEmpty
+          ? currentAsset
+          : provider.selectedAssets.last;
       return;
     }
 
@@ -111,9 +113,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     final selectedAssets = provider.selectedAssets;
     if (prevCount < selectedAssets.length) {
       _cropController.previewAsset.value = asset;
-    } else if (selected && asset == _cropController.previewAsset.value) {
-      _cropController.previewAsset.value =
-          selectedAssets.isEmpty ? null : selectedAssets.last;
+    } else if (selected &&
+        asset == _cropController.previewAsset.value &&
+        selectedAssets.isNotEmpty) {
+      _cropController.previewAsset.value = selectedAssets.last;
     }
     _expandCropView();
   }
@@ -389,7 +392,9 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
             p.hasAssetsToDisplay || shouldBuildSpecialItem;
         // when asset list is available and no asset is selected,
         // preview the first of the list
-        if (shouldDisplayAssets && p.selectedAssets.isEmpty) {
+        if (shouldDisplayAssets &&
+            p.selectedAssets.isEmpty &&
+            _cropController.previewAsset.value == null) {
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             final list =
                 await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
