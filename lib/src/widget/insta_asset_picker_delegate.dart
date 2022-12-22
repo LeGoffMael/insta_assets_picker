@@ -31,6 +31,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
           specialItemPosition: SpecialItemPosition.none,
+          keepScrollOffset: true,
         );
 
   final String? title;
@@ -110,7 +111,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     // if is preview asset, unselect it
     if (provider.selectedAssets.isNotEmpty &&
         _cropController.previewAsset.value == currentAsset) {
-      provider.unSelectAsset(currentAsset);
+      selectAsset(context, currentAsset, true);
       _cropController.previewAsset.value = provider.selectedAssets.isEmpty
           ? currentAsset
           : provider.selectedAssets.last;
@@ -118,8 +119,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     }
 
     _cropController.previewAsset.value = currentAsset;
-    provider.selectAsset(currentAsset);
-    _expandCropView();
+    selectAsset(context, currentAsset, false);
   }
 
   @override

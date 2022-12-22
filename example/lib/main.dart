@@ -35,15 +35,22 @@ class PickerScren extends StatefulWidget {
 }
 
 class _PickerScrenState extends State<PickerScren> {
+  final _instaAssetsPicker = InstaAssetPicker();
+
   List<AssetEntity> entities = <AssetEntity>[];
   List<File> files = <File>[];
   bool _isLoading = false;
   List<InstaAssetsCrop>? cropParameters;
 
+  @override
+  void dispose() {
+    _instaAssetsPicker.dispose();
+    super.dispose();
+  }
+
   Future<void> callPicker(BuildContext context) async {
-    final List<AssetEntity>? result = await InstaAssetPicker.pickAssets(
+    final List<AssetEntity>? result = await _instaAssetsPicker.pickAssets(
       context,
-      selectedAssets: entities,
       title: 'Select images',
       maxAssets: 10,
       textDelegate: const EnglishAssetPickerTextDelegate(),
