@@ -15,8 +15,9 @@ import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// The reduced height of the crop view
-const _kReducedCropViewHeight = 60;
+const _kReducedCropViewHeight = 50.0;
 const _kIndicatorSize = 20.0;
+const _kPathSelectorRowHeight = 50.0;
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
@@ -47,6 +48,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   /// Save last position of the grid view scroll controller
   double _lastScrollOffset = 0.0;
+  double _lastEndScrollOffset = 0.0;
+
+  /// set to `true` when grid view scroll position should not be updated after crop is expanded
+  /// i.e: when select an asset
+  bool _gridScrollLock = false;
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
@@ -74,7 +80,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     }));
   }
 
-  void _expandCropView() => _cropViewPosition.value = 0;
+  void _expandCropView([bool lockScroll = false]) {
+    _gridScrollLock = lockScroll;
+    _cropViewPosition.value = 0;
+  }
 
   void unSelectAll() {
     provider.selectedAssets = [];
@@ -153,7 +162,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         selectedAssets.isNotEmpty) {
       _cropController.previewAsset.value = selectedAssets.last;
     }
-    _expandCropView();
+    _expandCropView(true);
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
@@ -163,39 +172,40 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     double position,
     double minHeight,
   ) {
-    final scrollController = super.gridScrollController;
-    final isScrollUp = scrollController.position.userScrollDirection ==
+    final isScrollUp = gridScrollController.position.userScrollDirection ==
         ScrollDirection.reverse;
-    final isScrollDown = scrollController.position.userScrollDirection ==
+    final isScrollDown = gridScrollController.position.userScrollDirection ==
         ScrollDirection.forward;
 
     if (notification is ScrollEndNotification) {
-      _lastScrollOffset = scrollController.offset;
-      // NOTE: causes issue when spamming small scroll gestures
-      // move _cropViewPosition to the closest limit (expanded or reduced)
-      // if (position > minHeight && position < 0) {
-      //   if (position <
-      //       -MediaQuery.of(context).size.width + _kReducedCropViewHeight) {
-      //     _cropViewPosition.value = minHeight;
-      //   } else {
-      //     _expandCropView();
-      //   }
-      //   _lastScrollOffset = scrollController.offset;
-      //   return true;
-      // }
+      _lastEndScrollOffset = gridScrollController.offset;
+      // reduce crop view
+      if (position > minHeight && position < 0) {
+        _cropViewPosition.value = minHeight;
+        return true;
+      }
     }
 
     // expand crop view
-    if (isScrollDown && scrollController.offset < 0 && position < 0) {
-      _expandCropView();
+    if (isScrollDown && gridScrollController.offset < 0 && position < 0) {
+      // if scroll at edge, compute position based on scroll
+      if (_lastScrollOffset > gridScrollController.offset) {
+        _cropViewPosition.value -=
+            (_lastScrollOffset.abs() - gridScrollController.offset.abs()) * 6;
+      } else {
+        // otherwise just expand it
+        _expandCropView();
+      }
     } else if (isScrollUp &&
-        (scrollController.offset - _lastScrollOffset) * 1.4 >
+        (gridScrollController.offset - _lastEndScrollOffset) * 1.4 >
             MediaQuery.of(context).size.width - position &&
         position > minHeight) {
       // reduce crop view
       _cropViewPosition.value = MediaQuery.of(context).size.width -
-          (scrollController.offset - _lastScrollOffset) * 1.4;
+          (gridScrollController.offset - _lastEndScrollOffset) * 1.4;
     }
+
+    _lastScrollOffset = gridScrollController.offset;
 
     return true;
   }
@@ -312,94 +322,128 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   @override
   Widget androidLayout(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: title != null ? Text(title!) : null,
-        leading: Transform.translate(
-          offset: const Offset(-8, 0),
-          child: backButton(context),
-        ),
-        actions: <Widget>[confirmButton(context)],
-      ),
-      body: ChangeNotifierProvider<DefaultAssetPickerProvider>.value(
-        value: provider,
-        builder: (BuildContext context, _) {
-          return Stack(
-            children: [
-              ValueListenableBuilder<double>(
-                valueListenable: _cropViewPosition,
-                builder: (context, position, child) {
-                  final minHeight = -(MediaQuery.of(context).size.width -
-                      _kReducedCropViewHeight);
-                  double gridHeight = MediaQuery.of(context).size.height -
-                      kToolbarHeight -
-                      _kReducedCropViewHeight;
-                  // when not assets are displayed, compute the exact height to show the loader
-                  if (!provider.hasAssetsToDisplay) {
-                    gridHeight -= MediaQuery.of(context).size.width -
-                        -_cropViewPosition.value;
-                  }
+    // height of appbar + cropview + path selector row
+    final topWidgetHeight = MediaQuery.of(context).size.width +
+        kToolbarHeight +
+        _kPathSelectorRowHeight +
+        MediaQuery.of(context).padding.top;
 
-                  return AnimatedPositioned(
-                    top: position.clamp(minHeight, 0),
-                    duration: position == 0
-                        ? const Duration(milliseconds: 250)
-                        : Duration.zero,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Listener(
-                          onPointerDown: (_) => _expandCropView(),
-                          child: CropViewer(
-                            key: _cropViewerKey,
-                            controller: _cropController,
-                            provider: provider,
-                            loaderWidget: _buildLoader(context, 16),
-                            theme: pickerTheme,
-                          ),
+    return ChangeNotifierProvider<DefaultAssetPickerProvider>.value(
+      value: provider,
+      builder: (context, _) => ValueListenableBuilder<double>(
+          valueListenable: _cropViewPosition,
+          builder: (context, position, child) {
+            final minHeight = -(MediaQuery.of(context).size.width -
+                _kReducedCropViewHeight +
+                kToolbarHeight);
+
+            position = position.clamp(minHeight, 0);
+            final opacity = ((position / -minHeight) + 1).clamp(0.4, 1.0);
+
+            double gridHeight = MediaQuery.of(context).size.height -
+                kToolbarHeight -
+                _kReducedCropViewHeight;
+            // when not assets are displayed, compute the exact height to show the loader
+            if (!provider.hasAssetsToDisplay) {
+              gridHeight -=
+                  MediaQuery.of(context).size.width - -_cropViewPosition.value;
+            }
+            final topPadding = topWidgetHeight +
+                position +
+                (_gridScrollLock ? minHeight / 2 : 0);
+            _gridScrollLock = false;
+
+            return Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(top: topPadding),
+                  child: SizedBox(
+                    height: gridHeight,
+                    width: MediaQuery.of(context).size.width,
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (notification) => _handleScroll(
+                        context,
+                        notification,
+                        position,
+                        minHeight,
+                      ),
+                      child: _buildGrid(context),
+                    ),
+                  ),
+                ),
+                AnimatedPositioned(
+                  top: position,
+                  duration: position == minHeight || position == 0
+                      ? const Duration(milliseconds: 250)
+                      : Duration.zero,
+                  child: SizedBox(
+                    width: MediaQuery.of(context).size.width,
+                    height: topWidgetHeight,
+                    child: AssetPickerAppBarWrapper(
+                      appBar: AssetPickerAppBar(
+                        title: title != null
+                            ? Text(
+                                title!,
+                                style: Theme.of(context).textTheme.titleLarge,
+                              )
+                            : null,
+                        leading: backButton(context),
+                        actions: <Widget>[confirmButton(context)],
+                      ),
+                      body: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: pickerTheme?.canvasColor,
                         ),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              pathEntitySelector(context),
-                              CircleIconButton(
-                                onTap: unSelectAll,
-                                theme: pickerTheme,
-                                icon: const Icon(
-                                  Icons.layers_clear_sharp,
-                                  size: 18,
+                        child: Column(
+                          children: [
+                            Listener(
+                              onPointerDown: (_) {
+                                _expandCropView();
+                                // stop scroll event
+                                gridScrollController
+                                    .jumpTo(gridScrollController.offset);
+                              },
+                              child: Opacity(
+                                opacity: opacity,
+                                child: CropViewer(
+                                  key: _cropViewerKey,
+                                  controller: _cropController,
+                                  provider: provider,
+                                  loaderWidget: _buildLoader(context, 16),
+                                  theme: pickerTheme,
                                 ),
                               ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          height: gridHeight,
-                          width: MediaQuery.of(context).size.width,
-                          child: NotificationListener<ScrollNotification>(
-                            onNotification: (ScrollNotification notification) =>
-                                _handleScroll(
-                              context,
-                              notification,
-                              position,
-                              minHeight,
                             ),
-                            child: _buildGrid(context),
-                          ),
+                            SizedBox(
+                              height: _kPathSelectorRowHeight,
+                              width: MediaQuery.of(context).size.width,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  pathEntitySelector(context),
+                                  CircleIconButton(
+                                    onTap: unSelectAll,
+                                    theme: pickerTheme,
+                                    icon: const Icon(
+                                      Icons.layers_clear_sharp,
+                                      size: 18,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
-                  );
-                },
-              ),
-              pathEntityListBackdrop(context),
-              _buildListAlbums(context),
-            ],
-          );
-        },
-      ),
+                  ),
+                ),
+                pathEntityListBackdrop(context),
+                _buildListAlbums(context),
+              ],
+            );
+          }),
     );
   }
 
@@ -408,14 +452,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   Widget _buildListAlbums(context) {
     return Consumer<DefaultAssetPickerProvider>(
-      builder: (BuildContext context, _, __) => MediaQuery(
-        // fix: https://github.com/fluttercandies/flutter_wechat_assets_picker/issues/395
-        data: MediaQuery.of(context).copyWith(
-          padding: const EdgeInsets.only(top: -kToolbarHeight),
-        ),
-        child: Builder(
-          builder: (BuildContext context) => pathEntityListWidget(context),
-        ),
+      builder: (BuildContext context, _, __) => Builder(
+        builder: (BuildContext context) => pathEntityListWidget(context),
       ),
     );
   }
