@@ -42,6 +42,7 @@ class InstaAssetPicker {
     String? title,
     required Function(Future<InstaAssetsExportDetails> exportDetails)
         onCompleted,
+    Function(double progress)? onProgress,
     List<InstaAssetsCrop>? initialCropParameters,
 
     /// DefaultAssetPickerProvider options
@@ -98,6 +99,7 @@ class InstaAssetPicker {
       textDelegate: textDelegate,
       initialCropParameters: initialCropParameters,
       onCompleted: onCompleted,
+      onProgress: onProgress,
     );
 
     return AssetPicker.pickAssetsWithDelegate(

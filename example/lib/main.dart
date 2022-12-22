@@ -39,12 +39,13 @@ class _PickerScrenState extends State<PickerScren> {
 
   List<AssetEntity> entities = <AssetEntity>[];
   List<File> files = <File>[];
-  bool _isLoading = false;
   List<InstaAssetsCrop>? cropParameters;
+  final ValueNotifier<double> _progress = ValueNotifier<double>(0);
 
   @override
   void dispose() {
     _instaAssetsPicker.dispose();
+    _progress.dispose();
     super.dispose();
   }
 
@@ -56,19 +57,15 @@ class _PickerScrenState extends State<PickerScren> {
       textDelegate: const EnglishAssetPickerTextDelegate(),
       initialCropParameters: cropParameters,
       onCompleted: (details) async {
-        setState(() {
-          files = [];
-          _isLoading = true;
-        });
+        setState(() => files = []);
         final exportDetails = await details;
         cropParameters = exportDetails.cropParamsList;
         if (mounted) {
-          setState(() {
-            files = exportDetails.croppedFiles;
-            _isLoading = false;
-          });
+          _progress.value = 1;
+          setState(() => files = exportDetails.croppedFiles);
         }
       },
+      onProgress: (p) => _progress.value = p,
     );
 
     if (result != null) {
@@ -121,35 +118,50 @@ class _PickerScrenState extends State<PickerScren> {
   }
 
   Widget get croppedImagesListView {
-    if (_isLoading) {
-      return const SizedBox.square(
-        dimension: 20,
-        child: CircularProgressIndicator(),
-      );
-    }
-
-    return Expanded(
-      child: ListView.builder(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 8.0),
-        scrollDirection: Axis.horizontal,
-        itemCount: files.length,
-        itemBuilder: (BuildContext _, int index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8.0,
-              vertical: 16.0,
-            ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4.0),
+    return ValueListenableBuilder<double>(
+        valueListenable: _progress,
+        builder: (context, progress, child) {
+          if (progress == 0) {
+            return const SizedBox.shrink();
+          } else if (progress <= 1 && files.isEmpty) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.all(Radius.circular(5)),
+                child: SizedBox(
+                  height: 6,
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    semanticsLabel: '${progress * 100}%',
+                  ),
+                ),
               ),
-              child: Image.file(files[index]),
+            );
+          }
+
+          return Expanded(
+            child: ListView.builder(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              scrollDirection: Axis.horizontal,
+              itemCount: files.length,
+              itemBuilder: (BuildContext _, int index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8.0,
+                    vertical: 16.0,
+                  ),
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(4.0),
+                    ),
+                    child: Image.file(files[index]),
+                  ),
+                );
+              },
             ),
           );
-        },
-      ),
-    );
+        });
   }
 
   Widget get selectedAssetsWidget {
@@ -185,6 +197,7 @@ class _PickerScrenState extends State<PickerScren> {
                   entities.removeAt(index);
                   files.removeAt(index);
                 });
+                if (files.isEmpty) _progress.value = 0;
               },
               child: Stack(
                 alignment: Alignment.center,

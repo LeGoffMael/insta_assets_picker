@@ -7,10 +7,12 @@ import 'package:insta_assets_picker/insta_assets_picker.dart';
 class InstaAssetsExportDetails {
   final List<InstaAssetsCrop> cropParamsList;
   final List<File> croppedFiles;
+  final double aspectRatio;
 
   const InstaAssetsExportDetails({
     required this.cropParamsList,
     required this.croppedFiles,
+    required this.aspectRatio,
   });
 }
 
@@ -106,14 +108,18 @@ class InstaAssetsCropController {
     return list[index];
   }
 
-  Future<InstaAssetsExportDetails> exportCropFiles() async {
+  Future<InstaAssetsExportDetails> exportCropFiles({
+    required Function(double) onProgress,
+  }) async {
     List<File> croppedFiles = [];
+    final step = 1 / list.length;
+    onProgress(0);
 
-    for (final asset in list) {
-      final file = await asset.asset.file;
+    for (var i = 0; i < list.length; i++) {
+      final file = await list[i].asset.file;
 
-      final scale = asset.scale;
-      final area = asset.area;
+      final scale = list[i].scale;
+      final area = list[i].area;
 
       if (file == null) {
         throw 'error file is null';
@@ -132,12 +138,14 @@ class InstaAssetsCropController {
       final croppedFile =
           await ImageCrop.cropImage(file: sampledFile, area: area);
 
+      onProgress((i + 1) * step);
       croppedFiles.add(croppedFile);
     }
 
     return InstaAssetsExportDetails(
       cropParamsList: list,
       croppedFiles: croppedFiles,
+      aspectRatio: aspectRatio,
     );
   }
 }

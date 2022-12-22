@@ -22,6 +22,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
     required super.provider,
     required this.onCompleted,
+    this.onProgress,
     super.gridCount = 4,
     super.pickerTheme,
     super.textDelegate,
@@ -39,6 +40,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   final List<InstaAssetsCrop>? initialCropParameters;
 
   final Function(Future<InstaAssetsExportDetails>) onCompleted;
+
+  /// Is called when crop function is updating
+  /// The [progress] param represents progress indicator between `0.0` and `1.0`.
+  final Function(double progress)? onProgress;
 
   /// Save last position of the grid view scroll controller
   double _lastScrollOffset = 0.0;
@@ -62,7 +67,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   void onConfirm(BuildContext context) {
     Navigator.of(context).maybePop(provider.selectedAssets);
     _cropViewerKey.currentState?.saveCurrentCropChanges();
-    onCompleted(_cropController.exportCropFiles());
+    onCompleted(_cropController.exportCropFiles(onProgress: (p) {
+      if (onProgress != null) {
+        onProgress!(p);
+      }
+    }));
   }
 
   void _expandCropView() => _cropViewPosition.value = 0;
