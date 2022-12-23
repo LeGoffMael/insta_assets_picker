@@ -421,6 +421,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                 child: CropViewer(
                                   key: _cropViewerKey,
                                   controller: _cropController,
+                                  textDelegate: textDelegate,
                                   provider: provider,
                                   loaderWidget: _buildLoader(context, 16),
                                   theme: pickerTheme,

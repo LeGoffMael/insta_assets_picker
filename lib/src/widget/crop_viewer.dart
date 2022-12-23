@@ -14,12 +14,15 @@ class CropViewer extends StatefulWidget {
   const CropViewer({
     super.key,
     required this.provider,
+    required this.textDelegate,
     required this.controller,
     required this.loaderWidget,
     this.theme,
   });
 
   final DefaultAssetPickerProvider provider;
+
+  final AssetPickerTextDelegate textDelegate;
 
   final InstaAssetsCropController controller;
 
@@ -34,6 +37,13 @@ class CropViewer extends StatefulWidget {
 class CropViewerState extends State<CropViewer> {
   final _cropKey = GlobalKey<CropState>();
   AssetEntity? _previousAsset;
+  final ValueNotifier<bool> _isLoadingError = ValueNotifier<bool>(false);
+
+  @override
+  void dispose() {
+    _isLoadingError.dispose();
+    super.dispose();
+  }
 
   void saveCurrentCropChanges() {
     widget.controller.onChange(
@@ -46,24 +56,42 @@ class CropViewerState extends State<CropViewer> {
   Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Crop(
         key: _cropKey,
         image: AssetEntityImageProvider(asset, isOriginal: true),
-        placeholderWidget: Stack(
-          alignment: Alignment.center,
-          children: [
-            ExtendedImage(
-              // to match crop alignment
-              alignment: widget.controller.isSquare.value
-                  ? Alignment.center
-                  : Alignment.bottomCenter,
-              height: MediaQuery.of(context).size.width,
-              width: MediaQuery.of(context).size.width *
-                  widget.controller.aspectRatio,
-              image: AssetEntityImageProvider(asset, isOriginal: false),
-              enableMemoryCache: false,
-              fit: BoxFit.cover,
-            ),
-            widget.loaderWidget,
-          ],
+        placeholderWidget: ValueListenableBuilder<bool>(
+          valueListenable: _isLoadingError,
+          builder: (context, isLoadingError, child) => Stack(
+            alignment: Alignment.center,
+            children: [
+              ExtendedImage(
+                // to match crop alignment
+                alignment: widget.controller.isSquare.value
+                    ? Alignment.center
+                    : Alignment.bottomCenter,
+                height: MediaQuery.of(context).size.width,
+                width: MediaQuery.of(context).size.width *
+                    widget.controller.aspectRatio,
+                image: AssetEntityImageProvider(asset, isOriginal: false),
+                enableMemoryCache: false,
+                fit: BoxFit.cover,
+              ),
+              Positioned.fill(
+                  child: DecoratedBox(
+                decoration: BoxDecoration(
+                    color: widget.theme?.cardColor.withOpacity(0.4)),
+              )),
+              isLoadingError
+                  ? Text(widget.textDelegate.loadFailed)
+                  : widget.loaderWidget,
+            ],
+          ),
         ),
+        onImageError: (exception, stackTrace) {
+          widget.provider.unSelectAsset(asset);
+          AssetEntityImageProvider(asset).evict();
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _isLoadingError.value = true;
+            widget.controller.isCropViewReady.value = true;
+          });
+        },
         onLoading: (isReady) => WidgetsBinding.instance.addPostFrameCallback(
             (_) => widget.controller.isCropViewReady.value = isReady),
         maximumScale: 10,
@@ -81,6 +109,7 @@ class CropViewerState extends State<CropViewer> {
           Selector<DefaultAssetPickerProvider, List<AssetEntity>>(
               selector: (_, DefaultAssetPickerProvider p) => p.selectedAssets,
               builder: (_, List<AssetEntity> selected, __) {
+                _isLoadingError.value = false;
                 final int effectiveIndex =
                     selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
