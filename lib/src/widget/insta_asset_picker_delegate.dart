@@ -466,10 +466,23 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   Widget _buildListAlbums(context) {
     return Consumer<DefaultAssetPickerProvider>(
-      builder: (BuildContext context, _, __) => Builder(
-        builder: (BuildContext context) => pathEntityListWidget(context),
-      ),
-    );
+        builder: (BuildContext context, provider, __) {
+      if (isAppleOS) return pathEntityListWidget(context);
+
+      // NOTE: fix position on android, quite hacky could be optimized
+      return ValueListenableBuilder<bool>(
+        valueListenable: isSwitchingPath,
+        builder: (_, bool isSwitchingPath, Widget? child) =>
+            Transform.translate(
+          offset: isSwitchingPath
+              ? Offset(0, kToolbarHeight + MediaQuery.of(context).padding.top)
+              : Offset.zero,
+          child: Stack(
+            children: [pathEntityListWidget(context)],
+          ),
+        ),
+      );
+    });
   }
 
   Widget _buildGrid(BuildContext context) {
