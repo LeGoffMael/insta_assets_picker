@@ -48,9 +48,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   double _lastScrollOffset = 0.0;
   double _lastEndScrollOffset = 0.0;
 
-  /// set to `true` when grid view scroll position should not be updated after crop is expanded
-  /// i.e: when select an asset
-  bool _gridScrollLock = false;
+  /// Scroll offset position to jump to after crop view is expanded
+  double? _scrollTargetOffset;
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
@@ -78,8 +77,17 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     }));
   }
 
-  void _expandCropView([bool lockScroll = false]) {
-    _gridScrollLock = lockScroll;
+  /// Returns thumbnail [index] position in scroll view
+  double indexPosition(BuildContext context, int index) {
+    final row = (index / gridCount).floor();
+    final size =
+        (MediaQuery.of(context).size.width - itemSpacing * (gridCount - 1)) /
+            gridCount;
+    return row * size + (row * itemSpacing);
+  }
+
+  void _expandCropView([double? lockOffset]) {
+    _scrollTargetOffset = lockOffset;
     _cropViewPosition.value = 0;
   }
 
@@ -127,7 +135,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     // if is preview asset, unselect it
     if (provider.selectedAssets.isNotEmpty &&
         _cropController.previewAsset.value == currentAsset) {
-      selectAsset(context, currentAsset, true);
+      selectAsset(context, currentAsset, index, true);
       _cropController.previewAsset.value = provider.selectedAssets.isEmpty
           ? currentAsset
           : provider.selectedAssets.last;
@@ -135,21 +143,23 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     }
 
     _cropController.previewAsset.value = currentAsset;
-    selectAsset(context, currentAsset, false);
+    selectAsset(context, currentAsset, index, false);
   }
 
   @override
   Future<void> selectAsset(
     BuildContext context,
     AssetEntity asset,
+    int index,
     bool selected,
   ) async {
     if (_cropController.isCropViewReady.value != true) {
       return;
     }
 
+    final thumbnailPosition = indexPosition(context, index);
     final prevCount = provider.selectedAssets.length;
-    await super.selectAsset(context, asset, selected);
+    await super.selectAsset(context, asset, index, selected);
 
     // update preview asset with selected
     final selectedAssets = provider.selectedAssets;
@@ -160,7 +170,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         selectedAssets.isNotEmpty) {
       _cropController.previewAsset.value = selectedAssets.last;
     }
-    _expandCropView(true);
+
+    _expandCropView(thumbnailPosition);
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
@@ -346,10 +357,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               gridHeight -=
                   MediaQuery.of(context).size.width - -_cropViewPosition.value;
             }
-            final topPadding = topWidgetHeight +
-                position +
-                (_gridScrollLock ? minHeight / 2 : 0);
-            _gridScrollLock = false;
+            final topPadding = topWidgetHeight + position;
+            if (gridScrollController.hasClients &&
+                _scrollTargetOffset != null) {
+              gridScrollController.jumpTo(_scrollTargetOffset!);
+            }
+            _scrollTargetOffset = null;
 
             return Stack(
               children: [
@@ -398,8 +411,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                               onPointerDown: (_) {
                                 _expandCropView();
                                 // stop scroll event
-                                gridScrollController
-                                    .jumpTo(gridScrollController.offset);
+                                if (gridScrollController.hasClients) {
+                                  gridScrollController
+                                      .jumpTo(gridScrollController.offset);
+                                }
                               },
                               child: Opacity(
                                 opacity: opacity,
@@ -530,7 +545,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                 child: isSelected && !isSingleAssetMode
                     ? GestureDetector(
                         behavior: HitTestBehavior.opaque,
-                        onTap: () => selectAsset(context, asset, isSelected),
+                        onTap: () =>
+                            selectAsset(context, asset, index, isSelected),
                         child: innerSelector,
                       )
                     : innerSelector,
