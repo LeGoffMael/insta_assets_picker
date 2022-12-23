@@ -1,12 +1,10 @@
 // ignore_for_file: depend_on_referenced_packages
 
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
@@ -15,7 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// The reduced height of the crop view
-const _kReducedCropViewHeight = 50.0;
+const _kReducedCropViewHeight = kToolbarHeight;
 const _kIndicatorSize = 20.0;
 const _kPathSelectorRowHeight = 50.0;
 
@@ -547,24 +545,4 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Widget selectedBackdrop(BuildContext context, int index, AssetEntity asset) =>
       const SizedBox.shrink();
-
-  @override
-  Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: overlayStyle,
-      child: Theme(
-        data: theme,
-        child: Material(
-          color: theme.canvasColor,
-          child: Stack(
-            fit: StackFit.expand,
-            children: <Widget>[
-              if (isAppleOS) appleOSLayout(context) else androidLayout(context),
-              if (Platform.isIOS) iOSPermissionOverlay(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 }
