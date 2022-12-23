@@ -65,7 +65,10 @@ class _PickerScrenState extends State<PickerScren> {
           setState(() => files = exportDetails.croppedFiles);
         }
       },
-      onProgress: (p) => _progress.value = p,
+      onProgress: (p) {
+        files.clear();
+        _progress.value = p;
+      },
     );
 
     if (result != null) {
