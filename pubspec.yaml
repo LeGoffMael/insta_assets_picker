@@ -1,5 +1,5 @@
 name: insta_assets_picker
-description: A video/image picker in pure Dart which is similar with Instagram, supports multi picking, crop and aspect ratio.
+description: An image picker in pure Dart which is similar with Instagram, supports multi picking, crop and aspect ratio.
 version: 0.0.1
 homepage:
 
