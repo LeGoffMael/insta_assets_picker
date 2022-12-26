@@ -24,12 +24,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
     required super.provider,
     required this.onCompleted,
-    this.onProgress,
     super.gridCount = 4,
     super.pickerTheme,
     super.textDelegate,
     this.title,
-    this.initialCropParameters,
+    this.closeOnComplete = false,
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
@@ -39,13 +38,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final String? title;
 
-  final List<InstaAssetsCrop>? initialCropParameters;
+  final Function(Stream<InstaAssetsExportDetails>) onCompleted;
 
-  final Function(Future<InstaAssetsExportDetails>) onCompleted;
+  /// Should the picker be closed when the selection is confirmed
+  ///
+  /// Defaults to `false`, like instagram
+  final bool closeOnComplete;
 
-  /// Is called when crop function is updating
-  /// The [progress] param represents progress indicator between `0.0` and `1.0`.
-  final Function(double progress)? onProgress;
+  // LOCAL PARAMETERS
 
   /// Save last position of the grid view scroll controller
   double _lastScrollOffset = 0.0;
@@ -56,7 +56,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
-  late final _cropController = InstaAssetsCropController(initialCropParameters);
+  final _cropController = InstaAssetsCropController();
 
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
@@ -65,19 +65,19 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   @override
   void dispose() {
-    _cropController.dispose();
-    _cropViewPosition.dispose();
+    if (!keepScrollOffset) {
+      _cropController.dispose();
+      _cropViewPosition.dispose();
+    }
     super.dispose();
   }
 
   void onConfirm(BuildContext context) {
-    Navigator.of(context).maybePop(provider.selectedAssets);
+    if (closeOnComplete) {
+      Navigator.of(context).maybePop(provider.selectedAssets);
+    }
     _cropViewerKey.currentState?.saveCurrentCropChanges();
-    onCompleted(_cropController.exportCropFiles(onProgress: (p) {
-      if (onProgress != null) {
-        onProgress!(p);
-      }
-    }));
+    onCompleted(_cropController.exportCropFiles(provider.selectedAssets));
   }
 
   /// Returns thumbnail [index] position in scroll view

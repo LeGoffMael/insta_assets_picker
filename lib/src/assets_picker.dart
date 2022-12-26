@@ -13,7 +13,7 @@ class InstaAssetPicker {
     builder?.dispose();
   }
 
-  /// Returns `true` if the param are not matching the [provider] params
+  /// Returns `true` if the arguments are not matching the [provider] params
   bool isDifferentProvider({
     int? maxAssets,
     int? pageSize,
@@ -30,6 +30,8 @@ class InstaAssetPicker {
         provider.filterOptions != filterOptions;
   }
 
+  /// When using `pickAssets` function, the picker's state is preserved even after pop
+  /// So [InstaAssetPicker] must be disposed manually
   Future<List<AssetEntity>?> pickAssets(
     BuildContext context, {
     Key? key,
@@ -40,10 +42,9 @@ class InstaAssetPicker {
     ThemeData? pickerTheme,
     AssetPickerTextDelegate? textDelegate,
     String? title,
-    required Function(Future<InstaAssetsExportDetails> exportDetails)
+    required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Function(double progress)? onProgress,
-    List<InstaAssetsCrop>? initialCropParameters,
+    bool closeOnComplete = false,
 
     /// DefaultAssetPickerProvider options
     int maxAssets = defaultMaxAssetsCount,
@@ -69,6 +70,7 @@ class InstaAssetPicker {
           sortPathsByModifiedDate: defaultProvider.sortPathsByModifiedDate,
           filterOptions: defaultProvider.filterOptions,
         )) {
+      provider.dispose();
       provider = defaultProvider;
     } else if (isDifferentProvider(
       maxAssets: maxAssets,
@@ -78,6 +80,7 @@ class InstaAssetPicker {
       sortPathsByModifiedDate: sortPathsByModifiedDate,
       filterOptions: filterOptions,
     )) {
+      provider.dispose();
       provider = DefaultAssetPickerProvider(
         maxAssets: maxAssets,
         pageSize: pageSize,
@@ -97,14 +100,10 @@ class InstaAssetPicker {
       pickerTheme:
           pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
       textDelegate: textDelegate,
-      initialCropParameters: initialCropParameters,
+      closeOnComplete: closeOnComplete,
       onCompleted: onCompleted,
-      onProgress: onProgress,
     );
 
-    return AssetPicker.pickAssetsWithDelegate(
-      context,
-      delegate: builder!,
-    );
+    return AssetPicker.pickAssetsWithDelegate(context, delegate: builder!);
   }
 }

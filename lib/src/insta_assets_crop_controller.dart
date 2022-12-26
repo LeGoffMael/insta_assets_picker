@@ -4,15 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:image_crop/image_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 
+/// Uses [InstaAssetsCropSingleton] to keep crop parameters in memory until the picker is disposed
+/// Similar to [Singleton] class from `wechat_assets_picker` package
+class InstaAssetsCropSingleton {
+  const InstaAssetsCropSingleton._();
+
+  static List<InstaAssetsCrop> cropParameters = [];
+}
+
 class InstaAssetsExportDetails {
-  final List<InstaAssetsCrop> cropParamsList;
   final List<File> croppedFiles;
+  final List<AssetEntity> selectedAssets;
   final double aspectRatio;
 
+  /// The [progress] param represents progress indicator between `0.0` and `1.0`.
+  final double progress;
+
   const InstaAssetsExportDetails({
-    required this.cropParamsList,
     required this.croppedFiles,
+    required this.selectedAssets,
     required this.aspectRatio,
+    required this.progress,
   });
 }
 
@@ -54,16 +66,13 @@ class InstaAssetsCrop {
 }
 
 class InstaAssetsCropController {
-  InstaAssetsCropController(List<InstaAssetsCrop>? initialList)
-      : list = initialList ?? [];
-
-  List<InstaAssetsCrop> list;
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
   final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
   final ValueNotifier<AssetEntity?> previewAsset =
       ValueNotifier<AssetEntity?>(null);
 
   dispose() {
+    clear();
     isCropViewReady.dispose();
     isSquare.dispose();
     previewAsset.dispose();
@@ -72,7 +81,7 @@ class InstaAssetsCropController {
   double get aspectRatio => isSquare.value ? 1 : 4 / 5;
 
   void clear() {
-    list = [];
+    InstaAssetsCropSingleton.cropParameters = [];
     previewAsset.value = null;
   }
 
@@ -98,22 +107,31 @@ class InstaAssetsCropController {
       }
     }
 
-    list = newList;
+    InstaAssetsCropSingleton.cropParameters = newList;
   }
 
   InstaAssetsCrop? get(AssetEntity asset) {
-    if (list.isEmpty) return null;
-    final index = list.indexWhere((e) => e.asset == asset);
+    if (InstaAssetsCropSingleton.cropParameters.isEmpty) return null;
+    final index = InstaAssetsCropSingleton.cropParameters
+        .indexWhere((e) => e.asset == asset);
     if (index == -1) return null;
-    return list[index];
+    return InstaAssetsCropSingleton.cropParameters[index];
   }
 
-  Future<InstaAssetsExportDetails> exportCropFiles({
-    required Function(double) onProgress,
-  }) async {
+  Stream<InstaAssetsExportDetails> exportCropFiles(
+    List<AssetEntity> selectedAssets,
+  ) async* {
     List<File> croppedFiles = [];
+    InstaAssetsExportDetails makeDetail(double p) => InstaAssetsExportDetails(
+          croppedFiles: croppedFiles,
+          selectedAssets: selectedAssets,
+          aspectRatio: aspectRatio,
+          progress: p,
+        );
+    yield makeDetail(0);
+    final list = InstaAssetsCropSingleton.cropParameters;
+
     final step = 1 / list.length;
-    onProgress(0);
 
     for (var i = 0; i < list.length; i++) {
       final file = await list[i].asset.file;
@@ -138,14 +156,10 @@ class InstaAssetsCropController {
       final croppedFile =
           await ImageCrop.cropImage(file: sampledFile, area: area);
 
-      onProgress((i + 1) * step);
       croppedFiles.add(croppedFile);
+      yield makeDetail((i + 1) * step);
     }
 
-    return InstaAssetsExportDetails(
-      cropParamsList: list,
-      croppedFiles: croppedFiles,
-      aspectRatio: aspectRatio,
-    );
+    yield makeDetail(1);
   }
 }

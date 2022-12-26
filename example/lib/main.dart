@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
@@ -38,14 +36,11 @@ class _PickerScrenState extends State<PickerScren> {
   final _instaAssetsPicker = InstaAssetPicker();
 
   List<AssetEntity> entities = <AssetEntity>[];
-  List<File> files = <File>[];
-  List<InstaAssetsCrop>? cropParameters;
-  final ValueNotifier<double> _progress = ValueNotifier<double>(0);
+  Stream<InstaAssetsExportDetails>? _cropStream;
 
   @override
   void dispose() {
     _instaAssetsPicker.dispose();
-    _progress.dispose();
     super.dispose();
   }
 
@@ -54,21 +49,9 @@ class _PickerScrenState extends State<PickerScren> {
       context,
       title: 'Select images',
       maxAssets: 10,
+      closeOnComplete: true, // TODO : update example to show data in push page
       textDelegate: const EnglishAssetPickerTextDelegate(),
-      initialCropParameters: cropParameters,
-      onCompleted: (details) async {
-        setState(() => files = []);
-        final exportDetails = await details;
-        cropParameters = exportDetails.cropParamsList;
-        if (mounted) {
-          _progress.value = 1;
-          setState(() => files = exportDetails.croppedFiles);
-        }
-      },
-      onProgress: (p) {
-        files.clear();
-        _progress.value = p;
-      },
+      onCompleted: (cropStream) => _cropStream = cropStream,
     );
 
     if (result != null) {
@@ -107,64 +90,78 @@ class _PickerScrenState extends State<PickerScren> {
   }
 
   Widget get croppedImagesWidget {
-    return AnimatedContainer(
-      duration: kThemeChangeDuration,
-      curve: Curves.easeInOut,
-      height: files.isNotEmpty ? 300.0 : 40.0,
-      child: Column(
-        children: <Widget>[
-          _buildTitle('Cropped Images'),
-          croppedImagesListView,
-        ],
-      ),
-    );
+    return StreamBuilder<InstaAssetsExportDetails>(
+        stream: _cropStream,
+        builder: (context, snapshot) {
+          return AnimatedContainer(
+            duration: kThemeChangeDuration,
+            curve: Curves.easeInOut,
+            height: snapshot.data != null ? 300.0 : 40.0,
+            child: Column(
+              children: <Widget>[
+                _buildTitle('Cropped Images'),
+                croppedImagesListView(snapshot.data),
+              ],
+            ),
+          );
+        });
   }
 
-  Widget get croppedImagesListView {
-    return ValueListenableBuilder<double>(
-        valueListenable: _progress,
-        builder: (context, progress, child) {
-          if (progress == 0) {
-            return const SizedBox.shrink();
-          } else if (progress <= 1 && files.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+  Widget croppedImagesListView(InstaAssetsExportDetails? exportDetails) {
+    if (exportDetails == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Expanded(
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            scrollDirection: Axis.horizontal,
+            itemCount: exportDetails.croppedFiles.length,
+            itemBuilder: (BuildContext _, int index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 16.0,
+                ),
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(4.0),
+                  ),
+                  child: Image.file(exportDetails.croppedFiles[index]),
+                ),
+              );
+            },
+          ),
+          if (exportDetails.progress < 1.0)
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color:
+                      Theme.of(context).scaffoldBackgroundColor.withOpacity(.5),
+                ),
+              ),
+            ),
+          if (exportDetails.progress < 1.0)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: ClipRRect(
                 borderRadius: const BorderRadius.all(Radius.circular(5)),
                 child: SizedBox(
                   height: 6,
                   child: LinearProgressIndicator(
-                    value: progress,
-                    semanticsLabel: '${progress * 100}%',
+                    value: exportDetails.progress,
+                    semanticsLabel: '${exportDetails.progress * 100}%',
                   ),
                 ),
               ),
-            );
-          }
-
-          return Expanded(
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 8.0),
-              scrollDirection: Axis.horizontal,
-              itemCount: files.length,
-              itemBuilder: (BuildContext _, int index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8.0,
-                    vertical: 16.0,
-                  ),
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: Image.file(files[index]),
-                  ),
-                );
-              },
             ),
-          );
-        });
+        ],
+      ),
+    );
   }
 
   Widget get selectedAssetsWidget {
@@ -194,34 +191,8 @@ class _PickerScrenState extends State<PickerScren> {
               horizontal: 8.0,
               vertical: 16.0,
             ),
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  entities.removeAt(index);
-                  files.removeAt(index);
-                });
-                if (files.isEmpty) _progress.value = 0;
-              },
-              child: Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  _selectedAssetWidget(index),
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: Colors.black.withOpacity(0.3),
-                      ),
-                      child: const Icon(
-                        Icons.delete,
-                        color: Colors.white,
-                        size: 18.0,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            // TODO : add delete action
+            child: _selectedAssetWidget(index),
           );
         },
       ),
