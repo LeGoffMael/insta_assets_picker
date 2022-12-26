@@ -14,6 +14,9 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// The reduced height of the crop view
 const _kReducedCropViewHeight = kToolbarHeight;
+
+/// The position of the crop view when extended
+const _kExtendedCropViewPosition = 0.0;
 const _kIndicatorSize = 20.0;
 const _kPathSelectorRowHeight = 50.0;
 
@@ -88,7 +91,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   void _expandCropView([double? lockOffset]) {
     _scrollTargetOffset = lockOffset;
-    _cropViewPosition.value = 0;
+    _cropViewPosition.value = _kExtendedCropViewPosition;
   }
 
   void unSelectAll() {
@@ -179,7 +182,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     BuildContext context,
     ScrollNotification notification,
     double position,
-    double minHeight,
+    double reducedPosition,
   ) {
     final isScrollUp = gridScrollController.position.userScrollDirection ==
         ScrollDirection.reverse;
@@ -189,14 +192,16 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     if (notification is ScrollEndNotification) {
       _lastEndScrollOffset = gridScrollController.offset;
       // reduce crop view
-      if (position > minHeight && position < 0) {
-        _cropViewPosition.value = minHeight;
+      if (position > reducedPosition && position < _kExtendedCropViewPosition) {
+        _cropViewPosition.value = reducedPosition;
         return true;
       }
     }
 
     // expand crop view
-    if (isScrollDown && gridScrollController.offset < 0 && position < 0) {
+    if (isScrollDown &&
+        gridScrollController.offset < 0 &&
+        position < _kExtendedCropViewPosition) {
       // if scroll at edge, compute position based on scroll
       if (_lastScrollOffset > gridScrollController.offset) {
         _cropViewPosition.value -=
@@ -208,7 +213,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     } else if (isScrollUp &&
         (gridScrollController.offset - _lastEndScrollOffset) * 1.4 >
             MediaQuery.of(context).size.width - position &&
-        position > minHeight) {
+        position > reducedPosition) {
       // reduce crop view
       _cropViewPosition.value = MediaQuery.of(context).size.width -
           (gridScrollController.offset - _lastEndScrollOffset) * 1.4;
@@ -342,12 +347,26 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       builder: (context, _) => ValueListenableBuilder<double>(
           valueListenable: _cropViewPosition,
           builder: (context, position, child) {
-            final minHeight = -(MediaQuery.of(context).size.width -
+            // the top position when the crop view is reduced
+            final topReducedPosition = -(MediaQuery.of(context).size.width -
                 _kReducedCropViewHeight +
                 kToolbarHeight);
-
-            position = position.clamp(minHeight, 0);
-            final opacity = ((position / -minHeight) + 1).clamp(0.4, 1.0);
+            position =
+                position.clamp(topReducedPosition, _kExtendedCropViewPosition);
+            // the height of the crop view visible on screen
+            final cropViewVisibleSize = (topWidgetHeight +
+                    position -
+                    MediaQuery.of(context).padding.top -
+                    kToolbarHeight -
+                    _kPathSelectorRowHeight)
+                .clamp(_kReducedCropViewHeight, topWidgetHeight);
+            // opacity is calculated based on the position of the crop view
+            final opacity =
+                ((position / -topReducedPosition) + 1).clamp(0.4, 1.0);
+            final animationDuration = position == topReducedPosition ||
+                    position == _kExtendedCropViewPosition
+                ? const Duration(milliseconds: 250)
+                : Duration.zero;
 
             double gridHeight = MediaQuery.of(context).size.height -
                 kToolbarHeight -
@@ -366,8 +385,9 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
             return Stack(
               children: [
-                Padding(
+                AnimatedPadding(
                   padding: EdgeInsets.only(top: topPadding),
+                  duration: animationDuration,
                   child: SizedBox(
                     height: gridHeight,
                     width: MediaQuery.of(context).size.width,
@@ -376,7 +396,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                         context,
                         notification,
                         position,
-                        minHeight,
+                        topReducedPosition,
                       ),
                       child: _buildGrid(context),
                     ),
@@ -384,9 +404,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                 ),
                 AnimatedPositioned(
                   top: position,
-                  duration: position == minHeight || position == 0
-                      ? const Duration(milliseconds: 250)
-                      : Duration.zero,
+                  duration: animationDuration,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
                     height: topWidgetHeight,
@@ -416,16 +434,21 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                       .jumpTo(gridScrollController.offset);
                                 }
                               },
-                              child: Opacity(
+                              child: CropViewer(
+                                key: _cropViewerKey,
+                                controller: _cropController,
+                                textDelegate: textDelegate,
+                                provider: provider,
                                 opacity: opacity,
-                                child: CropViewer(
-                                  key: _cropViewerKey,
-                                  controller: _cropController,
-                                  textDelegate: textDelegate,
-                                  provider: provider,
-                                  loaderWidget: _buildLoader(context, 16),
-                                  theme: pickerTheme,
+                                // center the loader in the visible viewport of the crop view
+                                loaderWidget: Align(
+                                  alignment: Alignment.bottomCenter,
+                                  child: SizedBox.square(
+                                    dimension: cropViewVisibleSize,
+                                    child: _buildLoader(context, 16),
+                                  ),
                                 ),
+                                theme: pickerTheme,
                               ),
                             ),
                             SizedBox(

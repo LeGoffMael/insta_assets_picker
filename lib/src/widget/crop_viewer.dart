@@ -17,6 +17,7 @@ class CropViewer extends StatefulWidget {
     required this.textDelegate,
     required this.controller,
     required this.loaderWidget,
+    this.opacity = 1.0,
     this.theme,
   });
 
@@ -27,6 +28,8 @@ class CropViewer extends StatefulWidget {
   final InstaAssetsCropController controller;
 
   final Widget loaderWidget;
+
+  final double opacity;
 
   final ThemeData? theme;
 
@@ -53,52 +56,58 @@ class CropViewerState extends State<CropViewer> {
     );
   }
 
-  Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Crop(
-        key: _cropKey,
-        image: AssetEntityImageProvider(asset, isOriginal: true),
-        placeholderWidget: ValueListenableBuilder<bool>(
-          valueListenable: _isLoadingError,
-          builder: (context, isLoadingError, child) => Stack(
-            alignment: Alignment.center,
-            children: [
-              ExtendedImage(
-                // to match crop alignment
-                alignment: widget.controller.isSquare.value
-                    ? Alignment.center
-                    : Alignment.bottomCenter,
-                height: MediaQuery.of(context).size.width,
-                width: MediaQuery.of(context).size.width *
-                    widget.controller.aspectRatio,
-                image: AssetEntityImageProvider(asset, isOriginal: false),
-                enableMemoryCache: false,
-                fit: BoxFit.cover,
-              ),
-              Positioned.fill(
-                  child: DecoratedBox(
-                decoration: BoxDecoration(
-                    color: widget.theme?.cardColor.withOpacity(0.4)),
-              )),
-              isLoadingError
-                  ? Text(widget.textDelegate.loadFailed)
-                  : widget.loaderWidget,
-            ],
+  Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Opacity(
+        opacity: widget.controller.isCropViewReady.value ? widget.opacity : 1.0,
+        child: Crop(
+          key: _cropKey,
+          image: AssetEntityImageProvider(asset, isOriginal: true),
+          placeholderWidget: ValueListenableBuilder<bool>(
+            valueListenable: _isLoadingError,
+            builder: (context, isLoadingError, child) => Stack(
+              alignment: Alignment.center,
+              children: [
+                Opacity(
+                  opacity: widget.opacity,
+                  child: ExtendedImage(
+                    // to match crop alignment
+                    alignment: widget.controller.isSquare.value
+                        ? Alignment.center
+                        : Alignment.bottomCenter,
+                    height: MediaQuery.of(context).size.width,
+                    width: MediaQuery.of(context).size.width *
+                        widget.controller.aspectRatio,
+                    image: AssetEntityImageProvider(asset, isOriginal: false),
+                    enableMemoryCache: false,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+                Positioned.fill(
+                    child: DecoratedBox(
+                  decoration: BoxDecoration(
+                      color: widget.theme?.cardColor.withOpacity(0.4)),
+                )),
+                isLoadingError
+                    ? Text(widget.textDelegate.loadFailed)
+                    : widget.loaderWidget,
+              ],
+            ),
           ),
+          onImageError: (exception, stackTrace) {
+            widget.provider.unSelectAsset(asset);
+            AssetEntityImageProvider(asset).evict();
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _isLoadingError.value = true;
+              widget.controller.isCropViewReady.value = true;
+            });
+          },
+          onLoading: (isReady) => WidgetsBinding.instance.addPostFrameCallback(
+              (_) => widget.controller.isCropViewReady.value = isReady),
+          maximumScale: 10,
+          aspectRatio: widget.controller.aspectRatio,
+          disableResize: true,
+          backgroundColor: widget.theme!.cardColor,
+          initialParam: cropParam,
         ),
-        onImageError: (exception, stackTrace) {
-          widget.provider.unSelectAsset(asset);
-          AssetEntityImageProvider(asset).evict();
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _isLoadingError.value = true;
-            widget.controller.isCropViewReady.value = true;
-          });
-        },
-        onLoading: (isReady) => WidgetsBinding.instance.addPostFrameCallback(
-            (_) => widget.controller.isCropViewReady.value = isReady),
-        maximumScale: 10,
-        aspectRatio: widget.controller.aspectRatio,
-        disableResize: true,
-        backgroundColor: widget.theme!.cardColor,
-        initialParam: cropParam,
       );
 
   @override
