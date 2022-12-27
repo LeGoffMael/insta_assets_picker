@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
         // update to change the main theme of app + picker
         primarySwatch: Colors.deepPurple,
       ),
-      home: const PickerScren(),
+      home: const PickerScreen(),
       localizationsDelegates: const <LocalizationsDelegate<dynamic>>[
         GlobalWidgetsLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -25,18 +25,15 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class PickerScren extends StatefulWidget {
-  const PickerScren({super.key});
+class PickerScreen extends StatefulWidget {
+  const PickerScreen({super.key});
 
   @override
-  State<PickerScren> createState() => _PickerScrenState();
+  State<PickerScreen> createState() => _PickerScreenState();
 }
 
-class _PickerScrenState extends State<PickerScren> {
+class _PickerScreenState extends State<PickerScreen> {
   final _instaAssetsPicker = InstaAssetPicker();
-
-  List<AssetEntity> entities = <AssetEntity>[];
-  Stream<InstaAssetsExportDetails>? _cropStream;
 
   @override
   void dispose() {
@@ -44,25 +41,55 @@ class _PickerScrenState extends State<PickerScren> {
     super.dispose();
   }
 
-  Future<void> callPicker(BuildContext context) async {
-    final List<AssetEntity>? result = await _instaAssetsPicker.pickAssets(
-      context,
-      title: 'Select images',
-      maxAssets: 10,
-      closeOnComplete: true, // TODO : update example to show data in push page
-      textDelegate: const EnglishAssetPickerTextDelegate(),
-      onCompleted: (cropStream) => _cropStream = cropStream,
+  Future<void> callPicker(BuildContext context) =>
+      _instaAssetsPicker.pickAssets(
+        context,
+        title: 'Select images',
+        maxAssets: 10,
+        textDelegate: const EnglishAssetPickerTextDelegate(),
+        onCompleted: (cropStream) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  PickerCropResultScreen(cropStream: cropStream),
+            ),
+          );
+        },
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Insta picker')),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          const Center(
+            child: Text(
+              'The picker reproduces Instagram picker',
+              style: TextStyle(fontSize: 18),
+            ),
+          ),
+          TextButton(
+            onPressed: () => callPicker(context),
+            child: const Text(
+              'Open the Picker',
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ],
+      ),
     );
-
-    if (result != null) {
-      entities = result;
-      if (mounted) {
-        setState(() {});
-      }
-    }
   }
+}
 
-  Widget _buildTitle(String title) {
+class PickerCropResultScreen extends StatelessWidget {
+  const PickerCropResultScreen({super.key, required this.cropStream});
+
+  final Stream<InstaAssetsExportDetails> cropStream;
+
+  Widget _buildTitle(String title, int length) {
     return SizedBox(
       height: 20.0,
       child: Row(
@@ -77,7 +104,7 @@ class _PickerScrenState extends State<PickerScren> {
               color: Colors.deepPurpleAccent,
             ),
             child: Text(
-              '${entities.length}',
+              length.toString(),
               style: const TextStyle(
                 color: Colors.white,
                 height: 1.0,
@@ -89,25 +116,10 @@ class _PickerScrenState extends State<PickerScren> {
     );
   }
 
-  Widget get croppedImagesWidget {
-    return StreamBuilder<InstaAssetsExportDetails>(
-        stream: _cropStream,
-        builder: (context, snapshot) {
-          return AnimatedContainer(
-            duration: kThemeChangeDuration,
-            curve: Curves.easeInOut,
-            height: snapshot.data != null ? 300.0 : 40.0,
-            child: Column(
-              children: <Widget>[
-                _buildTitle('Cropped Images'),
-                croppedImagesListView(snapshot.data),
-              ],
-            ),
-          );
-        });
-  }
-
-  Widget croppedImagesListView(InstaAssetsExportDetails? exportDetails) {
+  Widget _buildCroppedImagesListView(
+    BuildContext context,
+    InstaAssetsExportDetails? exportDetails,
+  ) {
     if (exportDetails == null) {
       return const SizedBox.shrink();
     }
@@ -164,81 +176,79 @@ class _PickerScrenState extends State<PickerScren> {
     );
   }
 
-  Widget get selectedAssetsWidget {
-    return AnimatedContainer(
-      duration: kThemeChangeDuration,
-      curve: Curves.easeInOut,
-      height: entities.isNotEmpty ? 120.0 : 40.0,
-      child: Column(
-        children: <Widget>[
-          _buildTitle('Selected Assets'),
-          selectedAssetsListView,
-        ],
-      ),
-    );
-  }
+  Widget _buildSelectedAssetsListView(List<AssetEntity>? selectedAssets) {
+    if (selectedAssets == null) return const SizedBox.shrink();
 
-  Widget get selectedAssetsListView {
     return Expanded(
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         scrollDirection: Axis.horizontal,
-        itemCount: entities.length,
+        itemCount: selectedAssets.length,
         itemBuilder: (BuildContext _, int index) {
+          final AssetEntity asset = selectedAssets.elementAt(index);
+
           return Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 8.0,
               vertical: 16.0,
             ),
             // TODO : add delete action
-            child: _selectedAssetWidget(index),
+            child: RepaintBoundary(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8.0),
+                child: Image(image: AssetEntityImageProvider(asset)),
+              ),
+            ),
           );
         },
       ),
     );
   }
 
-  Widget _selectedAssetWidget(int index) {
-    final AssetEntity asset = entities.elementAt(index);
-
-    return RepaintBoundary(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(8.0),
-        child: Image(image: AssetEntityImageProvider(asset)),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height - kToolbarHeight;
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Insta picker')),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: DefaultTextStyle.merge(
-              style: const TextStyle(fontSize: 18),
-              textAlign: TextAlign.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  const Text('The picker reproduces Instagram picker'),
-                  TextButton(
-                    onPressed: () => callPicker(context),
-                    child: const Text(
-                      'Open the Picker',
-                      style: TextStyle(fontSize: 20),
-                    ),
+      appBar: AppBar(title: const Text('Insta picker result')),
+      body: StreamBuilder<InstaAssetsExportDetails>(
+          stream: cropStream,
+          builder: (context, snapshot) {
+            final count = snapshot.data?.selectedAssets.length ?? 0;
+
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                AnimatedContainer(
+                  duration: kThemeChangeDuration,
+                  curve: Curves.easeInOut,
+                  height: snapshot.data != null ? height / 2 : 40.0,
+                  child: Column(
+                    children: <Widget>[
+                      _buildTitle('Cropped Images', count),
+                      _buildCroppedImagesListView(context, snapshot.data),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          croppedImagesWidget,
-          selectedAssetsWidget,
-        ],
-      ),
+                ),
+                AnimatedContainer(
+                  duration: kThemeChangeDuration,
+                  curve: Curves.easeInOut,
+                  height: (snapshot.data?.selectedAssets.isNotEmpty ?? false)
+                      ? height / 4
+                      : 40.0,
+                  child: Column(
+                    children: <Widget>[
+                      _buildTitle('Selected Assets', count),
+                      _buildSelectedAssetsListView(
+                        snapshot.data?.selectedAssets,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          }),
     );
   }
 }
