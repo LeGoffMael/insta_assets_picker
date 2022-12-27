@@ -41,8 +41,7 @@ class _PickerScreenState extends State<PickerScreen> {
     super.dispose();
   }
 
-  Future<void> callPicker(BuildContext context) =>
-      _instaAssetsPicker.pickAssets(
+  Future<void> callPicker() => _instaAssetsPicker.pickAssets(
         context,
         title: 'Select images',
         maxAssets: 10,
@@ -72,7 +71,7 @@ class _PickerScreenState extends State<PickerScreen> {
             ),
           ),
           TextButton(
-            onPressed: () => callPicker(context),
+            onPressed: callPicker,
             child: const Text(
               'Open the Picker',
               style: TextStyle(fontSize: 20),
