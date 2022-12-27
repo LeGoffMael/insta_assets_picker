@@ -14,17 +14,18 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Multiple images pick (with maximum limit)
 - ✅ Restore state of picker after pop
 - ✅ Change aspect ratio from 1:1 to 4:5
+- ✅ Crop all images at once and receive a stream with a progress value
 - ❌ Videos are not supported
 
 ## 📸 Screenshots
 
-| Layout and scroll            | Crop                          |
-| ---------------------------- | ---                           |
-| ![](./assets/scroll.gif)     | ![](./assets/crop-export.gif) |
+| Layout and scroll        | Crop                          |
+| ------------------------ | ----------------------------- |
+| ![](./assets/scroll.gif) | ![](./assets/crop-export.gif) |
 
 ## 📖 Installation
 
-Since this package is an extention of [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker) you must follow this package setup recommandation : [installation guide](https://pub.dev/packages/wechat_assets_picker#preparing-for-use-).
+Since this package is a custom delegate of [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker) you must follow this package setup recommandation : [installation guide](https://pub.dev/packages/wechat_assets_picker#preparing-for-use-).
 
 ## 👀 Usage
 
@@ -55,12 +56,12 @@ Future<void> callPicker() => _instaAssetsPicker.pickAssets(
 
 Fields in `InstaAssetsExportDetails`:
 
-| Name           | Type                | Description                                                          |
-| -------------- | ------------------- | -------------------------------------------------------------------- |
-| croppedFiles   | `List<File>`        | List of all cropped files                                            |
-| selectedAssets | `List<AssetEntity>` | Selected assets without crop                                         |
-| aspectRatio    | `double`            | Selected aspect ratio (1 or 4/5)                                     |
-| progress       | `double`            | Progress indicator of the cropped files generation (between 0 and 1) |
+| Name           | Type                | Description                                             |
+| -------------- | ------------------- | ------------------------------------------------------- |
+| croppedFiles   | `List<File>`        | List of all cropped files                               |
+| selectedAssets | `List<AssetEntity>` | Selected assets without crop                            |
+| aspectRatio    | `double`            | Selected aspect ratio (1 or 4/5)                        |
+| progress       | `double`            | Progress indicator of the exportation (between 0 and 1) |
 
 Regarding picker configuration : [AssetPickerConfig](https://pub.dev/packages/wechat_assets_picker#usage-)
 
