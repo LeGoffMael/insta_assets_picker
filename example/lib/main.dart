@@ -45,7 +45,6 @@ class _PickerScreenState extends State<PickerScreen> {
         context,
         title: 'Select images',
         maxAssets: 10,
-        textDelegate: const EnglishAssetPickerTextDelegate(),
         onCompleted: (cropStream) {
           Navigator.push(
             context,

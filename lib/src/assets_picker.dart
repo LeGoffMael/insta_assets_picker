@@ -99,6 +99,7 @@ class InstaAssetPicker {
       gridCount: gridCount,
       pickerTheme:
           pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
+      locale: Localizations.maybeLocaleOf(context),
       textDelegate: textDelegate,
       closeOnComplete: closeOnComplete,
       onCompleted: onCompleted,

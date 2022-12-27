@@ -27,6 +27,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.gridCount = 4,
     super.pickerTheme,
     super.textDelegate,
+    super.locale,
     this.title,
     this.closeOnComplete = false,
   }) : super(
