@@ -1,11 +1,11 @@
 name: insta_assets_picker
-description: An image picker in pure Dart which is similar with Instagram, supports multi picking, crop and aspect ratio.
+description: An image picker similar with Instagram, supports multi picking, crop and aspect ratio.
 version: 0.0.1
-homepage:
+repository: https://github.com/LeGoffMael/insta_assets_picker
 
 environment:
-  sdk: '>=2.18.5 <3.0.0'
-  flutter: ">=1.17.0"
+  sdk: '>=2.17.0 <3.0.0'
+  flutter: '>=3.0.0'
 
 dependencies:
   flutter:
@@ -15,12 +15,15 @@ dependencies:
     git:
       url: https://github.com/LeGoffMael/image_crop
       ref: mergedBranch
-  wechat_assets_picker:
-    git:
-      url: https://github.com/LeGoffMael/flutter_wechat_assets_picker
-      ref: select-asset-index
+  wechat_assets_picker: ^8.3.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.1
+
+screenshots:
+  - description: 'Scroll animation'
+    path: assets/scroll.webp
+  - description: 'Crop & export'
+    path: assets/crop-export.webp
