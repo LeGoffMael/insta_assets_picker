@@ -19,9 +19,9 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 
 ## 📸 Screenshots
 
-| Layout and scroll        | Crop                          |
-| ------------------------ | ----------------------------- |
-| ![](./assets/scroll.gif) | ![](./assets/crop-export.gif) |
+| Layout and scroll         | Crop                           |
+| ------------------------- | ------------------------------ |
+| ![](./assets/scroll.webp) | ![](./assets/crop-export.webp) |
 
 ## 📖 Installation
 
