@@ -1,7 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_crop/image_crop.dart';
+import 'package:image_crop/image_crop.dart' hide CropState;
+import 'package:insta_assets_picker/src/custom_packages/image_crop/crop.dart'
+    show CropState, CropInternal;
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 
 /// Uses [InstaAssetsCropSingleton] to keep crop parameters in memory until the picker is disposed

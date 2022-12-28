@@ -11,10 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  image_crop:
-    git:
-      url: https://github.com/LeGoffMael/image_crop
-      ref: mergedBranch
+  image_crop: ^0.4.1
   wechat_assets_picker: ^8.3.0
 
 dev_dependencies:
