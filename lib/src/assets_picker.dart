@@ -45,6 +45,7 @@ class InstaAssetPicker {
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
     bool closeOnComplete = false,
+    bool restorableState = false,
 
     /// DefaultAssetPickerProvider options
     int maxAssets = defaultMaxAssetsCount,
@@ -100,6 +101,7 @@ class InstaAssetPicker {
       pickerTheme:
           pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
       locale: Localizations.maybeLocaleOf(context),
+      keepScrollOffset: restorableState,
       textDelegate: textDelegate,
       closeOnComplete: closeOnComplete,
       onCompleted: onCompleted,

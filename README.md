@@ -49,6 +49,7 @@ Future<void> callPicker() => _instaAssetsPicker.pickAssets(
             // i.e : display it using a StreamBuilder
             // - in the same page (closeOnComplete=true)
             // - send it to another page (closeOnComplete=false)
+            // or use `stream.listen` to handle the data manually in your state manager
             // - ...
         },
     );

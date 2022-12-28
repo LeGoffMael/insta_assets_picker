@@ -28,13 +28,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.pickerTheme,
     super.textDelegate,
     super.locale,
+    super.keepScrollOffset,
     this.title,
     this.closeOnComplete = false,
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
           specialItemPosition: SpecialItemPosition.none,
-          keepScrollOffset: true,
         );
 
   final String? title;
