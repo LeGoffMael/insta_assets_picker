@@ -1,3 +1,6 @@
-## 0.0.1
+## 1.0.0
 
-* TODO: Describe initial release.
+- Initial release.
+- Layout similar to Instagram
+- Scroll animations
+- Supports multi images picker, crop and aspect ratio (1 & 4/5)
