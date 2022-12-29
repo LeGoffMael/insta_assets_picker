@@ -32,15 +32,7 @@ Since this package is a custom delegate of [flutter_wechat_assets_picker](https:
 For more details check out the [example](https://github.com/LeGoffMael/insta_assets_picker/blob/main/example/lib/main.dart).
 
 ```dart
-final _instaAssetsPicker = InstaAssetPicker();
-
-@override
-void dispose() {
-    _instaAssetsPicker.dispose();
-    super.dispose();
-}
-
-Future<void> callPicker() => _instaAssetsPicker.pickAssets(
+Future<void> callPicker() => InstaAssetPicker.pickAssets(
         context,
         title: 'Select images',
         maxAssets: 10,
