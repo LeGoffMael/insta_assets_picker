@@ -1,8 +1,7 @@
-// ignore_for_file: depend_on_referenced_packages
+// ignore_for_file: depend_on_referenced_packages, implementation_imports
 
 import 'dart:math' as math;
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
@@ -11,6 +10,7 @@ import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+import 'package:wechat_assets_picker/src/widget/platform_progress_indicator.dart';
 
 /// The reduced height of the crop view
 const _kReducedCropViewHeight = kToolbarHeight;
@@ -230,14 +230,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     if (super.loadingIndicatorBuilder != null) {
       return super.loadingIndicatorBuilder!(context, provider.isAssetsEmpty);
     }
-
-    return Theme.of(context).platform == TargetPlatform.iOS
-        ? CupertinoActivityIndicator(animating: true, radius: radius)
-        : CircularProgressIndicator(
-            strokeWidth: 2.0,
-            valueColor:
-                AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-          );
+    return PlatformProgressIndicator(
+      radius: radius,
+      size: radius * 2,
+      color: theme.iconTheme.color,
+    );
   }
 
   @override
@@ -355,7 +352,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
             position =
                 position.clamp(topReducedPosition, _kExtendedCropViewPosition);
             // the height of the crop view visible on screen
-            final cropViewVisibleSize = (topWidgetHeight +
+            final cropViewVisibleHeight = (topWidgetHeight +
                     position -
                     MediaQuery.of(context).padding.top -
                     kToolbarHeight -
@@ -444,9 +441,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                 // center the loader in the visible viewport of the crop view
                                 loaderWidget: Align(
                                   alignment: Alignment.bottomCenter,
-                                  child: SizedBox.square(
-                                    dimension: cropViewVisibleSize,
-                                    child: _buildLoader(context, 16),
+                                  child: SizedBox(
+                                    height: cropViewVisibleHeight,
+                                    child: Center(
+                                      child: _buildLoader(context, 16),
+                                    ),
                                   ),
                                 ),
                                 theme: pickerTheme,
