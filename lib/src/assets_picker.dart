@@ -56,6 +56,7 @@ class InstaAssetPicker {
     bool sortPathsByModifiedDate = false,
     FilterOptionGroup? filterOptions,
     Duration initializeDelayDuration = const Duration(milliseconds: 250),
+    Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
   }) async {
     assert(
         defaultProvider == null ||
@@ -103,6 +104,7 @@ class InstaAssetPicker {
       locale: Localizations.maybeLocaleOf(context),
       keepScrollOffset: restorableState,
       textDelegate: textDelegate,
+      loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
       onCompleted: onCompleted,
     );

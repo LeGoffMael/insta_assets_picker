@@ -29,6 +29,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.textDelegate,
     super.locale,
     super.keepScrollOffset,
+    super.loadingIndicatorBuilder,
     this.title,
     this.closeOnComplete = false,
   }) : super(
