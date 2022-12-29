@@ -8,6 +8,7 @@ import 'package:insta_assets_picker/insta_assets_picker.dart';
 
 /// Uses [InstaAssetsCropSingleton] to keep crop parameters in memory until the picker is disposed
 /// Similar to [Singleton] class from `wechat_assets_picker` package
+/// used only when [keepScrollOffset] is set to `true`
 class InstaAssetsCropSingleton {
   const InstaAssetsCropSingleton._();
 
@@ -56,22 +57,18 @@ class InstaAssetsCrop {
       area: cropState?.area,
     );
   }
-
-  InstaAssetsCrop copyWith({AssetEntity? asset, CropState? cropState}) {
-    return InstaAssetsCrop(
-      asset: asset ?? this.asset,
-      cropParam: cropState?.internalParameters ?? cropParam,
-      scale: cropState?.scale ?? scale,
-      area: cropState?.area ?? area,
-    );
-  }
 }
 
 class InstaAssetsCropController {
+  InstaAssetsCropController(this.keepMemory);
+
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
   final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
   final ValueNotifier<AssetEntity?> previewAsset =
       ValueNotifier<AssetEntity?>(null);
+
+  List<InstaAssetsCrop> _cropParameters = [];
+  bool keepMemory = false;
 
   dispose() {
     clear();
@@ -82,8 +79,19 @@ class InstaAssetsCropController {
 
   double get aspectRatio => isSquare.value ? 1 : 4 / 5;
 
+  /// Use [_cropParameters] when [keepMemory] is `false`, otherwise use [InstaAssetsCropSingleton.cropParameters]
+  List<InstaAssetsCrop> get cropParameters =>
+      keepMemory ? InstaAssetsCropSingleton.cropParameters : _cropParameters;
+  void updateStoreCropParam(List<InstaAssetsCrop> list) {
+    if (keepMemory) {
+      InstaAssetsCropSingleton.cropParameters = list;
+    } else {
+      _cropParameters = list;
+    }
+  }
+
   void clear() {
-    InstaAssetsCropSingleton.cropParameters = [];
+    updateStoreCropParam([]);
     previewAsset.value = null;
   }
 
@@ -109,15 +117,14 @@ class InstaAssetsCropController {
       }
     }
 
-    InstaAssetsCropSingleton.cropParameters = newList;
+    updateStoreCropParam(newList);
   }
 
   InstaAssetsCrop? get(AssetEntity asset) {
-    if (InstaAssetsCropSingleton.cropParameters.isEmpty) return null;
-    final index = InstaAssetsCropSingleton.cropParameters
-        .indexWhere((e) => e.asset == asset);
+    if (cropParameters.isEmpty) return null;
+    final index = cropParameters.indexWhere((e) => e.asset == asset);
     if (index == -1) return null;
-    return InstaAssetsCropSingleton.cropParameters[index];
+    return cropParameters[index];
   }
 
   Stream<InstaAssetsExportDetails> exportCropFiles(
@@ -131,7 +138,7 @@ class InstaAssetsCropController {
           progress: p,
         );
     yield makeDetail(0);
-    final list = InstaAssetsCropSingleton.cropParameters;
+    final list = cropParameters;
 
     final step = 1 / list.length;
 
@@ -145,20 +152,20 @@ class InstaAssetsCropController {
         throw 'error file is null';
       }
 
-      if (area == null) {
-        croppedFiles.add(file);
-        break;
-      }
-
       final sampledFile = await ImageCrop.sampleImage(
         file: file,
         preferredSize: (1024 / scale).round(),
       );
 
-      final croppedFile =
-          await ImageCrop.cropImage(file: sampledFile, area: area);
+      if (area == null) {
+        croppedFiles.add(sampledFile);
+      } else {
+        final croppedFile =
+            await ImageCrop.cropImage(file: sampledFile, area: area);
 
-      croppedFiles.add(croppedFile);
+        croppedFiles.add(croppedFile);
+      }
+
       yield makeDetail((i + 1) * step);
     }
 

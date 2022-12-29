@@ -58,7 +58,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
-  final _cropController = InstaAssetsCropController();
+  late final _cropController = InstaAssetsCropController(keepScrollOffset);
 
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
