@@ -17,6 +17,10 @@ const _kReducedCropViewHeight = kToolbarHeight;
 
 /// The position of the crop view when extended
 const _kExtendedCropViewPosition = 0.0;
+
+/// Scroll offset multiplier to start viewer position animation
+const _kScrollMultiplier = 1.5;
+
 const _kIndicatorSize = 20.0;
 const _kPathSelectorRowHeight = 50.0;
 
@@ -81,6 +85,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     _cropViewerKey.currentState?.saveCurrentCropChanges();
     onCompleted(_cropController.exportCropFiles(provider.selectedAssets));
   }
+
+  /// The responsive height of the crop view
+  /// setup to not be bigger than half the screen height
+  double cropViewHeight(BuildContext context) => math.min(
+        MediaQuery.of(context).size.width,
+        MediaQuery.of(context).size.height * 0.5,
+      );
 
   /// Returns thumbnail [index] position in scroll view
   double indexPosition(BuildContext context, int index) {
@@ -213,12 +224,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         _expandCropView();
       }
     } else if (isScrollUp &&
-        (gridScrollController.offset - _lastEndScrollOffset) * 1.4 >
-            MediaQuery.of(context).size.width - position &&
+        (gridScrollController.offset - _lastEndScrollOffset) *
+                _kScrollMultiplier >
+            cropViewHeight(context) - position &&
         position > reducedPosition) {
       // reduce crop view
-      _cropViewPosition.value = MediaQuery.of(context).size.width -
-          (gridScrollController.offset - _lastEndScrollOffset) * 1.4;
+      _cropViewPosition.value = cropViewHeight(context) -
+          (gridScrollController.offset - _lastEndScrollOffset) *
+              _kScrollMultiplier;
     }
 
     _lastScrollOffset = gridScrollController.offset;
@@ -336,7 +349,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Widget androidLayout(BuildContext context) {
     // height of appbar + cropview + path selector row
-    final topWidgetHeight = MediaQuery.of(context).size.width +
+    final topWidgetHeight = cropViewHeight(context) +
         kToolbarHeight +
         _kPathSelectorRowHeight +
         MediaQuery.of(context).padding.top;
@@ -347,7 +360,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           valueListenable: _cropViewPosition,
           builder: (context, position, child) {
             // the top position when the crop view is reduced
-            final topReducedPosition = -(MediaQuery.of(context).size.width -
+            final topReducedPosition = -(cropViewHeight(context) -
                 _kReducedCropViewHeight +
                 kToolbarHeight);
             position =
@@ -372,8 +385,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                 _kReducedCropViewHeight;
             // when not assets are displayed, compute the exact height to show the loader
             if (!provider.hasAssetsToDisplay) {
-              gridHeight -=
-                  MediaQuery.of(context).size.width - -_cropViewPosition.value;
+              gridHeight -= cropViewHeight(context) - -_cropViewPosition.value;
             }
             final topPadding = topWidgetHeight + position;
             if (gridScrollController.hasClients &&
@@ -439,6 +451,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                 textDelegate: textDelegate,
                                 provider: provider,
                                 opacity: opacity,
+                                height: cropViewHeight(context),
                                 // center the loader in the visible viewport of the crop view
                                 loaderWidget: Align(
                                   alignment: Alignment.bottomCenter,

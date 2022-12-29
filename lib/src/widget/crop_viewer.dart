@@ -17,6 +17,7 @@ class CropViewer extends StatefulWidget {
     required this.textDelegate,
     required this.controller,
     required this.loaderWidget,
+    required this.height,
     this.opacity = 1.0,
     this.theme,
   });
@@ -30,6 +31,8 @@ class CropViewer extends StatefulWidget {
   final Widget loaderWidget;
 
   final double opacity;
+
+  final double height;
 
   final ThemeData? theme;
 
@@ -73,9 +76,8 @@ class CropViewerState extends State<CropViewer> {
                     alignment: widget.controller.isSquare.value
                         ? Alignment.center
                         : Alignment.bottomCenter,
-                    height: MediaQuery.of(context).size.width,
-                    width: MediaQuery.of(context).size.width *
-                        widget.controller.aspectRatio,
+                    height: widget.height,
+                    width: widget.height * widget.controller.aspectRatio,
                     image: AssetEntityImageProvider(asset, isOriginal: false),
                     enableMemoryCache: false,
                     fit: BoxFit.cover,
@@ -112,35 +114,34 @@ class CropViewerState extends State<CropViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder<AssetEntity?>(
-      valueListenable: widget.controller.previewAsset,
-      builder: (_, previewAsset, __) =>
-          Selector<DefaultAssetPickerProvider, List<AssetEntity>>(
-              selector: (_, DefaultAssetPickerProvider p) => p.selectedAssets,
-              builder: (_, List<AssetEntity> selected, __) {
-                _isLoadingError.value = false;
-                final int effectiveIndex =
-                    selected.isEmpty ? 0 : selected.indexOf(selected.last);
+    return SizedBox(
+      height: widget.height,
+      width: MediaQuery.of(context).size.width,
+      child: ValueListenableBuilder<AssetEntity?>(
+        valueListenable: widget.controller.previewAsset,
+        builder: (_, previewAsset, __) =>
+            Selector<DefaultAssetPickerProvider, List<AssetEntity>>(
+                selector: (_, DefaultAssetPickerProvider p) => p.selectedAssets,
+                builder: (_, List<AssetEntity> selected, __) {
+                  _isLoadingError.value = false;
+                  final int effectiveIndex =
+                      selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
-                if (previewAsset == null && selected.isEmpty) {
-                  return SizedBox.square(
-                    dimension: MediaQuery.of(context).size.width,
-                    child: widget.loaderWidget,
-                  );
-                }
+                  if (previewAsset == null && selected.isEmpty) {
+                    return widget.loaderWidget;
+                  }
 
-                final asset = previewAsset ?? selected[effectiveIndex];
-                final savedCropParam = widget.controller.get(asset)?.cropParam;
+                  final asset = previewAsset ?? selected[effectiveIndex];
+                  final savedCropParam =
+                      widget.controller.get(asset)?.cropParam;
 
-                if (asset != _previousAsset && _previousAsset != null) {
-                  saveCurrentCropChanges();
-                }
+                  if (asset != _previousAsset && _previousAsset != null) {
+                    saveCurrentCropChanges();
+                  }
 
-                _previousAsset = asset;
+                  _previousAsset = asset;
 
-                return SizedBox.square(
-                  dimension: MediaQuery.of(context).size.width,
-                  child: selected.length > 1
+                  return selected.length > 1
                       ? _buildCropView(asset, savedCropParam)
                       : ValueListenableBuilder<bool>(
                           valueListenable: widget.controller.isSquare,
@@ -173,9 +174,9 @@ class CropViewerState extends State<CropViewer> {
                               ),
                             ],
                           ),
-                        ),
-                );
-              }),
+                        );
+                }),
+      ),
     );
   }
 }
