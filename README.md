@@ -23,7 +23,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 
 | Layout and scroll                   | Crop                                     |
 | ----------------------------------- | ---------------------------------------- |
-| ![](example/screenshots/scroll.gif) | ![](example/screenshots/crop-export.gif) |
+| ![](https://raw.githubusercontent.com/LeGoffMael/insta_assets_picker/main/example/screenshots/scroll.webp) | ![](https://raw.githubusercontent.com/LeGoffMael/insta_assets_picker/main/example/screenshots/crop-export.webp) |
 
 ## 📖 Installation
 
