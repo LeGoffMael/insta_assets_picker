@@ -105,7 +105,7 @@ class CropViewerState extends State<CropViewer> {
           maximumScale: 10,
           aspectRatio: widget.controller.aspectRatio,
           disableResize: true,
-          backgroundColor: widget.theme!.cardColor,
+          backgroundColor: widget.theme!.canvasColor,
           initialParam: cropParam,
         ),
       );

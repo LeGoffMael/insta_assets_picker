@@ -27,29 +27,29 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 
 ## 📖 Installation
 
-Since this package is a custom delegate of [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker) you must follow this package setup recommandation : [installation guide](https://pub.dev/packages/wechat_assets_picker#preparing-for-use-).
+Since this package is a custom delegate of [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker) you must follow this package setup recommendation : [installation guide](https://pub.dev/packages/wechat_assets_picker#preparing-for-use-).
 
 ## 👀 Usage
 
 For more details check out the [example](https://github.com/LeGoffMael/insta_assets_picker/blob/main/example/lib/main.dart).
 
 ```dart
-Future<void> callPicker() => InstaAssetPicker.pickAssets(
-        context,
-        title: 'Select images',
-        maxAssets: 10,
-        onCompleted: (Stream<InstaAssetsExportDetails> stream) {
-            // TODO : handle crop stream result
-            // i.e : display it using a StreamBuilder
-            // - in the same page (closeOnComplete=true)
-            // - send it to another page (closeOnComplete=false)
-            // or use `stream.listen` to handle the data manually in your state manager
-            // - ...
-        },
-    );
+Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
+    context,
+    title: 'Select images',
+    maxAssets: 10,
+    onCompleted: (Stream<InstaAssetsExportDetails> stream) {
+        // TODO : handle crop stream result
+        // i.e : display it using a StreamBuilder
+        // - in the same page (closeOnComplete=true)
+        // - send it to another page (closeOnComplete=false)
+        // or use `stream.listen` to handle the data manually in your state manager
+        // - ...
+    },
+);
 ```
 
-Fields in `InstaAssetsExportDetails`:
+- Fields in `InstaAssetsExportDetails`:
 
 | Name           | Type                | Description                                             |
 | -------------- | ------------------- | ------------------------------------------------------- |
@@ -58,9 +58,42 @@ Fields in `InstaAssetsExportDetails`:
 | aspectRatio    | `double`            | Selected aspect ratio (1 or 4/5)                        |
 | progress       | `double`            | Progress indicator of the exportation (between 0 and 1) |
 
-Regarding picker configuration : [AssetPickerConfig](https://pub.dev/packages/wechat_assets_picker#usage-)
 
-Regarding `textDelegate` : [Localizations](https://pub.dev/packages/wechat_assets_picker#localizations)
+### Picker configuration
+
+Please follow `flutter_wechat_assets_picker` documentation : [AssetPickerConfig](https://pub.dev/packages/wechat_assets_picker#usage-)
+
+### Localizations
+
+Please follow `flutter_wechat_assets_picker` documentation : [Localizations](https://pub.dev/packages/wechat_assets_picker#localizations)
+
+### Theme customization
+
+Most of the components of the picker can be customized using theme.
+
+```dart
+// set picker theme based on app theme primary color
+final theme = AssetPicker.themeData(Theme.of(context).primaryColor);
+InstaAssetPicker.pickAssets(
+    context,
+    title: 'Select images',
+    pickerTheme: theme.copyWith(
+      canvasColor: Colors.black, // change body background color
+      splashColor: Color.grey, // change on tap splash color
+      colorScheme: theme.colorScheme.copyWith(
+        background: Colors.black87, // change albums list background color
+      ),
+      appBarTheme: theme.appBarTheme.copyWith(
+        backgroundColor: Colors.black, // change app bar background color
+        titleTextStyle: Theme.of(context)
+            .appBarTheme
+            .titleTextStyle
+            ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
+      ),
+    ),
+    onCompleted: (_) {},
+);
+```
 
 ## ✨ Credit
 
