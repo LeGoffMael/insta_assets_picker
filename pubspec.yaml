@@ -23,6 +23,6 @@ dev_dependencies:
 
 screenshots:
   - description: 'Scroll animation'
-    path: assets/scroll.webp
+    path: example/screenshots/scroll.webp
   - description: 'Crop & export'
-    path: assets/crop-export.webp
+    path: example/screenshots/crop-export.webp
