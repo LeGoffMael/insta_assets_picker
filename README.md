@@ -49,7 +49,7 @@ Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
 );
 ```
 
-- Fields in `InstaAssetsExportDetails`:
+Fields in `InstaAssetsExportDetails`:
 
 | Name           | Type                | Description                                             |
 | -------------- | ------------------- | ------------------------------------------------------- |
@@ -78,13 +78,13 @@ InstaAssetPicker.pickAssets(
     context,
     title: 'Select images',
     pickerTheme: theme.copyWith(
-      canvasColor: Colors.black, // change body background color
-      splashColor: Color.grey, // change on tap splash color
+      canvasColor: Colors.black, // body background color
+      splashColor: Color.grey, // ontap splash color
       colorScheme: theme.colorScheme.copyWith(
-        background: Colors.black87, // change albums list background color
+        background: Colors.black87, // albums list background color
       ),
       appBarTheme: theme.appBarTheme.copyWith(
-        backgroundColor: Colors.black, // change app bar background color
+        backgroundColor: Colors.black, // app bar background color
         titleTextStyle: Theme.of(context)
             .appBarTheme
             .titleTextStyle

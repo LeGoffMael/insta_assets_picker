@@ -1,3 +1,7 @@
+## 1.0.1
+
+- Improve theme use and documentation [#2](https://github.com/LeGoffMael/insta_assets_picker/pull/2)
+
 ## 1.0.0
 
 - Initial release.
