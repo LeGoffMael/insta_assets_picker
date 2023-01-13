@@ -27,7 +27,15 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 
 ## 📖 Installation
 
-Since this package is a custom delegate of [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker) you must follow this package setup recommendation : [installation guide](https://pub.dev/packages/wechat_assets_picker#preparing-for-use-).
+Add this package to the `pubspec.yaml`
+
+```yaml
+insta_assets_picker: ^1.0.1
+```
+
+### ‼️ DO NOT SKIP THIS PART
+
+Since this package is a custom delegate of `flutter_wechat_assets_picker` you **MUST** follow this package setup recommendation : [installation guide](https://pub.dev/packages/wechat_assets_picker#preparing-for-use-).
 
 ## 👀 Usage
 
