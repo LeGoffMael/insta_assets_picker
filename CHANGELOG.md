@@ -1,3 +1,7 @@
+## 1.0.1+2
+
+- Change screenshots paths in readme
+
 ## 1.0.1+1
 
 - Change screenshots images in readme
