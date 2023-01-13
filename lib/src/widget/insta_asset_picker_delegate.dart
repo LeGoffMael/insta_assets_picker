@@ -280,10 +280,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                       isPermissionLimited && p.path.isAll
                           ? textDelegate.accessiblePathName
                           : p.path.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge
-                          ?.copyWith(fontSize: 16),
+                      style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -421,10 +418,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                     height: topWidgetHeight,
                     child: AssetPickerAppBarWrapper(
                       appBar: AssetPickerAppBar(
+                        backgroundColor: theme.appBarTheme.backgroundColor,
                         title: title != null
                             ? Text(
                                 title!,
-                                style: Theme.of(context).textTheme.titleLarge,
+                                style: theme.appBarTheme.titleTextStyle,
                               )
                             : null,
                         leading: backButton(context),
