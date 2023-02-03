@@ -1,3 +1,8 @@
+## 1.1.1
+
+- Fix warnings with Flutter 3.7
+- Improved documentation
+
 ## 1.1.0
 
 - New `isSquareDefaultCrop` argument, the crop view is now initialized in 4:5 by default like instagram
