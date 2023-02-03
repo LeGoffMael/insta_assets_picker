@@ -14,6 +14,7 @@ class InstaAssetPicker {
   }
 
   /// When using `restorableAssetsPicker` function, the picker's state is preserved even after pop
+  ///
   /// ⚠️ [InstaAssetPicker] and [provider] must be disposed manually
   ///
   /// Set [useRootNavigator] to determine
@@ -28,7 +29,7 @@ class InstaAssetPicker {
   /// This argument is required.
   ///
   /// - Set [gridCount] to specifies the number of assets in the cross axis.
-  /// Defaults to [_kGridCount].
+  /// Defaults to [_kGridCount], like instagram.
   ///
   /// - Set [pickerTheme] to specifies the theme to apply to the picker.
   /// It is by default initialized with the `primaryColor` of the context theme.
@@ -40,6 +41,10 @@ class InstaAssetPicker {
   ///
   /// - Set [closeOnComplete] to specifies if the picker should be closed
   /// after assets selection confirmation.
+  ///
+  /// - Set [isSquareDefaultCrop] to specifies if the crop view should be initialized
+  /// on square mode.
+  /// Defaults to `false`, like instagram.
   ///
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
@@ -59,6 +64,7 @@ class InstaAssetPicker {
     AssetPickerTextDelegate? textDelegate,
     String? title,
     bool closeOnComplete = false,
+    bool isSquareDefaultCrop = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
     Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
@@ -77,6 +83,7 @@ class InstaAssetPicker {
       textDelegate: textDelegate,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
+      isSquareDefaultCrop: isSquareDefaultCrop,
       onCompleted: onCompleted,
     );
 
@@ -99,7 +106,7 @@ class InstaAssetPicker {
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
   /// - Set [gridCount] to specifies the number of assets in the cross axis.
-  /// Defaults to [_kGridCount].
+  /// Defaults to [_kGridCount], like instagram.
   ///
   /// - Set [pickerTheme] to specifies the theme to apply to the picker.
   /// It is by default initialized with the `primaryColor` of the context theme.
@@ -111,6 +118,10 @@ class InstaAssetPicker {
   ///
   /// - Set [closeOnComplete] to specifies if the picker should be closed
   /// after assets selection confirmation.
+  ///
+  /// - Set [isSquareDefaultCrop] to specifies if the crop view should be initialized
+  /// on square mode.
+  /// Defaults to `false`, like instagram.
   ///
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
@@ -155,6 +166,7 @@ class InstaAssetPicker {
     AssetPickerTextDelegate? textDelegate,
     String? title,
     bool closeOnComplete = false,
+    bool isSquareDefaultCrop = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
     Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
@@ -193,6 +205,7 @@ class InstaAssetPicker {
       textDelegate: textDelegate,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
+      isSquareDefaultCrop: isSquareDefaultCrop,
       onCompleted: onCompleted,
     );
 

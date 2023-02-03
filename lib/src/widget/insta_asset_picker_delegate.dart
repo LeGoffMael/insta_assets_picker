@@ -36,6 +36,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.loadingIndicatorBuilder,
     this.title,
     this.closeOnComplete = false,
+    this.isSquareDefaultCrop = true,
   }) : super(
           shouldRevertGrid: false,
           initialPermission: PermissionState.authorized,
@@ -51,6 +52,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   /// Defaults to `false`, like instagram
   final bool closeOnComplete;
 
+  final bool isSquareDefaultCrop;
+
   // LOCAL PARAMETERS
 
   /// Save last position of the grid view scroll controller
@@ -62,7 +65,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
-  late final _cropController = InstaAssetsCropController(keepScrollOffset);
+  late final _cropController =
+      InstaAssetsCropController(keepScrollOffset, isSquareDefaultCrop);
 
   @override
   void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {

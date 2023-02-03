@@ -60,10 +60,11 @@ class InstaAssetsCrop {
 }
 
 class InstaAssetsCropController {
-  InstaAssetsCropController(this.keepMemory);
+  InstaAssetsCropController(this.keepMemory, bool isSquareDefaultCrop)
+      : isSquare = ValueNotifier<bool>(isSquareDefaultCrop);
 
+  late final ValueNotifier<bool> isSquare;
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
-  final ValueNotifier<bool> isSquare = ValueNotifier<bool>(true);
   final ValueNotifier<AssetEntity?> previewAsset =
       ValueNotifier<AssetEntity?>(null);
 
