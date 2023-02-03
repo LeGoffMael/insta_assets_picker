@@ -143,7 +143,7 @@ class InstaAssetsCropController {
     final step = 1 / list.length;
 
     for (var i = 0; i < list.length; i++) {
-      final file = await list[i].asset.file;
+      final file = await list[i].asset.originFile;
 
       final scale = list[i].scale;
       final area = list[i].area;
@@ -162,6 +162,7 @@ class InstaAssetsCropController {
       } else {
         final croppedFile =
             await ImageCrop.cropImage(file: sampledFile, area: area);
+        sampledFile.delete();
 
         croppedFiles.add(croppedFile);
       }
