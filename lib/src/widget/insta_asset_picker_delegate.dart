@@ -65,6 +65,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
   final _cropViewerKey = GlobalKey<CropViewerState>();
+
+  /// Controller handling the state of asset crop values and the exportation
   late final _cropController =
       InstaAssetsCropController(keepScrollOffset, isSquareDefaultCrop);
 
@@ -82,6 +84,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.dispose();
   }
 
+  /// Called when the confirmation [TextButton] is tapped
   void onConfirm(BuildContext context) {
     if (closeOnComplete) {
       Navigator.of(context).maybePop(provider.selectedAssets);
@@ -106,11 +109,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     return row * size + (row * itemSpacing);
   }
 
+  /// Expand the crop view size to the maximum
   void _expandCropView([double? lockOffset]) {
     _scrollTargetOffset = lockOffset;
     _cropViewPosition.value = _kExtendedCropViewPosition;
   }
 
+  /// Unselect all the selected assets
   void unSelectAll() {
     provider.selectedAssets = [];
     _cropController.clear();
@@ -142,6 +147,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     }
   }
 
+  /// Called when the asset thumbnail is tapped
   @override
   Future<void> viewAsset(
     BuildContext context,
@@ -166,6 +172,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     selectAsset(context, currentAsset, index, false);
   }
 
+  /// Called when an asset is selected
   @override
   Future<void> selectAsset(
     BuildContext context,
@@ -255,6 +262,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     );
   }
 
+  /// Returns the [TextButton] that open album list
   @override
   Widget pathEntitySelector(BuildContext context) {
     Widget selector(BuildContext context) {
@@ -315,6 +323,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     );
   }
 
+  /// Returns the top right selection confirmation [TextButton]
+  /// Calls [onConfirm]
   @override
   Widget confirmButton(BuildContext context) {
     final Widget button = ValueListenableBuilder<bool>(
@@ -347,6 +357,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     );
   }
 
+  /// Returns most of the widgets of the layout, the app bar, the crop view and the grid view
   @override
   Widget androidLayout(BuildContext context) {
     // height of appbar + cropview + path selector row
@@ -500,9 +511,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     );
   }
 
+  /// Since the layout is the same on all platform, it simply call [androidLayout]
   @override
   Widget appleOSLayout(BuildContext context) => androidLayout(context);
 
+  /// Returns the [ListView] containing the albums
   Widget _buildListAlbums(context) {
     return Consumer<DefaultAssetPickerProvider>(
         builder: (BuildContext context, provider, __) {
@@ -524,6 +537,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     });
   }
 
+  /// Returns the [GridView] displaying the assets
   Widget _buildGrid(BuildContext context) {
     return Consumer<DefaultAssetPickerProvider>(
       builder: (BuildContext context, DefaultAssetPickerProvider p, __) {
@@ -592,7 +606,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               padding: const EdgeInsets.all(4),
               color: isPreview
                   ? Colors.white.withOpacity(.5)
-                  : theme.backgroundColor.withOpacity(.1),
+                  : theme.colorScheme.background.withOpacity(.1),
               child: Align(
                 alignment: AlignmentDirectional.topEnd,
                 child: isSelected && !isSingleAssetMode

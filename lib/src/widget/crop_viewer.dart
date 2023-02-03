@@ -49,6 +49,9 @@ class CropViewerState extends State<CropViewer> {
     super.dispose();
   }
 
+  /// Save the crop parameters state in [InstaAssetsCropController]
+  /// to retrieve it if the asset is opened again
+  /// and apply them at the exportation
   void saveCurrentCropChanges() {
     widget.controller.onChange(
       _previousAsset,
@@ -57,6 +60,7 @@ class CropViewerState extends State<CropViewer> {
     );
   }
 
+  /// Returns the [Crop] widget
   Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Opacity(
         opacity: widget.controller.isCropViewReady.value ? widget.opacity : 1.0,
         child: Crop(
@@ -81,6 +85,7 @@ class CropViewerState extends State<CropViewer> {
                     fit: BoxFit.cover,
                   ),
                 ),
+                // show backdrop when image is loading or if an error occured
                 Positioned.fill(
                     child: DecoratedBox(
                   decoration: BoxDecoration(
@@ -92,6 +97,8 @@ class CropViewerState extends State<CropViewer> {
               ],
             ),
           ),
+          // if the image could not be loaded (i.e unsupported format like RAW)
+          // unselect it and clear cache, also show the error widget
           onImageError: (exception, stackTrace) {
             widget.provider.unSelectAsset(asset);
             AssetEntityImageProvider(asset).evict();
@@ -125,6 +132,7 @@ class CropViewerState extends State<CropViewer> {
                   final int effectiveIndex =
                       selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
+                  // if no asset is selected yet, returns the loader
                   if (previewAsset == null && selected.isEmpty) {
                     return widget.loaderWidget;
                   }
@@ -133,6 +141,7 @@ class CropViewerState extends State<CropViewer> {
                   final savedCropParam =
                       widget.controller.get(asset)?.cropParam;
 
+                  // if the selected asset changed, save the previous crop parameters state
                   if (asset != _previousAsset && _previousAsset != null) {
                     saveCurrentCropChanges();
                   }
@@ -148,6 +157,7 @@ class CropViewerState extends State<CropViewer> {
                               Positioned.fill(
                                 child: _buildCropView(asset, savedCropParam),
                               ),
+                              // Build crop aspect ratio button
                               Positioned(
                                 left: 0,
                                 bottom: 12,
