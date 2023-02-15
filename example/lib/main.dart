@@ -34,6 +34,12 @@ class PickerScreen extends StatefulWidget {
 class _PickerScreenState extends State<PickerScreen> {
   final _instaAssetsPicker = InstaAssetPicker();
   final _provider = DefaultAssetPickerProvider(maxAssets: 10);
+  late final ThemeData _pickerTheme =
+      InstaAssetPicker.themeData(Theme.of(context).primaryColor).copyWith(
+    appBarTheme: const AppBarTheme(
+        titleTextStyle: TextStyle(color: Colors.white, fontSize: 18)),
+  );
+
   List<AssetEntity> selectedAssets = <AssetEntity>[];
   InstaAssetsExportDetails? exportDetails;
 
@@ -51,6 +57,7 @@ class _PickerScreenState extends State<PickerScreen> {
       title: 'Restorable',
       closeOnComplete: true,
       provider: _provider,
+      pickerTheme: _pickerTheme,
       onCompleted: (cropStream) {
         // example withtout StreamBuilder
         cropStream.listen((event) {
@@ -105,6 +112,7 @@ class _PickerScreenState extends State<PickerScreen> {
                           context,
                           title: 'Select images',
                           maxAssets: 10,
+                          pickerTheme: _pickerTheme,
                           onCompleted: (cropStream) {
                             Navigator.push(
                               context,
