@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/widget/insta_asset_picker_delegate.dart';
@@ -12,6 +14,13 @@ class InstaAssetPicker {
   void dispose() {
     builder?.dispose();
   }
+
+  /// Request the current [PermissionState] of required permissions.
+  /// Throw an error if permissions are unauthorized.
+  ///
+  /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
+  static Future<PermissionState> _permissionCheck() =>
+      AssetPicker.permissionCheck();
 
   /// When using `restorableAssetsPicker` function, the picker's state is preserved even after pop
   ///
@@ -72,7 +81,13 @@ class InstaAssetPicker {
     assert(provider.requestType == RequestType.image,
         'Only images can be shown in the picker for now');
 
+    PermissionState? ps;
+    if (builder == null) {
+      ps = await _permissionCheck();
+    }
+
     builder ??= InstaAssetPickerBuilder(
+      initialPermission: ps!,
       provider: provider,
       title: title,
       gridCount: gridCount,
@@ -194,7 +209,10 @@ class InstaAssetPicker {
       initializeDelayDuration: initializeDelayDuration,
     );
 
+    final ps = await _permissionCheck();
+
     final InstaAssetPickerBuilder builder = InstaAssetPickerBuilder(
+      initialPermission: ps,
       provider: provider,
       title: title,
       gridCount: gridCount,
