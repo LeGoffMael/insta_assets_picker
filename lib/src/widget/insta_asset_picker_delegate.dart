@@ -71,11 +71,6 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       InstaAssetsCropController(keepScrollOffset, isSquareDefaultCrop);
 
   @override
-  void initState(AssetPickerState<AssetEntity, AssetPathEntity> state) {
-    super.initState(state);
-  }
-
-  @override
   void dispose() {
     if (!keepScrollOffset) {
       _cropController.dispose();
