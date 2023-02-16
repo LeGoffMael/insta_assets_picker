@@ -2,8 +2,6 @@
 
 [![Pub](https://img.shields.io/pub/v/insta_assets_picker.svg)](https://pub.dev/packages/insta_assets_picker)
 
-> **_NOTE:_** This repository is still in early stage of development. Contributions are welcomed!
-
 An image picker based on Instagram picker UI. It is using the powerful [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker)
 package to handle the picker and a custom version of [image_crop](https://pub.dev/packages/image_crop) for crop.
 
@@ -30,7 +28,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 Add this package to the `pubspec.yaml`
 
 ```yaml
-insta_assets_picker: ^1.0.1+2
+insta_assets_picker: ^1.2.0
 ```
 
 ### ‼️ DO NOT SKIP THIS PART

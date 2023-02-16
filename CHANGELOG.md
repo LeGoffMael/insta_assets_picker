@@ -1,3 +1,9 @@
+## 1.2.0
+
+- Check permission before opening picker and new `onPermissionDenied` argument [#6](https://github.com/LeGoffMael/insta_assets_picker/pull/6)
+- Expose `themeData` in InstaAssetPicker
+- Fix crop view not expanding on android when there is few assets
+
 ## 1.1.1
 
 - Fix warnings with Flutter 3.7
