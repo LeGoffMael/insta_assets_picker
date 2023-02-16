@@ -81,7 +81,7 @@ Most of the components of the picker can be customized using theme.
 
 ```dart
 // set picker theme based on app theme primary color
-final theme = AssetPicker.themeData(Theme.of(context).primaryColor);
+final theme = InstaAssetPicker.themeData(Theme.of(context).primaryColor);
 InstaAssetPicker.pickAssets(
     context,
     title: 'Select images',

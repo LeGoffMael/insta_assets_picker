@@ -42,6 +42,12 @@ class InstaAssetPicker {
     }
   }
 
+  /// Build a [ThemeData] with the given [themeColor] for the picker.
+  ///
+  /// check `AssetPickerDelegate.themeData()` from flutter_wechat_assets_picker package for more information.
+  static ThemeData themeData(Color? themeColor, {bool light = false}) =>
+      AssetPicker.themeData(themeColor, light: light);
+
   /// When using `restorableAssetsPicker` function, the picker's state is preserved even after pop
   ///
   /// ⚠️ [InstaAssetPicker] and [provider] must be disposed manually
@@ -123,8 +129,7 @@ class InstaAssetPicker {
       provider: provider,
       title: title,
       gridCount: gridCount,
-      pickerTheme:
-          pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
+      pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
       locale: locale,
       keepScrollOffset: true,
       textDelegate: text,
@@ -261,8 +266,7 @@ class InstaAssetPicker {
       provider: provider,
       title: title,
       gridCount: gridCount,
-      pickerTheme:
-          pickerTheme ?? AssetPicker.themeData(Theme.of(context).primaryColor),
+      pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
       locale: locale,
       keepScrollOffset: false,
       textDelegate: text,

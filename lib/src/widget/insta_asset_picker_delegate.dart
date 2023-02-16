@@ -224,7 +224,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
 
     // expand crop view
     if (isScrollDown &&
-        gridScrollController.offset < 0 &&
+        gridScrollController.offset <= 0 &&
         position < _kExtendedCropViewPosition) {
       // if scroll at edge, compute position based on scroll
       if (_lastScrollOffset > gridScrollController.offset) {
