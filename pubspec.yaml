@@ -12,7 +12,7 @@ dependencies:
     sdk: flutter
 
   image_crop: ^0.4.1
-  wechat_assets_picker: ^8.3.1+1
+  wechat_assets_picker: ^8.3.2
   provider: ^6.0.2 # match with wechat_assets_picker package
   extended_image: ^6.2.0 # match with wechat_assets_picker package
 
