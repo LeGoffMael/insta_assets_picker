@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/widget/insta_asset_picker_delegate.dart';
@@ -11,6 +13,33 @@ class InstaAssetPicker {
 
   void dispose() {
     builder?.dispose();
+  }
+
+  /// Request the current [PermissionState] of required permissions.
+  ///
+  /// Throw an error if permissions are unauthorized.
+  /// Since the exception is thrown from the MethodChannel it cannot be caught by a try/catch
+  ///
+  /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
+  static Future<PermissionState> _permissionCheck() =>
+      AssetPicker.permissionCheck();
+
+  /// Open a [ScaffoldMessenger] describing the reason why the picker cannot be opened.
+  static void _openErrorPermission(
+    BuildContext context,
+    AssetPickerTextDelegate textDelegate,
+    Function(BuildContext, String)? customHandler,
+  ) {
+    final defaultDescription =
+        '${textDelegate.unableToAccessAll}\n${textDelegate.goToSystemSettings}';
+
+    if (customHandler != null) {
+      customHandler(context, defaultDescription);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(defaultDescription)),
+      );
+    }
   }
 
   /// Build a [ThemeData] with the given [themeColor] for the picker.
@@ -28,6 +57,9 @@ class InstaAssetPicker {
   ///
   /// By extending the [AssetPickerPageRoute], users can customize the route
   /// and use it with the [pageRouteBuilder].
+  ///
+  /// Set [onPermissionDenied] to manually handle the denied permission error.
+  /// The default behavior is to open a [ScaffoldMessenger].
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
@@ -62,6 +94,8 @@ class InstaAssetPicker {
     Key? key,
     bool useRootNavigator = true,
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
+    Function(BuildContext context, String delegateDescription)?
+        onPermissionDenied,
 
     /// InstaAssetPickerBuilder options
     int gridCount = _kGridCount,
@@ -78,14 +112,27 @@ class InstaAssetPicker {
     assert(provider.requestType == RequestType.image,
         'Only images can be shown in the picker for now');
 
+    final locale = Localizations.maybeLocaleOf(context);
+    final text = textDelegate ?? assetPickerTextDelegateFromLocale(locale);
+
+    PermissionState? ps;
+    if (builder == null) {
+      try {
+        ps = await _permissionCheck();
+      } catch (e) {
+        _openErrorPermission(context, text, onPermissionDenied);
+      }
+    }
+
     builder ??= InstaAssetPickerBuilder(
+      initialPermission: ps ?? PermissionState.denied,
       provider: provider,
       title: title,
       gridCount: gridCount,
       pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
-      locale: Localizations.maybeLocaleOf(context),
+      locale: locale,
       keepScrollOffset: true,
-      textDelegate: textDelegate,
+      textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
       isSquareDefaultCrop: isSquareDefaultCrop,
@@ -107,6 +154,9 @@ class InstaAssetPicker {
   ///
   /// By extending the [AssetPickerPageRoute], users can customize the route
   /// and use it with the [pageRouteBuilder].
+  ///
+  /// Set [onPermissionDenied] to manually handle the denied permission error.
+  /// The default behavior is to open a [ScaffoldMessenger].
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
@@ -164,6 +214,8 @@ class InstaAssetPicker {
     Key? key,
     bool useRootNavigator = true,
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
+    Function(BuildContext context, String delegateDescription)?
+        onPermissionDenied,
 
     /// InstaAssetPickerBuilder options
     int gridCount = _kGridCount,
@@ -199,14 +251,25 @@ class InstaAssetPicker {
       initializeDelayDuration: initializeDelayDuration,
     );
 
+    final locale = Localizations.maybeLocaleOf(context);
+    final text = textDelegate ?? assetPickerTextDelegateFromLocale(locale);
+
+    PermissionState? ps;
+    try {
+      ps = await _permissionCheck();
+    } catch (e) {
+      _openErrorPermission(context, text, onPermissionDenied);
+    }
+
     final InstaAssetPickerBuilder builder = InstaAssetPickerBuilder(
+      initialPermission: ps ?? PermissionState.denied,
       provider: provider,
       title: title,
       gridCount: gridCount,
       pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
-      locale: Localizations.maybeLocaleOf(context),
+      locale: locale,
       keepScrollOffset: false,
-      textDelegate: textDelegate,
+      textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
       isSquareDefaultCrop: isSquareDefaultCrop,

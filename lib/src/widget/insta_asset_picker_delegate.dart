@@ -26,6 +26,7 @@ const _kPathSelectorRowHeight = 50.0;
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
+    required super.initialPermission,
     required super.provider,
     required this.onCompleted,
     super.gridCount = 4,
@@ -39,7 +40,6 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     this.isSquareDefaultCrop = true,
   }) : super(
           shouldRevertGrid: false,
-          initialPermission: PermissionState.authorized,
           specialItemPosition: SpecialItemPosition.none,
         );
 
