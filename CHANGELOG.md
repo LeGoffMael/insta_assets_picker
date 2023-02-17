@@ -1,3 +1,7 @@
+## 1.2.1
+
+- Fix `PlatformException(PERMISSION_REQUESTING)` which causes loading error on first open on android
+
 ## 1.2.0
 
 - Check permission before opening picker and new `onPermissionDenied` argument [#6](https://github.com/LeGoffMael/insta_assets_picker/pull/6)

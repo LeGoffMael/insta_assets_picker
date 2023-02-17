@@ -1,6 +1,6 @@
 name: insta_assets_picker
 description: An image picker similar with Instagram, supports multi picking, crop and aspect ratio.
-version: 1.2.0
+version: 1.2.1
 repository: https://github.com/LeGoffMael/insta_assets_picker
 
 environment:
