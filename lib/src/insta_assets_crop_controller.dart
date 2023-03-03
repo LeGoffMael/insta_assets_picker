@@ -66,11 +66,13 @@ class InstaAssetsCropData {
 
 /// The controller that handles the exportation and save the state of the selected assets crop parameters
 class InstaAssetsCropController {
-  InstaAssetsCropController(this.keepMemory, bool isSquareDefaultCrop)
-      : isSquare = ValueNotifier<bool>(isSquareDefaultCrop);
+  InstaAssetsCropController(
+    this.keepMemory,
+    this.cropDelegate,
+  ) : isSquare = ValueNotifier<bool>(cropDelegate.isSquareDefaultCrop);
 
   /// Whether the crop view aspect ratio is 1 or 4/5
-  late final ValueNotifier<bool> isSquare;
+  final ValueNotifier<bool> isSquare;
 
   /// Whether the image in the crop view is loaded
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
@@ -79,12 +81,15 @@ class InstaAssetsCropController {
   final ValueNotifier<AssetEntity?> previewAsset =
       ValueNotifier<AssetEntity?>(null);
 
+  /// Options related to crop
+  final InstaAssetCropDelegate cropDelegate;
+
   /// List of all the crop parameters set by the user
   List<InstaAssetsCropData> _cropParameters = [];
 
   /// Whether if [_cropParameters] should be saved in the cache to use when the picker
   /// is open with [InstaAssetPicker.restorableAssetsPicker]
-  bool keepMemory = false;
+  final bool keepMemory;
 
   dispose() {
     clear();
@@ -191,7 +196,7 @@ class InstaAssetsCropController {
       // makes the sample file to not be too small
       final sampledFile = await InstaAssetsCrop.sampleImage(
         file: file,
-        preferredSize: (1024 / scale).round(),
+        preferredSize: (cropDelegate.preferredSize / scale).round(),
       );
 
       if (area == null) {

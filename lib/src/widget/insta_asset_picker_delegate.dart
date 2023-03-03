@@ -4,6 +4,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
@@ -37,8 +38,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.loadingIndicatorBuilder,
     this.title,
     this.closeOnComplete = false,
-    this.isSquareDefaultCrop = true,
-  }) : super(
+    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
+  })  : _cropController =
+            InstaAssetsCropController(keepScrollOffset, cropDelegate),
+        super(
           shouldRevertGrid: false,
           specialItemPosition: SpecialItemPosition.none,
         );
@@ -51,8 +54,6 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   ///
   /// Defaults to `false`, like instagram
   final bool closeOnComplete;
-
-  final bool isSquareDefaultCrop;
 
   // LOCAL PARAMETERS
 
@@ -67,8 +68,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   final _cropViewerKey = GlobalKey<CropViewerState>();
 
   /// Controller handling the state of asset crop values and the exportation
-  late final _cropController =
-      InstaAssetsCropController(keepScrollOffset, isSquareDefaultCrop);
+  final InstaAssetsCropController _cropController;
 
   @override
   void dispose() {

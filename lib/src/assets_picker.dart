@@ -8,6 +8,30 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 const _kGridCount = 4;
 const _kInitializeDelayDuration = Duration(milliseconds: 250);
 
+class InstaAssetCropDelegate {
+  const InstaAssetCropDelegate({
+    this.isSquareDefaultCrop = false,
+    this.preferredSize = 1080,
+  });
+
+  /// The param [isSquareDefaultCrop] specifies if the crop view should be initialized
+  /// on square mode.
+  ///
+  /// Defaults to `false`, like instagram.
+  final bool isSquareDefaultCrop;
+
+  /// The param [preferredSize] is used to produce higher quality cropped image.
+  /// Keep in mind that the higher this value is, the heavier the cropped image will be.
+  ///
+  /// This value while be used as such
+  /// ```dart
+  /// preferredSize = (preferredSize / scale).round()
+  /// ```
+  ///
+  /// Defaults to `1080`, like instagram.
+  final double preferredSize;
+}
+
 class InstaAssetPicker {
   InstaAssetPickerBuilder? builder;
 
@@ -61,6 +85,9 @@ class InstaAssetPicker {
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
   ///
+  /// Crop options
+  /// - Set [cropDelegate] to customize the display and export of crops.
+  ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
   /// - Set [provider] of type [DefaultAssetPickerProvider] to specifies picker options.
@@ -80,10 +107,6 @@ class InstaAssetPicker {
   /// - Set [closeOnComplete] to specifies if the picker should be closed
   /// after assets selection confirmation.
   ///
-  /// - Set [isSquareDefaultCrop] to specifies if the crop view should be initialized
-  /// on square mode.
-  /// Defaults to `false`, like instagram.
-  ///
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
   ///
@@ -97,6 +120,9 @@ class InstaAssetPicker {
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
 
+    /// Crop options
+    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
+
     /// InstaAssetPickerBuilder options
     int gridCount = _kGridCount,
     required DefaultAssetPickerProvider provider,
@@ -104,7 +130,6 @@ class InstaAssetPicker {
     AssetPickerTextDelegate? textDelegate,
     String? title,
     bool closeOnComplete = false,
-    bool isSquareDefaultCrop = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
     Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
@@ -135,7 +160,7 @@ class InstaAssetPicker {
       textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
-      isSquareDefaultCrop: isSquareDefaultCrop,
+      cropDelegate: cropDelegate,
       onCompleted: onCompleted,
     );
 
@@ -158,6 +183,9 @@ class InstaAssetPicker {
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
   ///
+  /// Crop options
+  /// - Set [cropDelegate] to customize the display and export of crops.
+  ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
   /// - Set [gridCount] to specifies the number of assets in the cross axis.
@@ -173,10 +201,6 @@ class InstaAssetPicker {
   ///
   /// - Set [closeOnComplete] to specifies if the picker should be closed
   /// after assets selection confirmation.
-  ///
-  /// - Set [isSquareDefaultCrop] to specifies if the crop view should be initialized
-  /// on square mode.
-  /// Defaults to `false`, like instagram.
   ///
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
@@ -217,13 +241,15 @@ class InstaAssetPicker {
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
 
+    /// Crop options
+    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
+
     /// InstaAssetPickerBuilder options
     int gridCount = _kGridCount,
     ThemeData? pickerTheme,
     AssetPickerTextDelegate? textDelegate,
     String? title,
     bool closeOnComplete = false,
-    bool isSquareDefaultCrop = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
     Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
@@ -274,7 +300,7 @@ class InstaAssetPicker {
       textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
       closeOnComplete: closeOnComplete,
-      isSquareDefaultCrop: isSquareDefaultCrop,
+      cropDelegate: cropDelegate,
       onCompleted: onCompleted,
     );
 
