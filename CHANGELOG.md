@@ -1,3 +1,15 @@
+## 1.2.2
+
+- Internal migration from [image_crop](https://pub.dev/packages/image_crop) package to insta_assets_crop
+  - Fix cropped image size too small on android [image_crop/#75](https://github.com/lykhonis/image_crop/pull/75)
+- New `cropDelegate` parameter to specify crop options
+  - Increased default cropped preferred size from 1024px to 1080px (like instagram)
+
+### Breaking changes
+
+- Renamed `InstaAssetsCrop` into `InstaAssetsCropData`.
+- Moved `isSquareDefaultCrop` into `cropDelegate`.
+
 ## 1.2.1
 
 - Fix `PlatformException(PERMISSION_REQUESTING)` which causes loading error on first open on android
