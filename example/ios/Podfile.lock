@@ -1,6 +1,6 @@
 PODS:
   - Flutter (1.0.0)
-  - image_crop (0.0.1):
+  - insta_assets_crop (0.0.1):
     - Flutter
   - path_provider_foundation (0.0.1):
     - Flutter
@@ -13,7 +13,7 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
-  - image_crop (from `.symlinks/plugins/image_crop/ios`)
+  - insta_assets_crop (from `.symlinks/plugins/insta_assets_crop/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
@@ -21,8 +21,8 @@ DEPENDENCIES:
 EXTERNAL SOURCES:
   Flutter:
     :path: Flutter
-  image_crop:
-    :path: ".symlinks/plugins/image_crop/ios"
+  insta_assets_crop:
+    :path: ".symlinks/plugins/insta_assets_crop/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/ios"
   photo_manager:
@@ -32,7 +32,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  image_crop: e0a67085d3ebf3cf46ca46d61c53a082507b0bc3
+  insta_assets_crop: 46c0be4cbfe48cff466b6924ec93b77f656ebaa8
   path_provider_foundation: 37748e03f12783f9de2cb2c4eadfaa25fe6d4852
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
   video_player_avfoundation: e489aac24ef5cf7af82702979ed16f2a5ef84cff

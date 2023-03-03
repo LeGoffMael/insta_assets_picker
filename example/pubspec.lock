@@ -140,13 +140,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.0.2"
-  image_crop:
+  insta_assets_crop:
     dependency: transitive
     description:
-      name: image_crop
+      name: insta_assets_crop
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.1"
+    version: "0.0.1"
   insta_assets_picker:
     dependency: "direct main"
     description:

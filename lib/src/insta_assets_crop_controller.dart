@@ -1,9 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_crop/image_crop.dart' hide CropState;
-import 'package:insta_assets_picker/src/custom_packages/image_crop/crop.dart'
-    show CropState, CropInternal;
+import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 
 /// Uses [InstaAssetsCropSingleton] to keep crop parameters in memory until the picker is disposed
@@ -12,7 +10,7 @@ import 'package:insta_assets_picker/insta_assets_picker.dart';
 class InstaAssetsCropSingleton {
   const InstaAssetsCropSingleton._();
 
-  static List<InstaAssetsCrop> cropParameters = [];
+  static List<InstaAssetsCropData> cropParameters = [];
 }
 
 /// Contains all the parameters of the exportation
@@ -38,7 +36,7 @@ class InstaAssetsExportDetails {
 }
 
 /// The crop parameters state, can be used at exportation or to load the crop view
-class InstaAssetsCrop {
+class InstaAssetsCropData {
   final AssetEntity asset;
   final CropInternal? cropParam;
 
@@ -46,18 +44,18 @@ class InstaAssetsCrop {
   final double scale;
   final Rect? area;
 
-  const InstaAssetsCrop({
+  const InstaAssetsCropData({
     required this.asset,
     required this.cropParam,
     this.scale = 1.0,
     this.area,
   });
 
-  static InstaAssetsCrop fromState({
+  static InstaAssetsCropData fromState({
     required AssetEntity asset,
     required CropState? cropState,
   }) {
-    return InstaAssetsCrop(
+    return InstaAssetsCropData(
       asset: asset,
       cropParam: cropState?.internalParameters,
       scale: cropState?.scale ?? 1.0,
@@ -82,7 +80,7 @@ class InstaAssetsCropController {
       ValueNotifier<AssetEntity?>(null);
 
   /// List of all the crop parameters set by the user
-  List<InstaAssetsCrop> _cropParameters = [];
+  List<InstaAssetsCropData> _cropParameters = [];
 
   /// Whether if [_cropParameters] should be saved in the cache to use when the picker
   /// is open with [InstaAssetPicker.restorableAssetsPicker]
@@ -98,12 +96,12 @@ class InstaAssetsCropController {
   double get aspectRatio => isSquare.value ? 1 : 4 / 5;
 
   /// Use [_cropParameters] when [keepMemory] is `false`, otherwise use [InstaAssetsCropSingleton.cropParameters]
-  List<InstaAssetsCrop> get cropParameters =>
+  List<InstaAssetsCropData> get cropParameters =>
       keepMemory ? InstaAssetsCropSingleton.cropParameters : _cropParameters;
 
   /// Save the list of crop parameters
   /// if [keepMemory] save list memory or simply in the controller
-  void updateStoreCropParam(List<InstaAssetsCrop> list) {
+  void updateStoreCropParam(List<InstaAssetsCropData> list) {
     if (keepMemory) {
       InstaAssetsCropSingleton.cropParameters = list;
     } else {
@@ -123,7 +121,7 @@ class InstaAssetsCropController {
     CropState? saveCropState,
     List<AssetEntity> selectedAssets,
   ) {
-    final List<InstaAssetsCrop> newList = [];
+    final List<InstaAssetsCropData> newList = [];
 
     for (final asset in selectedAssets) {
       // get the already saved crop parameters if exists
@@ -132,14 +130,15 @@ class InstaAssetsCropController {
       // if it is the asseet to save & the crop parameters exists
       if (asset == saveAsset && saveAsset != null) {
         // add the new parameters
-        newList.add(InstaAssetsCrop.fromState(
+        newList.add(InstaAssetsCropData.fromState(
           asset: saveAsset,
           cropState: saveCropState,
         ));
         // if it is not the asset to save and no crop parameter exists
       } else if (savedCropAsset == null) {
         // set empty crop parameters
-        newList.add(InstaAssetsCrop.fromState(asset: asset, cropState: null));
+        newList
+            .add(InstaAssetsCropData.fromState(asset: asset, cropState: null));
       } else {
         // keep existing crop parameters
         newList.add(savedCropAsset);
@@ -150,8 +149,8 @@ class InstaAssetsCropController {
     updateStoreCropParam(newList);
   }
 
-  /// Returns the crop parametes [InstaAssetsCrop] of the given asset
-  InstaAssetsCrop? get(AssetEntity asset) {
+  /// Returns the crop parametes [InstaAssetsCropData] of the given asset
+  InstaAssetsCropData? get(AssetEntity asset) {
     if (cropParameters.isEmpty) return null;
     final index = cropParameters.indexWhere((e) => e.asset == asset);
     if (index == -1) return null;
@@ -190,7 +189,7 @@ class InstaAssetsCropController {
       }
 
       // makes the sample file to not be too small
-      final sampledFile = await ImageCrop.sampleImage(
+      final sampledFile = await InstaAssetsCrop.sampleImage(
         file: file,
         preferredSize: (1024 / scale).round(),
       );
@@ -200,7 +199,7 @@ class InstaAssetsCropController {
       } else {
         // crop the file with the area selected
         final croppedFile =
-            await ImageCrop.cropImage(file: sampledFile, area: area);
+            await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
         // delete the not needed sample file
         sampledFile.delete();
 

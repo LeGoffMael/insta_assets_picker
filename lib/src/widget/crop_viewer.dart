@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:insta_assets_picker/src/custom_packages/image_crop/crop.dart';
+import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:extended_image/extended_image.dart';
