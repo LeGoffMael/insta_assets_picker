@@ -1,3 +1,9 @@
+## 1.3.0
+
+### Breaking changes
+
+- Migrate to Flutter 3.7, drop supports for previous Flutter versions.
+
 ## 1.2.2
 
 - Internal migration from [image_crop](https://pub.dev/packages/image_crop) package to insta_assets_crop

@@ -571,8 +571,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       height: _kIndicatorSize,
       padding: const EdgeInsets.all(2),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.white, width: 1),
-        color: isSelected ? themeColor : Colors.white.withOpacity(.2),
+        border: Border.all(color: theme.unselectedWidgetColor, width: 1),
+        color: isSelected
+            ? themeColor
+            : theme.unselectedWidgetColor.withOpacity(.2),
         shape: BoxShape.circle,
       ),
       child: FittedBox(
@@ -600,7 +602,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               duration: switchingPathDuration,
               padding: const EdgeInsets.all(4),
               color: isPreview
-                  ? Colors.white.withOpacity(.5)
+                  ? theme.unselectedWidgetColor.withOpacity(.5)
                   : theme.colorScheme.background.withOpacity(.1),
               child: Align(
                 alignment: AlignmentDirectional.topEnd,
