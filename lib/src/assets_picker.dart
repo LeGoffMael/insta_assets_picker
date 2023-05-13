@@ -133,6 +133,8 @@ class InstaAssetPicker {
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
     Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
+    Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
+    SpecialItemPosition? specialItemPosition,
   }) async {
     assert(provider.requestType == RequestType.image,
         'Only images can be shown in the picker for now');
@@ -162,6 +164,8 @@ class InstaAssetPicker {
       closeOnComplete: closeOnComplete,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
+      specialItemBuilder: specialItemBuilder,
+      specialItemPosition: specialItemPosition,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
@@ -264,6 +268,8 @@ class InstaAssetPicker {
     bool sortPathsByModifiedDate = false,
     FilterOptionGroup? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
+    Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
+    SpecialItemPosition? specialItemPosition,
   }) async {
     final locale = Localizations.maybeLocaleOf(context);
     final text = textDelegate ?? assetPickerTextDelegateFromLocale(locale);
@@ -302,6 +308,8 @@ class InstaAssetPicker {
       closeOnComplete: closeOnComplete,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
+      specialItemBuilder: specialItemBuilder,
+      specialItemPosition: specialItemPosition,
     );
 
     return AssetPicker.pickAssetsWithDelegate(

@@ -36,6 +36,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.locale,
     super.keepScrollOffset,
     super.loadingIndicatorBuilder,
+    super.specialItemBuilder,
+    SpecialItemPosition? specialItemPosition,
     this.title,
     this.closeOnComplete = false,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
@@ -43,7 +45,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
         super(
           shouldRevertGrid: false,
-          specialItemPosition: SpecialItemPosition.none,
+          specialItemPosition: specialItemPosition ?? SpecialItemPosition.none,
         );
 
   final String? title;
