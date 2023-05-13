@@ -1,3 +1,17 @@
+## 1.5.0
+
+- remove `isSquareDefaultCrop` parameter
+- add the possibiliy the list aspect ratios selectable, the first element will be the default value
+
+```dart
+InstaAssetPicker.pickAssets(
+  context,
+  title: 'Select images',
+  cropDelegate: InstaAssetCropDelegate(cropRatios: [4 / 5, 1 / 1]),
+  onCompleted: (cropStream) {},
+),
+```
+
 ## 1.4.0
 
 - add `specialItemBuilder` and `specialItemPosition` to picker

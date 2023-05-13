@@ -7,18 +7,13 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 const _kGridCount = 4;
 const _kInitializeDelayDuration = Duration(milliseconds: 250);
+const kDefaultInstaCropRatios = [1.0, 4 / 5];
 
 class InstaAssetCropDelegate {
   const InstaAssetCropDelegate({
-    this.isSquareDefaultCrop = false,
     this.preferredSize = 1080,
+    this.cropRatios = kDefaultInstaCropRatios,
   });
-
-  /// The param [isSquareDefaultCrop] specifies if the crop view should be initialized
-  /// on square mode.
-  ///
-  /// Defaults to `false`, like instagram.
-  final bool isSquareDefaultCrop;
 
   /// The param [preferredSize] is used to produce higher quality cropped image.
   /// Keep in mind that the higher this value is, the heavier the cropped image will be.
@@ -30,6 +25,12 @@ class InstaAssetCropDelegate {
   ///
   /// Defaults to `1080`, like instagram.
   final double preferredSize;
+
+  /// The param [cropRatios] provided the list of crop ratios that can be set
+  /// from the crop view.
+  ///
+  /// Defaults to `[1/1, 4/5]` like instagram.
+  final List<double> cropRatios;
 }
 
 class InstaAssetPicker {

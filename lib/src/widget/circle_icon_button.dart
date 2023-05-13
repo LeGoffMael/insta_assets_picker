@@ -31,6 +31,7 @@ class CircleIconButton extends StatelessWidget {
         foregroundColor: theme?.iconTheme.color,
         visualDensity: VisualDensity.compact,
         tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        textStyle: const TextStyle(fontSize: 12),
       ),
       child: icon,
     );

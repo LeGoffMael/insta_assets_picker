@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:fraction/fraction.dart';
 import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 
@@ -66,13 +67,11 @@ class InstaAssetsCropData {
 
 /// The controller that handles the exportation and save the state of the selected assets crop parameters
 class InstaAssetsCropController {
-  InstaAssetsCropController(
-    this.keepMemory,
-    this.cropDelegate,
-  ) : isSquare = ValueNotifier<bool>(cropDelegate.isSquareDefaultCrop);
+  InstaAssetsCropController(this.keepMemory, this.cropDelegate)
+      : cropRatioIndex = ValueNotifier<int>(0);
 
-  /// Whether the crop view aspect ratio is 1 or 4/5
-  final ValueNotifier<bool> isSquare;
+  /// The index of the selected aspectRatio among the possibilities
+  final ValueNotifier<int> cropRatioIndex;
 
   /// Whether the image in the crop view is loaded
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
@@ -94,11 +93,30 @@ class InstaAssetsCropController {
   dispose() {
     clear();
     isCropViewReady.dispose();
-    isSquare.dispose();
+    cropRatioIndex.dispose();
     previewAsset.dispose();
   }
 
-  double get aspectRatio => isSquare.value ? 1 : 4 / 5;
+  double get aspectRatio {
+    assert(cropDelegate.cropRatios.isNotEmpty,
+        'The list of supported crop ratios cannot be empty.');
+    return cropDelegate.cropRatios[cropRatioIndex.value];
+  }
+
+  String get aspectRatioString {
+    final r = aspectRatio;
+    if (r == 1) return '1:1';
+    return Fraction.fromDouble(r).reduce().toString().replaceFirst('/', ':');
+  }
+
+  /// Set the next available index as the selected crop ratio
+  void nextCropRatio() {
+    if (cropRatioIndex.value < cropDelegate.cropRatios.length - 1) {
+      cropRatioIndex.value = cropRatioIndex.value + 1;
+    } else {
+      cropRatioIndex.value = 0;
+    }
+  }
 
   /// Use [_cropParameters] when [keepMemory] is `false`, otherwise use [InstaAssetsCropSingleton.cropParameters]
   List<InstaAssetsCropData> get cropParameters =>

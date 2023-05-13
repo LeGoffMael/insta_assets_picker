@@ -13,8 +13,9 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Theme and language customization
 - ✅ Multiple images pick (with maximum limit)
 - ✅ Restore state of picker after pop
-- ✅ Change aspect ratio from 1:1 to 4:5
+- ✅ Select aspect ratios to crop all images with (default to 1:1 & 4:5)
 - ✅ Crop all images at once and receive a stream with a progress value
+- ✅ Prepend or append a custom item in the assets list
 - ❌ Videos are not supported
 
 ## 📸 Screenshots

@@ -125,6 +125,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fraction:
+    dependency: transitive
+    description:
+      name: fraction
+      sha256: e09bce4d217541e67657c3ace2b89c356cc2f26abbca4dd76b25338af0d6a799
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.0.0"
   html:
     dependency: transitive
     description:
@@ -171,7 +179,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.4.0"
+    version: "1.5.0"
   intl:
     dependency: transitive
     description:
