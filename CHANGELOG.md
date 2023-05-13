@@ -1,3 +1,11 @@
+## 1.4.0
+
+- add `specialItemBuilder` and `specialItemPosition` to picker
+
+### Breaking changes
+
+- Migrate to Flutter 3.10, drop supports for previous Flutter versions.
+
 ## 1.3.0
 
 ### Breaking changes

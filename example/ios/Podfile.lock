@@ -14,7 +14,7 @@ PODS:
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - insta_assets_crop (from `.symlinks/plugins/insta_assets_crop/ios`)
-  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/ios`)
+  - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/ios`)
 
@@ -24,7 +24,7 @@ EXTERNAL SOURCES:
   insta_assets_crop:
     :path: ".symlinks/plugins/insta_assets_crop/ios"
   path_provider_foundation:
-    :path: ".symlinks/plugins/path_provider_foundation/ios"
+    :path: ".symlinks/plugins/path_provider_foundation/darwin"
   photo_manager:
     :path: ".symlinks/plugins/photo_manager/ios"
   video_player_avfoundation:
