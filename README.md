@@ -29,7 +29,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 Add this package to the `pubspec.yaml`
 
 ```yaml
-insta_assets_picker: ^1.2.2
+insta_assets_picker: ^1.5.0
 ```
 
 ### ‼️ DO NOT SKIP THIS PART
@@ -83,7 +83,6 @@ Most of the components of the picker can be customized using theme.
 final theme = InstaAssetPicker.themeData(Theme.of(context).primaryColor);
 InstaAssetPicker.pickAssets(
     context,
-    title: 'Select images',
     pickerTheme: theme.copyWith(
       canvasColor: Colors.black, // body background color
       splashColor: Color.grey, // ontap splash color
@@ -98,6 +97,31 @@ InstaAssetPicker.pickAssets(
             ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
       ),
     ),
+    onCompleted: (_) {},
+);
+```
+
+### Crop customization
+
+You can set the list of crop aspect ratios available.
+You can also set the preferred size, for the cropped images.
+
+```dart
+InstaAssetPicker.pickAssets(
+    context,
+    cropDelegate: InstaAssetCropDelegate(
+      // allows you to set the preferred size used when cropping the image.
+      // the final size will depends on the scale used when cropping.
+      preferredSize: 1080,
+      cropRatios: [
+      // - allow you to set the list of aspect ratios selectable,
+      // the default values are [1/1, 4/5] like instagram.
+      // - if you want to disable cropping, you can set only one parameter,
+      // in this case, the "crop" button will not be displayed (#10).
+      // - if the value of cropRatios is different than the default value,
+      // the "crop" button will display the selected crop value (i.e.: 1.:1)
+      // instead of unfold arrows.
+    ]),
     onCompleted: (_) {},
 );
 ```
