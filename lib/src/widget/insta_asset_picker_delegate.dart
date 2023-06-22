@@ -342,6 +342,9 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                         ? '${textDelegate.confirm}'
                             ' (${p.selectedAssets.length}/${p.maxAssets})'
                         : textDelegate.confirm,
+                    style: p.isSelectedNotEmpty
+                        ? theme.textTheme.bodyLarge
+                        : theme.textTheme.bodySmall,
                   )
                 : _buildLoader(context, 10),
           );
