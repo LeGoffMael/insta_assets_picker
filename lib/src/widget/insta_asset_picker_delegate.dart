@@ -329,10 +329,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       builder: (_, isLoaded, __) => Consumer<DefaultAssetPickerProvider>(
         builder: (_, DefaultAssetPickerProvider p, __) {
           return TextButton(
-            style: TextButton.styleFrom(
-              foregroundColor:
-                  p.isSelectedNotEmpty ? themeColor : theme.dividerColor,
-            ),
+            style: pickerTheme?.textButtonTheme.style ??
+                TextButton.styleFrom(
+                  foregroundColor: themeColor,
+                  disabledForegroundColor: theme.dividerColor,
+                ),
             onPressed: isLoaded && p.isSelectedNotEmpty
                 ? () => onConfirm(context)
                 : null,

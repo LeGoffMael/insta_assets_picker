@@ -96,6 +96,13 @@ InstaAssetPicker.pickAssets(
             .titleTextStyle
             ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
       ),
+      // edit `confirm` button style
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: Colors.blue,
+          disabledForegroundColor: Colors.red,
+        ),
+      ),
     ),
     onCompleted: (_) {},
 );
