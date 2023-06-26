@@ -1,3 +1,7 @@
+## 1.5.1
+
+- set `textButtonTheme` in the pickerTheme to customize the confirm button appareance
+
 ## 1.5.0
 
 - remove `isSquareDefaultCrop` parameter
