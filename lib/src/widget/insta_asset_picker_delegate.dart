@@ -517,7 +517,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   Widget _buildListAlbums(context) {
     return Consumer<DefaultAssetPickerProvider>(
         builder: (BuildContext context, provider, __) {
-      if (isAppleOS) return pathEntityListWidget(context);
+      if (isAppleOS(context)) return pathEntityListWidget(context);
 
       // NOTE: fix position on android, quite hacky could be optimized
       return ValueListenableBuilder<bool>(
