@@ -29,7 +29,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 Add this package to the `pubspec.yaml`
 
 ```yaml
-insta_assets_picker: ^1.5.0
+insta_assets_picker: ^1.5.2
 ```
 
 ### ‼️ DO NOT SKIP THIS PART
