@@ -179,7 +179,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "1.5.1"
+    version: "1.5.2"
   intl:
     dependency: transitive
     description:
@@ -405,10 +405,10 @@ packages:
     dependency: transitive
     description:
       name: video_player
-      sha256: de95f0e9405f29b5582573d4166132e71f83b3158aac14e8ee5767a54f4f1fbd
+      sha256: "3fd106c74da32f336dc7feb65021da9b0207cb3124392935f1552834f7cce822"
       url: "https://pub.dev"
     source: hosted
-    version: "2.6.1"
+    version: "2.7.0"
   video_player_android:
     dependency: transitive
     description:
@@ -445,10 +445,10 @@ packages:
     dependency: transitive
     description:
       name: wechat_assets_picker
-      sha256: "5aeac81c6a28e1142a2c9ba9ee802b909c2dad9186d9a58dbe4eb74493af4743"
+      sha256: "30683da7b34d9c5a3d9851817926feb044e46d687967453fb77bec2fd8fc9514"
       url: "https://pub.dev"
     source: hosted
-    version: "8.5.0"
+    version: "8.6.1"
   win32:
     dependency: transitive
     description:

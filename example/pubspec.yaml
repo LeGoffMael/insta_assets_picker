@@ -1,7 +1,7 @@
 name: insta_assets_picker_demo
 description: The demo project for the insta_assets_picker package.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 1.5.1
+version: 1.5.2
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

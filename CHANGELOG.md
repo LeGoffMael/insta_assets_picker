@@ -1,3 +1,7 @@
+## 1.5.2
+
+- bump `wechat_assets_picker` to 8.6.x [#18](https://github.com/LeGoffMael/insta_assets_picker/pull/18)
+
 ## 1.5.1
 
 - set `textButtonTheme` in the pickerTheme to customize the confirm button appareance
