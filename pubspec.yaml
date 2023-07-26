@@ -13,7 +13,7 @@ dependencies:
 
   insta_assets_crop: ^0.0.2 # custom package from image_crop
   fraction: ^5.0.0 # to show crop ratio in crop view
-  wechat_assets_picker: ^8.5.0
+  wechat_assets_picker: ^8.6.0
   provider: ^6.0.5 # match with wechat_assets_picker package
   extended_image: ^8.0.1 # match with wechat_assets_picker package
 
