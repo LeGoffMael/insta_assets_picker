@@ -1,8 +1,8 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
-import 'package:insta_assets_picker_demo/helpers.dart';
 import 'package:insta_assets_picker_demo/widgets/crop_result_view.dart';
+import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
 import 'package:path/path.dart' as path;
 
 class CameraPicker extends StatefulWidget with InstaPickerInterface {

@@ -1,11 +1,13 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:insta_assets_picker_demo/helpers.dart';
 import 'package:insta_assets_picker_demo/pages/basic_picker.dart';
 import 'package:insta_assets_picker_demo/pages/camera/camera_picker.dart';
 import 'package:insta_assets_picker_demo/pages/camera/wechat_camera_picker.dart';
 import 'package:insta_assets_picker_demo/pages/restorable_picker.dart';
+import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
+
+const kDefaultColor = Colors.deepPurple;
 
 late List<CameraDescription> _cameras;
 
@@ -25,10 +27,8 @@ class MyApp extends StatelessWidget {
       // update to change the main theme of app + picker
       theme: ThemeData(
         useMaterial3: true,
-        // primaryColor: Colors.blueAccent,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          primary: Colors.deepPurple,
+          seedColor: kDefaultColor,
           brightness: Brightness.dark,
         ),
         cardTheme: const CardTheme(

@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
+import 'package:insta_assets_picker_demo/main.dart';
+
+class PickerDescription {
+  final String icon;
+  final String label;
+  final String? description;
+
+  const PickerDescription({
+    required this.icon,
+    required this.label,
+    this.description,
+  });
+}
 
 mixin InstaPickerInterface on Widget {
   PickerDescription get description;
 
   ThemeData getPickerTheme(BuildContext context) {
-    return InstaAssetPicker.themeData(Theme.of(context).colorScheme.primary)
-        .copyWith(
+    return InstaAssetPicker.themeData(kDefaultColor).copyWith(
       appBarTheme: const AppBarTheme(
           titleTextStyle: TextStyle(color: Colors.white, fontSize: 16)),
     );
@@ -62,16 +74,4 @@ mixin InstaPickerInterface on Widget {
         appBar: _appBar,
         body: Padding(padding: const EdgeInsets.all(16), child: child),
       );
-}
-
-class PickerDescription {
-  final String icon;
-  final String label;
-  final String? description;
-
-  const PickerDescription({
-    required this.icon,
-    required this.label,
-    this.description,
-  });
 }
