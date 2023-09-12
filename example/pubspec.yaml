@@ -16,6 +16,11 @@ dependencies:
   insta_assets_picker:
     path: ../
 
+  # for camera examples
+  path: ^1.8.0
+  camera: ^0.10.5+4
+  wechat_camera_picker: ^4.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

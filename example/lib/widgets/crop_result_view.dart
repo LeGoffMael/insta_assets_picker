@@ -3,6 +3,31 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 
+class PickerCropResultScreen extends StatelessWidget {
+  const PickerCropResultScreen({super.key, required this.cropStream});
+
+  final Stream<InstaAssetsExportDetails> cropStream;
+
+  @override
+  Widget build(BuildContext context) {
+    final height = MediaQuery.of(context).size.height - kToolbarHeight;
+
+    return Scaffold(
+      appBar: AppBar(title: const Text('Insta picker result')),
+      body: StreamBuilder<InstaAssetsExportDetails>(
+        stream: cropStream,
+        builder: (context, snapshot) => CropResultView(
+          selectedAssets: snapshot.data?.selectedAssets ?? [],
+          croppedFiles: snapshot.data?.croppedFiles ?? [],
+          progress: snapshot.data?.progress,
+          heightFiles: height / 2,
+          heightAssets: height / 4,
+        ),
+      ),
+    );
+  }
+}
+
 class CropResultView extends StatelessWidget {
   const CropResultView({
     super.key,

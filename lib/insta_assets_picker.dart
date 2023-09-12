@@ -8,5 +8,6 @@ export 'package:wechat_assets_picker/wechat_assets_picker.dart'
         AssetEntity,
         AssetEntityImageProvider,
         DefaultAssetPickerProvider,
-        SpecialItemPosition;
+        SpecialItemPosition,
+        PhotoManager;
 export 'package:wechat_assets_picker/src/delegates/asset_picker_text_delegate.dart';

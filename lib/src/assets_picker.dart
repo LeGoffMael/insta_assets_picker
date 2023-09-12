@@ -40,6 +40,31 @@ class InstaAssetPicker {
     builder?.dispose();
   }
 
+  static AssetPickerTextDelegate defaultTextDelegate(BuildContext context) {
+    final locale = Localizations.maybeLocaleOf(context);
+    return assetPickerTextDelegateFromLocale(locale);
+  }
+
+  static Future<void> refreshAndSelectEntity(
+    BuildContext context,
+    AssetEntity? entity,
+  ) async {
+    if (entity == null) {
+      return;
+    }
+    final AssetPicker<AssetEntity, AssetPathEntity> picker =
+        context.findAncestorWidgetOfExactType()!;
+    final DefaultAssetPickerBuilderDelegate builder =
+        picker.builder as DefaultAssetPickerBuilderDelegate;
+    final DefaultAssetPickerProvider p = builder.provider;
+    await p.switchPath(
+      PathWrapper<AssetPathEntity>(
+        path: await p.currentPath!.path.obtainForNewProperties(),
+      ),
+    );
+    builder.viewAsset(context, 0, entity);
+  }
+
   /// Request the current [PermissionState] of required permissions.
   ///
   /// Throw an error if permissions are unauthorized.
@@ -140,8 +165,7 @@ class InstaAssetPicker {
     assert(provider.requestType == RequestType.image,
         'Only images can be shown in the picker for now');
 
-    final locale = Localizations.maybeLocaleOf(context);
-    final text = textDelegate ?? assetPickerTextDelegateFromLocale(locale);
+    final text = textDelegate ?? defaultTextDelegate(context);
 
     PermissionState? ps;
     if (builder == null) {
@@ -158,7 +182,7 @@ class InstaAssetPicker {
       title: title,
       gridCount: gridCount,
       pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
-      locale: locale,
+      locale: Localizations.maybeLocaleOf(context),
       keepScrollOffset: true,
       textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
@@ -272,8 +296,7 @@ class InstaAssetPicker {
     Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
   }) async {
-    final locale = Localizations.maybeLocaleOf(context);
-    final text = textDelegate ?? assetPickerTextDelegateFromLocale(locale);
+    final text = textDelegate ?? defaultTextDelegate(context);
 
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
     PermissionState? ps;
@@ -302,7 +325,7 @@ class InstaAssetPicker {
       title: title,
       gridCount: gridCount,
       pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
-      locale: locale,
+      locale: Localizations.maybeLocaleOf(context),
       keepScrollOffset: false,
       textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
