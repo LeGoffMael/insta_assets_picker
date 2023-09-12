@@ -1,6 +1,19 @@
-# Instagram Assets Picker
+<p align="center">
+  <h1 align="center">Instagram Assets Picker</h1>
+</p>
 
-[![Pub](https://img.shields.io/pub/v/insta_assets_picker.svg)](https://pub.dev/packages/insta_assets_picker)
+<p align="center">
+  <a href="https://pub.dev/packages/insta_assets_picker">
+    <img src="https://img.shields.io/pub/v/insta_assets_picker.svg" alt="Pub">
+  </a>
+  <a href="https://pub.dev/packages/flutter_lints">
+    <img src="https://img.shields.io/badge/style-flutter__lints-40c4ff.svg" alt="Flutter lints"/>
+  </a>
+  <a href="https://gitmoji.dev">
+		<img src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg" alt="Gitmoji">
+	</a>
+</p>
+
 
 An image picker based on Instagram picker UI. It is using the powerful [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker)
 package to handle the picker and a custom version of [image_crop](https://pub.dev/packages/image_crop) for crop.
