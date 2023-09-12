@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
-import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
@@ -24,6 +23,14 @@ const _kScrollMultiplier = 1.5;
 
 const _kIndicatorSize = 20.0;
 const _kPathSelectorRowHeight = 50.0;
+const _kActionsPadding = EdgeInsets.symmetric(horizontal: 8, vertical: 8);
+
+typedef InstaPickerActionsBuilder = List<Widget> Function(
+  BuildContext context,
+  ThemeData? pickerTheme,
+  double height,
+  VoidCallback unselectAll,
+);
 
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
@@ -40,6 +47,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     SpecialItemPosition? specialItemPosition,
     this.title,
     this.closeOnComplete = false,
+    this.actionsBuilder,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
   })  : _cropController =
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
@@ -51,6 +59,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   final String? title;
 
   final Function(Stream<InstaAssetsExportDetails>) onCompleted;
+
+  final InstaPickerActionsBuilder? actionsBuilder;
 
   /// Should the picker be closed when the selection is confirmed
   ///
@@ -263,51 +273,50 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Widget pathEntitySelector(BuildContext context) {
     Widget selector(BuildContext context) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4)
-            .copyWith(top: 8, bottom: 12),
-        child: TextButton(
-          style: TextButton.styleFrom(
-            foregroundColor: theme.splashColor,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            visualDensity: VisualDensity.compact,
-            padding: const EdgeInsets.all(4).copyWith(left: 6),
-          ),
-          onPressed: () {
-            Feedback.forTap(context);
-            isSwitchingPath.value = !isSwitchingPath.value;
-          },
-          child: Selector<DefaultAssetPickerProvider,
-              PathWrapper<AssetPathEntity>?>(
-            selector: (_, DefaultAssetPickerProvider p) => p.currentPath,
-            builder: (_, PathWrapper<AssetPathEntity>? p, Widget? w) => Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                if (p != null)
-                  Flexible(
-                    child: Text(
-                      isPermissionLimited && p.path.isAll
-                          ? textDelegate.accessiblePathName
-                          : p.path.name,
-                      style: theme.textTheme.bodyLarge?.copyWith(fontSize: 16),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+      return TextButton(
+        style: TextButton.styleFrom(
+          foregroundColor: theme.splashColor,
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          visualDensity: VisualDensity.compact,
+          padding: const EdgeInsets.all(4),
+        ),
+        onPressed: () {
+          Feedback.forTap(context);
+          isSwitchingPath.value = !isSwitchingPath.value;
+        },
+        child:
+            Selector<DefaultAssetPickerProvider, PathWrapper<AssetPathEntity>?>(
+          selector: (_, DefaultAssetPickerProvider p) => p.currentPath,
+          builder: (_, PathWrapper<AssetPathEntity>? p, Widget? w) => Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (p != null)
+                Flexible(
+                  child: Text(
+                    isPermissionLimited && p.path.isAll
+                        ? textDelegate.accessiblePathName
+                        : p.path.name,
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                w!,
-              ],
+                ),
+              w!,
+            ],
+          ),
+          child: ValueListenableBuilder<bool>(
+            valueListenable: isSwitchingPath,
+            builder: (_, bool isSwitchingPath, Widget? w) => Transform.rotate(
+              angle: isSwitchingPath ? math.pi : 0,
+              child: w,
             ),
-            child: ValueListenableBuilder<bool>(
-              valueListenable: isSwitchingPath,
-              builder: (_, bool isSwitchingPath, Widget? w) => Transform.rotate(
-                angle: isSwitchingPath ? math.pi : 0,
-                child: w,
-              ),
-              child: Icon(
-                Icons.keyboard_arrow_down,
-                size: 20,
-                color: theme.iconTheme.color,
-              ),
+            child: Icon(
+              Icons.keyboard_arrow_down,
+              size: 20,
+              color: theme.iconTheme.color,
             ),
           ),
         ),
@@ -317,6 +326,44 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     return ChangeNotifierProvider<DefaultAssetPickerProvider>.value(
       value: provider,
       builder: (BuildContext c, _) => selector(c),
+    );
+  }
+
+  /// Returns the list ofactions that are displayed on top of the assets grid view
+  Widget _buildActions(BuildContext context) {
+    final double height = _kPathSelectorRowHeight - _kActionsPadding.vertical;
+    final ThemeData? theme = pickerTheme?.copyWith(
+      buttonTheme: const ButtonThemeData(padding: EdgeInsets.all(8)),
+    );
+
+    return SizedBox(
+      height: _kPathSelectorRowHeight,
+      width: MediaQuery.of(context).size.width,
+      child: Padding(
+        // decrease left padding because the path selector button has a padding
+        padding: _kActionsPadding.copyWith(left: _kActionsPadding.left - 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            pathEntitySelector(context),
+            actionsBuilder != null
+                ? Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: actionsBuilder!(
+                      context,
+                      theme,
+                      height,
+                      unSelectAll,
+                    ),
+                  )
+                : InstaPickerCircleIconButton.unselectAll(
+                    onTap: unSelectAll,
+                    theme: theme,
+                    size: height,
+                  ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -476,25 +523,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                 theme: pickerTheme,
                               ),
                             ),
-                            SizedBox(
-                              height: _kPathSelectorRowHeight,
-                              width: MediaQuery.of(context).size.width,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  pathEntitySelector(context),
-                                  CircleIconButton(
-                                    onTap: unSelectAll,
-                                    theme: pickerTheme,
-                                    icon: const Icon(
-                                      Icons.layers_clear_sharp,
-                                      size: 18,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            _buildActions(context),
                           ],
                         ),
                       ),

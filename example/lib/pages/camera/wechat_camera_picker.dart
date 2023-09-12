@@ -7,19 +7,20 @@ import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
   const WeChatCameraPicker({super.key});
 
-  Future<AssetEntity?> _pickFromCamera(BuildContext context) =>
-      CameraPicker.pickFromCamera(
-        context,
-        locale: Localizations.maybeLocaleOf(context),
-        pickerConfig: CameraPickerConfig(theme: Theme.of(context)),
-      );
-
   @override
   PickerDescription get description => const PickerDescription(
         icon: '📸',
         label: 'WeChat Camera Picker',
         description: 'Picker with a camera button.\n'
             'The camera logic is handled by the `wechat_camera_picker` package.',
+      );
+
+  /// Needs a [BuildContext] that is coming from the picker
+  Future<AssetEntity?> _pickFromWeChatCamera(BuildContext context) =>
+      CameraPicker.pickFromCamera(
+        context,
+        locale: Localizations.maybeLocaleOf(context),
+        pickerConfig: CameraPickerConfig(theme: Theme.of(context)),
       );
 
   @override
@@ -30,12 +31,33 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
           title: 'Select images or take picture',
           maxAssets: 4,
           pickerTheme: getPickerTheme(context),
+          actionsBuilder: (
+            BuildContext context,
+            ThemeData? pickerTheme,
+            double height,
+            VoidCallback unselectAll,
+          ) =>
+              [
+            InstaPickerCircleIconButton.unselectAll(
+              onTap: unselectAll,
+              theme: pickerTheme,
+              size: height,
+            ),
+            const SizedBox(width: 8),
+            InstaPickerCircleIconButton(
+              onTap: () => _pickFromWeChatCamera(context),
+              theme: pickerTheme,
+              icon: const Icon(Icons.camera_alt),
+              size: height,
+            ),
+          ],
           specialItemBuilder: (context, _, __) {
             // return a button that open the camera
             return ElevatedButton(
               onPressed: () async {
                 Feedback.forTap(context);
-                final AssetEntity? entity = await _pickFromCamera(context);
+                final AssetEntity? entity =
+                    await _pickFromWeChatCamera(context);
                 if (entity == null) return;
 
                 if (context.mounted) {

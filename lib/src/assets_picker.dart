@@ -138,6 +138,16 @@ class InstaAssetPicker {
   ///
   /// - Set [loadingIndicatorBuilder] to specifies the loader indicator
   /// to display in the picker.
+  ///
+  /// - Set [specialItemPosition] to allows users to set a special item in the picker
+  /// with several positions. Since the grid view is reversed, [SpecialItemPosition.prepend]
+  /// will be at the top and [SpecialItemPosition.append] at the bottom.
+  /// Defaults to [SpecialItemPosition.none].
+  ///
+  /// - Set [specialItemBuilder] to specifies [Widget] for the the special item.
+  ///
+  /// - Set [actionsBuilder] function to specifies the [Widget]s to display
+  /// on top of the assets grid view. Default is unselect all assets button.
   Future<List<AssetEntity>?> restorableAssetsPicker(
     BuildContext context, {
     Key? key,
@@ -161,6 +171,7 @@ class InstaAssetPicker {
     Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
     Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
+    InstaPickerActionsBuilder? actionsBuilder,
   }) async {
     assert(provider.requestType == RequestType.image,
         'Only images can be shown in the picker for now');
@@ -191,6 +202,7 @@ class InstaAssetPicker {
       onCompleted: onCompleted,
       specialItemBuilder: specialItemBuilder,
       specialItemPosition: specialItemPosition,
+      actionsBuilder: actionsBuilder,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
@@ -237,6 +249,9 @@ class InstaAssetPicker {
   /// - Set [loadingIndicatorBuilder] to specifies the loader indicator
   /// to display in the picker.
   ///
+  /// - Set [actionsBuilder] function to specifies the [Widget]s to display
+  /// on top of the assets grid view. Default is unselect all assets button.
+  ///
   /// Those arguments are used by [DefaultAssetPickerProvider]
   ///
   /// - Set [selectedAssets] to specifies which assets to preselect when the
@@ -262,6 +277,13 @@ class InstaAssetPicker {
   ///
   /// - Set [initializeDelayDuration] to specifies the delay before loading the assets
   /// Defaults to [_kInitializeDelayDuration].
+  ///
+  /// - Set [specialItemPosition] to allows users to set a special item in the picker
+  /// with several positions. Since the grid view is reversed, [SpecialItemPosition.prepend]
+  /// will be at the top and [SpecialItemPosition.append] at the bottom.
+  /// Defaults to [SpecialItemPosition.none].
+  ///
+  /// - Set [specialItemBuilder] to specifies [Widget] for the the special item.
   static Future<List<AssetEntity>?> pickAssets(
     BuildContext context, {
     Key? key,
@@ -295,6 +317,7 @@ class InstaAssetPicker {
     Duration initializeDelayDuration = _kInitializeDelayDuration,
     Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
+    InstaPickerActionsBuilder? actionsBuilder,
   }) async {
     final text = textDelegate ?? defaultTextDelegate(context);
 
@@ -334,6 +357,7 @@ class InstaAssetPicker {
       onCompleted: onCompleted,
       specialItemBuilder: specialItemBuilder,
       specialItemPosition: specialItemPosition,
+      actionsBuilder: actionsBuilder,
     );
 
     return AssetPicker.pickAssetsWithDelegate(

@@ -44,8 +44,11 @@ class _CameraPickerState extends State<CameraPicker> {
     super.dispose();
   }
 
-  Future<XFile?> onTakePicture(BuildContext context) async {
-    return await Navigator.of(context, rootNavigator: true).push<XFile?>(
+  /// Needs a [BuildContext] that is coming from the picker
+  Future<void> _pickFromCamera(BuildContext context) async {
+    Feedback.forTap(context);
+    final XFile? image =
+        await Navigator.of(context, rootNavigator: true).push<XFile?>(
       MaterialPageRoute(
         builder: (context) => CameraView(
           controller: _controller,
@@ -53,6 +56,22 @@ class _CameraPickerState extends State<CameraPicker> {
         ),
       ),
     );
+
+    if (!context.mounted || image == null) return;
+
+    final AssetEntity? entity = await PhotoManager.editor.saveImageWithPath(
+      image.path,
+      title: path.basename(image.path),
+    );
+
+    if (entity == null) return;
+
+    if (context.mounted) {
+      await InstaAssetPicker.refreshAndSelectEntity(
+        context,
+        entity,
+      );
+    }
   }
 
   @override
@@ -63,29 +82,30 @@ class _CameraPickerState extends State<CameraPicker> {
           title: 'Select images or take picture',
           maxAssets: 4,
           pickerTheme: widget.getPickerTheme(context),
-          specialItemBuilder: (context, _, __) {
+          actionsBuilder: (
+            BuildContext context,
+            ThemeData? pickerTheme,
+            double height,
+            VoidCallback unselectAll,
+          ) =>
+              [
+            InstaPickerCircleIconButton.unselectAll(
+              onTap: unselectAll,
+              theme: pickerTheme,
+              size: height,
+            ),
+            const SizedBox(width: 8),
+            InstaPickerCircleIconButton(
+              onTap: () => _pickFromCamera(context),
+              theme: pickerTheme,
+              icon: const Icon(Icons.camera_alt),
+              size: height,
+            ),
+          ],
+          specialItemBuilder: (BuildContext context, _, __) {
             // return a button that open the camera
             return ElevatedButton(
-              onPressed: () async {
-                Feedback.forTap(context);
-                final XFile? image = await onTakePicture(context);
-                if (!context.mounted || image == null) return;
-
-                final AssetEntity? entity =
-                    await PhotoManager.editor.saveImageWithPath(
-                  image.path,
-                  title: path.basename(image.path),
-                );
-
-                if (entity == null) return;
-
-                if (context.mounted) {
-                  await InstaAssetPicker.refreshAndSelectEntity(
-                    context,
-                    entity,
-                  );
-                }
-              },
+              onPressed: () => _pickFromCamera(context),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.transparent,

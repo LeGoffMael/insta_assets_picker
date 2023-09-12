@@ -33,7 +33,6 @@ mixin InstaPickerInterface on Widget {
           TextButton(
             onPressed: onPressed,
             child: FittedBox(
-              fit: BoxFit.cover,
               child: Text(
                 'Open the ${description.label}',
                 style: const TextStyle(fontSize: 20),
