@@ -16,6 +16,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Select aspect ratios to crop all images with (default to 1:1 & 4:5)
 - ✅ Crop all images at once and receive a stream with a progress value
 - ✅ Prepend or append a custom item in the assets list
+- ✅ Add custom action buttons
 - ❌ Videos are not supported
 
 ## 📸 Screenshots
@@ -29,7 +30,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 Add this package to the `pubspec.yaml`
 
 ```yaml
-insta_assets_picker: ^1.5.2
+insta_assets_picker: ^2.0.0
 ```
 
 ### ‼️ DO NOT SKIP THIS PART
@@ -132,6 +133,16 @@ InstaAssetPicker.pickAssets(
     onCompleted: (_) {},
 );
 ```
+
+### Camera
+
+Many people requested the ability to take picture from the picker.
+The main aspect of this package is selection and uniform crop selection.
+Consequently, camera-related operations have no place in this package. 
+However, since version `2.0.0`, it is now possible to trigger this action using either `specialItemBuilder` and/or `actionsBuilder`.
+
+The ability to take a photo from the camera must be handled on your side, but the picker is now able to refresh the list and select the new photo.
+New [examples](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/pages/camera) have been written to show how to manage this process with the [camera](https://pub.dev/packages/camera) or [wechat_camera_picker](https://pub.dev/packages/wechat_camera_picker) package.
 
 ## ✨ Credit
 

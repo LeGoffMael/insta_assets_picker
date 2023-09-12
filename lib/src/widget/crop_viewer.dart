@@ -6,7 +6,6 @@ import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 
 class CropViewer extends StatefulWidget {
   const CropViewer({
