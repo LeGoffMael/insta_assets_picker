@@ -1,3 +1,9 @@
+## 1.6.0
+
+### Breaking changes
+
+- Migrate to Flutter 3.13, and drop supports for previous Flutter versions.
+
 ## 1.5.2
 
 - bump `wechat_assets_picker` to 8.6.x [#18](https://github.com/LeGoffMael/insta_assets_picker/pull/18)
