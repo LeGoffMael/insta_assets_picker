@@ -1,3 +1,12 @@
+## 2.0.0
+
+- new `actionsBuilder` parameter
+- new examples to show how to take a picture from the picker
+
+### Breaking changes
+
+- Some UI components were updated to look more like instagram
+
 ## 1.6.0
 
 ### Breaking changes

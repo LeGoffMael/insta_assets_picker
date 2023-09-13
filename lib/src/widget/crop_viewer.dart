@@ -6,7 +6,6 @@ import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:extended_image/extended_image.dart';
-import 'package:insta_assets_picker/src/widget/circle_icon_button.dart';
 
 class CropViewer extends StatefulWidget {
   const CropViewer({
@@ -161,7 +160,7 @@ class CropViewerState extends State<CropViewer> {
                               ),
                               // Build crop aspect ratio button
                               Positioned(
-                                left: 0,
+                                left: 12,
                                 bottom: 12,
                                 child: _buildCropButton(),
                               ),
@@ -174,25 +173,32 @@ class CropViewerState extends State<CropViewer> {
   }
 
   Widget _buildCropButton() {
-    return CircleIconButton(
-      onTap: () {
-        if (widget.controller.isCropViewReady.value) {
-          widget.controller.nextCropRatio();
-        }
-      },
-      theme: widget.theme,
-      // if crop ratios are the default ones, build UI similar to instagram
-      icon: widget.controller.cropDelegate.cropRatios == kDefaultInstaCropRatios
-          ? Transform.rotate(
-              angle: 45 * math.pi / 180,
-              child: Icon(
-                widget.controller.aspectRatio == 1
-                    ? Icons.unfold_more
-                    : Icons.unfold_less,
-              ),
-            )
-          // otherwise simply display the selected aspect ratio
-          : Text(widget.controller.aspectRatioString),
+    return Opacity(
+      opacity: 0.6,
+      child: InstaPickerCircleIconButton(
+        onTap: () {
+          if (widget.controller.isCropViewReady.value) {
+            widget.controller.nextCropRatio();
+          }
+        },
+        theme: widget.theme?.copyWith(
+          buttonTheme: const ButtonThemeData(padding: EdgeInsets.all(2)),
+        ),
+        size: 32,
+        // if crop ratios are the default ones, build UI similar to instagram
+        icon:
+            widget.controller.cropDelegate.cropRatios == kDefaultInstaCropRatios
+                ? Transform.rotate(
+                    angle: 45 * math.pi / 180,
+                    child: Icon(
+                      widget.controller.aspectRatio == 1
+                          ? Icons.unfold_more
+                          : Icons.unfold_less,
+                    ),
+                  )
+                // otherwise simply display the selected aspect ratio
+                : Text(widget.controller.aspectRatioString),
+      ),
     );
   }
 }
