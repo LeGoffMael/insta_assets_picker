@@ -82,8 +82,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   /// Controller handling the state of asset crop values and the exportation
   final InstaAssetsCropController _cropController;
 
+  /// Whether the picker is mounted. Set to `false` if disposed.
+  bool _mounted = true;
+
   @override
   void dispose() {
+    _mounted = false;
     if (!keepScrollOffset) {
       _cropController.dispose();
       _cropViewPosition.dispose();
@@ -134,11 +138,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     DefaultAssetPickerProvider p,
     bool shouldDisplayAssets,
   ) async {
-    if (_cropController.previewAsset.value != null) return;
+    if (!_mounted || _cropController.previewAsset.value != null) return;
 
     if (p.selectedAssets.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback(
-          (_) => _cropController.previewAsset.value = p.selectedAssets.last);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_mounted) {
+          _cropController.previewAsset.value = p.selectedAssets.last;
+        }
+      });
     }
 
     // when asset list is available and no asset is selected,
@@ -147,7 +154,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
         final list =
             await p.currentPath?.path.getAssetListRange(start: 0, end: 1);
-        if (list?.isNotEmpty ?? false) {
+        if (_mounted && (list?.isNotEmpty ?? false)) {
           _cropController.previewAsset.value = list!.first;
         }
       });
