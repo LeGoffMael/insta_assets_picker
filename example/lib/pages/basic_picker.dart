@@ -15,7 +15,7 @@ class BasicPicker extends StatelessWidget with InstaPickerInterface {
         context,
         onPressed: () => InstaAssetPicker.pickAssets(
           context,
-          title: 'Select images',
+          title: description.fullLabel,
           maxAssets: 10,
           pickerTheme: getPickerTheme(context),
           onCompleted: (cropStream) {

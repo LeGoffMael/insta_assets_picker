@@ -44,7 +44,6 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
           titleTextStyle: TextStyle(fontWeight: FontWeight.w600),
-          minLeadingWidth: 8,
           leadingAndTrailingTextStyle: TextStyle(fontSize: 24),
         ),
       ),
@@ -84,13 +83,14 @@ class PickersScreen extends StatelessWidget {
               subtitle: description.description != null
                   ? Text(description.description!)
                   : null,
+              trailing: const Icon(Icons.chevron_right_rounded),
               onTap: () => Navigator.of(context).push(
                 MaterialPageRoute(builder: (context) => pickers[index]),
               ),
             ),
           );
         },
-        separatorBuilder: (_, __) => const SizedBox(height: 8),
+        separatorBuilder: (_, __) => const SizedBox(height: 4),
         itemCount: pickers.length,
       ),
     );

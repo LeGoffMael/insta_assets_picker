@@ -79,7 +79,7 @@ class _CameraPickerState extends State<CameraPicker> {
         context,
         onPressed: () => InstaAssetPicker.pickAssets(
           context,
-          title: 'Select images or take picture',
+          title: widget.description.fullLabel,
           maxAssets: 4,
           pickerTheme: widget.getPickerTheme(context),
           actionsBuilder: (

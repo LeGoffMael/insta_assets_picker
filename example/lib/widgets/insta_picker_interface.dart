@@ -12,6 +12,8 @@ class PickerDescription {
     required this.label,
     this.description,
   });
+
+  String get fullLabel => '$icon $label';
 }
 
 mixin InstaPickerInterface on Widget {
@@ -19,13 +21,11 @@ mixin InstaPickerInterface on Widget {
 
   ThemeData getPickerTheme(BuildContext context) {
     return InstaAssetPicker.themeData(kDefaultColor).copyWith(
-      appBarTheme: const AppBarTheme(
-          titleTextStyle: TextStyle(color: Colors.white, fontSize: 16)),
+      appBarTheme: const AppBarTheme(titleTextStyle: TextStyle(fontSize: 16)),
     );
   }
 
-  AppBar get _appBar =>
-      AppBar(title: Text('${description.icon} ${description.label}'));
+  AppBar get _appBar => AppBar(title: Text(description.fullLabel));
 
   Column pickerColumn({
     String? text,

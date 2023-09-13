@@ -28,7 +28,7 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
         context,
         onPressed: () => InstaAssetPicker.pickAssets(
           context,
-          title: 'Select images or take picture',
+          title: description.fullLabel,
           maxAssets: 4,
           pickerTheme: getPickerTheme(context),
           actionsBuilder: (
