@@ -44,6 +44,12 @@ class CropViewerState extends State<CropViewer> {
 
   @override
   void dispose() {
+    // save current crop position on dispose (#25)
+    widget.controller.onChange(
+      _previousAsset,
+      _cropKey.currentState,
+      widget.provider.selectedAssets,
+    );
     _isLoadingError.dispose();
     super.dispose();
   }
