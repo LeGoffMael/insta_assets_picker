@@ -44,6 +44,8 @@ class CropViewerState extends State<CropViewer> {
 
   @override
   void dispose() {
+    // save current crop position on dispose (#25)
+    saveCurrentCropChanges();
     _isLoadingError.dispose();
     super.dispose();
   }
