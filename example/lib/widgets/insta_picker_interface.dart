@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker_demo/main.dart';
+import 'package:insta_assets_picker_demo/widgets/crop_result_view.dart';
 
 class PickerDescription {
   final String icon;
@@ -73,5 +74,23 @@ mixin InstaPickerInterface on Widget {
       Scaffold(
         appBar: _appBar,
         body: Padding(padding: const EdgeInsets.all(16), child: child),
+      );
+
+  void pickAssets(BuildContext context, {required int maxAssets}) =>
+      InstaAssetPicker.pickAssets(
+        context,
+        title: description.fullLabel,
+        closeOnComplete: true,
+        maxAssets: maxAssets,
+        pickerTheme: getPickerTheme(context),
+        onCompleted: (Stream<InstaAssetsExportDetails> cropStream) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) =>
+                  PickerCropResultScreen(cropStream: cropStream),
+            ),
+          );
+        },
       );
 }

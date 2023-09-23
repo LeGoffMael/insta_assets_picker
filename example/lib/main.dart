@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:insta_assets_picker_demo/pages/basic_picker.dart';
+import 'package:insta_assets_picker_demo/pages/stateless_pickers.dart';
 import 'package:insta_assets_picker_demo/pages/camera/camera_picker.dart';
 import 'package:insta_assets_picker_demo/pages/camera/wechat_camera_picker.dart';
 import 'package:insta_assets_picker_demo/pages/restorable_picker.dart';
@@ -63,7 +63,8 @@ class PickersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<InstaPickerInterface> pickers = [
-      const BasicPicker(),
+      const SinglePicker(),
+      const MultiplePicker(),
       const RestorablePicker(),
       CameraPicker(camera: _cameras.first),
       const WeChatCameraPicker(),
