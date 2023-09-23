@@ -98,7 +98,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   /// Called when the confirmation [TextButton] is tapped
   void onConfirm(BuildContext context) {
     if (closeOnComplete) {
-      Navigator.of(context).maybePop(provider.selectedAssets);
+      Navigator.of(context).pop(provider.selectedAssets);
     }
     _cropViewerKey.currentState?.saveCurrentCropChanges();
     onCompleted(_cropController.exportCropFiles(provider.selectedAssets));
