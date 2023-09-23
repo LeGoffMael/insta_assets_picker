@@ -1,3 +1,9 @@
+## 2.1.0
+
+- single pick mode is now handled properly (selecting a new image replace the old one).
+- fix an issue on restorable picker where the crop ratio was not saved properly.
+- fix an issue where the picker was not popped after complete.
+
 ## 2.0.0
 
 - new `actionsBuilder` parameter

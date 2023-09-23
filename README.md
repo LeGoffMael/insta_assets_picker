@@ -25,6 +25,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
     - Preview, select, unselect action logic
 - ✅ Theme and language customization
 - ✅ Multiple images pick (with maximum limit)
+- ✅ Single image pick mode
 - ✅ Restore state of picker after pop
 - ✅ Select aspect ratios to crop all images with (default to 1:1 & 4:5)
 - ✅ Crop all images at once and receive a stream with a progress value
@@ -43,7 +44,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 Add this package to the `pubspec.yaml`
 
 ```yaml
-insta_assets_picker: ^2.0.0
+insta_assets_picker: ^2.1.0
 ```
 
 ### ‼️ DO NOT SKIP THIS PART
@@ -140,7 +141,7 @@ InstaAssetPicker.pickAssets(
       // - if you want to disable cropping, you can set only one parameter,
       // in this case, the "crop" button will not be displayed (#10).
       // - if the value of cropRatios is different than the default value,
-      // the "crop" button will display the selected crop value (i.e.: 1.:1)
+      // the "crop" button will display the selected ratio value (i.e.: 1:1)
       // instead of unfold arrows.
     ]),
     onCompleted: (_) {},
