@@ -664,4 +664,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Widget selectedBackdrop(BuildContext context, int index, AssetEntity asset) =>
       const SizedBox.shrink();
+
+  /// Disable item banned indicator in single mode (#26) so that
+  /// the new selected asset replace the old one
+  @override
+  Widget itemBannedIndicator(BuildContext context, AssetEntity asset) =>
+      isSingleAssetMode
+          ? const SizedBox.shrink()
+          : super.itemBannedIndicator(context, asset);
 }
