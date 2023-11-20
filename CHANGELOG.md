@@ -1,3 +1,8 @@
+## 2.2.0
+
+- bump `wechat_assets_picker` to 8.8.0
+- fix completed progress status being fires twice [#32](https://github.com/LeGoffMael/insta_assets_picker/pull/32)
+
 ## 2.1.0
 
 - single pick mode is now handled properly (selecting a new image replace the old one).
