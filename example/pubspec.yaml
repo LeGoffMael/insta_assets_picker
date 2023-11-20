@@ -17,9 +17,9 @@ dependencies:
     path: ../
 
   # for camera examples
-  path: ^1.8.0
-  camera: ^0.10.5+4
-  wechat_camera_picker: ^4.0.2
+  path: ^1.8.3
+  camera: ^0.10.5+5
+  wechat_camera_picker: ^4.1.1
 
 dev_dependencies:
   flutter_test:
