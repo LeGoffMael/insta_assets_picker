@@ -230,7 +230,10 @@ class InstaAssetsCropController {
       }
 
       // increase progress
-      yield makeDetail((i + 1) * step);
+      final progress = (i + 1) * step;
+      if (progress < 1 ) {
+        yield makeDetail(progress);
+      }
     }
     // complete progress
     yield makeDetail(1);
