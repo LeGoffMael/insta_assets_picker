@@ -78,7 +78,7 @@ class InstaAssetPicker {
   static void _openErrorPermission(
     BuildContext context,
     AssetPickerTextDelegate textDelegate,
-    Function(BuildContext, String)? customHandler,
+    Function(BuildContext context, String error)? customHandler,
   ) {
     final defaultDescription =
         '${textDelegate.unableToAccessAll}\n${textDelegate.goToSystemSettings}';
@@ -168,8 +168,10 @@ class InstaAssetPicker {
     bool closeOnComplete = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
-    Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
+    Widget Function(BuildContext context, bool isAssetsEmpty)?
+        loadingIndicatorBuilder,
+    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
+        specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {
@@ -303,7 +305,8 @@ class InstaAssetPicker {
     bool closeOnComplete = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
+    Widget Function(BuildContext context, bool isAssetsEmpty)?
+        loadingIndicatorBuilder,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -315,7 +318,8 @@ class InstaAssetPicker {
     bool sortPathsByModifiedDate = false,
     FilterOptionGroup? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
-    Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
+    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
+        specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {

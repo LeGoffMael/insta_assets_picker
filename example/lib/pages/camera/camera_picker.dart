@@ -107,6 +107,7 @@ class _CameraPickerState extends State<CameraPicker> {
             return ElevatedButton(
               onPressed: () => _pickFromCamera(context),
               style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(),
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.transparent,
               ),
