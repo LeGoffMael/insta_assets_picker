@@ -1,3 +1,10 @@
+## 2.3.0-dev.1
+
+### Breaking changes
+
+- Migrate to Flutter 3.16, and drop supports for previous Flutter versions.
+- bump `wechat_assets_picker` to 8.9.0-dev.1
+
 ## 2.2.0
 
 - bump `wechat_assets_picker` to 8.8.0
