@@ -1,3 +1,7 @@
+## 2.2.1
+
+- exposes `limitedPermissionOverlayPredicate` parameter [#35](https://github.com/LeGoffMael/insta_assets_picker/pull/35)
+
 ## 2.2.0
 
 - bump `wechat_assets_picker` to 8.8.0
