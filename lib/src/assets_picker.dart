@@ -72,7 +72,14 @@ class InstaAssetPicker {
   ///
   /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
   static Future<PermissionState> _permissionCheck() =>
-      AssetPicker.permissionCheck();
+      AssetPicker.permissionCheck(
+        requestOption: const PermissionRequestOption(
+          androidPermission: AndroidPermission(
+            type: RequestType.image,
+            mediaLocation: false,
+          ),
+        ),
+      );
 
   /// Open a [ScaffoldMessenger] describing the reason why the picker cannot be opened.
   static void _openErrorPermission(
