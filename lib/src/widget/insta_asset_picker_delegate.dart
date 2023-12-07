@@ -43,6 +43,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     super.locale,
     super.keepScrollOffset,
     super.loadingIndicatorBuilder,
+    super.limitedPermissionOverlayPredicate,
     super.specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     this.title,

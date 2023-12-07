@@ -139,6 +139,9 @@ class InstaAssetPicker {
   /// - Set [loadingIndicatorBuilder] to specifies the loader indicator
   /// to display in the picker.
   ///
+  /// - Set [limitedPermissionOverlayPredicate] to specifies if the limited
+  /// permission overlay should be displayed.
+  ///
   /// - Set [specialItemPosition] to allows users to set a special item in the picker
   /// with several positions. Since the grid view is reversed, [SpecialItemPosition.prepend]
   /// will be at the top and [SpecialItemPosition.append] at the bottom.
@@ -168,8 +171,11 @@ class InstaAssetPicker {
     bool closeOnComplete = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
-    Widget? Function(BuildContext, AssetPathEntity?, int)? specialItemBuilder,
+    Widget Function(BuildContext context, bool isAssetsEmpty)?
+        loadingIndicatorBuilder,
+    LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
+    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
+        specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {
@@ -197,6 +203,7 @@ class InstaAssetPicker {
       keepScrollOffset: true,
       textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
+      limitedPermissionOverlayPredicate: limitedPermissionOverlayPredicate,
       closeOnComplete: closeOnComplete,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
@@ -248,6 +255,9 @@ class InstaAssetPicker {
   ///
   /// - Set [loadingIndicatorBuilder] to specifies the loader indicator
   /// to display in the picker.
+  ///
+  /// - Set [limitedPermissionOverlayPredicate] to specifies if the limited
+  /// permission overlay should be displayed.
   ///
   /// - Set [actionsBuilder] function to specifies the [Widget]s to display
   /// on top of the assets grid view. Default is unselect all assets button.
@@ -303,7 +313,9 @@ class InstaAssetPicker {
     bool closeOnComplete = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Widget Function(BuildContext, bool)? loadingIndicatorBuilder,
+    Widget Function(BuildContext context, bool isAssetsEmpty)?
+        loadingIndicatorBuilder,
+    LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -352,6 +364,7 @@ class InstaAssetPicker {
       keepScrollOffset: false,
       textDelegate: text,
       loadingIndicatorBuilder: loadingIndicatorBuilder,
+      limitedPermissionOverlayPredicate: limitedPermissionOverlayPredicate,
       closeOnComplete: closeOnComplete,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
