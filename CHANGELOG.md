@@ -1,3 +1,7 @@
+## 2.3.0-dev.2
+
+- includes version 2.2.1 changes
+
 ## 2.2.1
 
 - exposes `limitedPermissionOverlayPredicate` parameter [#35](https://github.com/LeGoffMael/insta_assets_picker/pull/35)
