@@ -18,10 +18,7 @@ dependencies:
 
   insta_assets_crop: ^0.0.2 # custom package from image_crop
   fraction: ^5.0.2 # to show crop ratio in crop view
-  wechat_assets_picker:
-    git:
-      url: https://github.com/fluttercandies/flutter_wechat_assets_picker.git
-      ref: main
+  wechat_assets_picker: ^9.0.0-dev.2
   provider: ^6.0.5 # match with wechat_assets_picker package
   extended_image: ^8.1.0 # match with wechat_assets_picker package
 
