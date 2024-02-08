@@ -1,11 +1,11 @@
 name: insta_assets_picker_demo
 description: The demo project for the insta_assets_picker package.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 2.2.1
+version: 2.3.0-dev.2
 
 environment:
-  sdk: '>=3.1.0'
-  flutter: '>=3.13.0'
+  sdk: ^3.2.0
+  flutter: '>=3.16.0'
 
 dependencies:
   flutter:
@@ -19,12 +19,12 @@ dependencies:
   # for camera examples
   path: ^1.8.3
   camera: ^0.10.5+5
-  wechat_camera_picker: ^4.1.1
+  wechat_camera_picker: ^4.2.0-dev.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: any
 
 flutter:
   uses-material-design: true

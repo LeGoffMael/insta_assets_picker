@@ -68,6 +68,7 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
                 }
               },
               style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(),
                 foregroundColor: Colors.white,
                 backgroundColor: Colors.transparent,
               ),
