@@ -1,3 +1,8 @@
+## 2.3.0-dev.3
+
+- bump `wechat_assets_picker` to 9.0.0-dev.2
+- request only images permission
+
 ## 2.3.0-dev.2
 
 - includes version 2.2.1 changes
