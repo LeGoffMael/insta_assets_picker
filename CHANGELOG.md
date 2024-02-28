@@ -1,22 +1,15 @@
-## 2.3.0-dev.3
+## 2.3.0
 
-- bump `wechat_assets_picker` to 9.0.0-dev.2
+- bump `wechat_assets_picker` to 9.0.0
 - request only images permission
-
-## 2.3.0-dev.2
-
-- includes version 2.2.1 changes
-
-## 2.2.1
-
-- exposes `limitedPermissionOverlayPredicate` parameter [#35](https://github.com/LeGoffMael/insta_assets_picker/pull/35)
-
-## 2.3.0-dev.1
 
 ### Breaking changes
 
 - Migrate to Flutter 3.16, and drop supports for previous Flutter versions.
-- bump `wechat_assets_picker` to 8.9.0-dev.1
+
+## 2.2.1
+
+- exposes `limitedPermissionOverlayPredicate` parameter [#35](https://github.com/LeGoffMael/insta_assets_picker/pull/35)
 
 ## 2.2.0
 
