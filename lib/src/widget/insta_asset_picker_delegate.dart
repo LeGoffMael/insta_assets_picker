@@ -10,7 +10,7 @@ import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'package:wechat_assets_picker/src/widget/platform_progress_indicator.dart';
+import 'package:wechat_picker_library/wechat_picker_library.dart';
 
 /// The reduced height of the crop view
 const _kReducedCropViewHeight = kToolbarHeight;
