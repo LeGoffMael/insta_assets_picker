@@ -166,13 +166,15 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   @override
   Future<void> viewAsset(
     BuildContext context,
-    int index,
+    int? index,
     AssetEntity currentAsset,
   ) async {
+    if (index == null) {
+      return;
+    }
     if (_cropController.isCropViewReady.value != true) {
       return;
     }
-
     // if is preview asset, unselect it
     if (provider.selectedAssets.isNotEmpty &&
         _cropController.previewAsset.value == currentAsset) {
