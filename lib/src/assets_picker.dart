@@ -52,10 +52,8 @@ class InstaAssetPicker {
     if (entity == null) {
       return;
     }
-    final AssetPicker<AssetEntity, AssetPathEntity> picker =
-        context.findAncestorWidgetOfExactType()!;
-    final DefaultAssetPickerBuilderDelegate builder =
-        picker.builder as DefaultAssetPickerBuilderDelegate;
+    final AssetPicker<AssetEntity, AssetPathEntity> picker = context.findAncestorWidgetOfExactType()!;
+    final DefaultAssetPickerBuilderDelegate builder = picker.builder as DefaultAssetPickerBuilderDelegate;
     final DefaultAssetPickerProvider p = builder.provider;
     await p.switchPath(
       PathWrapper<AssetPathEntity>(
@@ -71,11 +69,10 @@ class InstaAssetPicker {
   /// Since the exception is thrown from the MethodChannel it cannot be caught by a try/catch
   ///
   /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
-  static Future<PermissionState> _permissionCheck() =>
-      AssetPicker.permissionCheck(
+  static Future<PermissionState> _permissionCheck() => AssetPicker.permissionCheck(
         requestOption: const PermissionRequestOption(
           androidPermission: AndroidPermission(
-            type: RequestType.image,
+            type: RequestType.common,
             mediaLocation: false,
           ),
         ),
@@ -87,8 +84,7 @@ class InstaAssetPicker {
     AssetPickerTextDelegate textDelegate,
     Function(BuildContext context, String error)? customHandler,
   ) {
-    final defaultDescription =
-        '${textDelegate.unableToAccessAll}\n${textDelegate.goToSystemSettings}';
+    final defaultDescription = '${textDelegate.unableToAccessAll}\n${textDelegate.goToSystemSettings}';
 
     if (customHandler != null) {
       customHandler(context, defaultDescription);
@@ -163,8 +159,7 @@ class InstaAssetPicker {
     Key? key,
     bool useRootNavigator = true,
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
-    Function(BuildContext context, String delegateDescription)?
-        onPermissionDenied,
+    Function(BuildContext context, String delegateDescription)? onPermissionDenied,
 
     /// Crop options
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
@@ -176,18 +171,14 @@ class InstaAssetPicker {
     AssetPickerTextDelegate? textDelegate,
     String? title,
     bool closeOnComplete = false,
-    required Function(Stream<InstaAssetsExportDetails> exportDetails)
-        onCompleted,
-    Widget Function(BuildContext context, bool isAssetsEmpty)?
-        loadingIndicatorBuilder,
+    required Function(Stream<InstaAssetsExportDetails> exportDetails) onCompleted,
+    Widget Function(BuildContext context, bool isAssetsEmpty)? loadingIndicatorBuilder,
     LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
-    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
-        specialItemBuilder,
+    Widget? Function(BuildContext context, AssetPathEntity? path, int length)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {
-    assert(provider.requestType == RequestType.image,
-        'Only images can be shown in the picker for now');
+    // assert(provider.requestType == RequestType.image, 'Only images can be shown in the picker for now');
 
     final text = textDelegate ?? defaultTextDelegate(context);
 
@@ -306,8 +297,7 @@ class InstaAssetPicker {
     Key? key,
     bool useRootNavigator = true,
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
-    Function(BuildContext context, String delegateDescription)?
-        onPermissionDenied,
+    Function(BuildContext context, String delegateDescription)? onPermissionDenied,
 
     /// Crop options
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
@@ -318,10 +308,8 @@ class InstaAssetPicker {
     AssetPickerTextDelegate? textDelegate,
     String? title,
     bool closeOnComplete = false,
-    required Function(Stream<InstaAssetsExportDetails> exportDetails)
-        onCompleted,
-    Widget Function(BuildContext context, bool isAssetsEmpty)?
-        loadingIndicatorBuilder,
+    required Function(Stream<InstaAssetsExportDetails> exportDetails) onCompleted,
+    Widget Function(BuildContext context, bool isAssetsEmpty)? loadingIndicatorBuilder,
     LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
 
     /// DefaultAssetPickerProvider options
@@ -329,13 +317,11 @@ class InstaAssetPicker {
     int maxAssets = defaultMaxAssetsCount,
     int pageSize = defaultAssetsPerPage,
     ThumbnailSize pathThumbnailSize = defaultPathThumbnailSize,
-    SortPathDelegate<AssetPathEntity>? sortPathDelegate =
-        SortPathDelegate.common,
+    SortPathDelegate<AssetPathEntity>? sortPathDelegate = SortPathDelegate.common,
     bool sortPathsByModifiedDate = false,
     FilterOptionGroup? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
-    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
-        specialItemBuilder,
+    Widget? Function(BuildContext context, AssetPathEntity? path, int length)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {
@@ -355,7 +341,7 @@ class InstaAssetPicker {
       maxAssets: maxAssets,
       pageSize: pageSize,
       pathThumbnailSize: pathThumbnailSize,
-      requestType: RequestType.image,
+      requestType: RequestType.common,
       sortPathDelegate: sortPathDelegate,
       sortPathsByModifiedDate: sortPathsByModifiedDate,
       filterOptions: filterOptions,

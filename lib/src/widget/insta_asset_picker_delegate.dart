@@ -32,6 +32,7 @@ typedef InstaPickerActionsBuilder = List<Widget> Function(
   VoidCallback unselectAll,
 );
 
+
 class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   InstaAssetPickerBuilder({
     required super.initialPermission,
@@ -49,6 +50,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     this.title,
     this.closeOnComplete = false,
     this.actionsBuilder,
+    this.stopVideo,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
   })  : _cropController =
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
@@ -57,6 +59,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           specialItemPosition: specialItemPosition ?? SpecialItemPosition.none,
         );
 
+  final Function? stopVideo;
   final String? title;
 
   final Function(Stream<InstaAssetsExportDetails>) onCompleted;
@@ -197,25 +200,27 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     int index,
     bool selected,
   ) async {
-    if (_cropController.isCropViewReady.value != true) {
-      return;
+    if(asset.type == AssetType.image) {
+      if (_cropController.isCropViewReady.value != true) {
+        return;
+      }
+      final thumbnailPosition = indexPosition(context, index);
+      final prevCount = provider.selectedAssets.length;
+      await super.selectAsset(context, asset, index, selected);
+      stopVideo?.call();
+      // update preview asset with selected
+      final selectedAssets = provider.selectedAssets;
+      if (prevCount < selectedAssets.length) {
+        _cropController.previewAsset.value = asset;
+      } else if (selected &&
+          asset == _cropController.previewAsset.value &&
+          selectedAssets.isNotEmpty) {
+        _cropController.previewAsset.value = selectedAssets.last;
+      }
+      _expandCropView(thumbnailPosition);
+    } else {
+      await super.selectAsset(context, asset, index, selected);
     }
-
-    final thumbnailPosition = indexPosition(context, index);
-    final prevCount = provider.selectedAssets.length;
-    await super.selectAsset(context, asset, index, selected);
-
-    // update preview asset with selected
-    final selectedAssets = provider.selectedAssets;
-    if (prevCount < selectedAssets.length) {
-      _cropController.previewAsset.value = asset;
-    } else if (selected &&
-        asset == _cropController.previewAsset.value &&
-        selectedAssets.isNotEmpty) {
-      _cropController.previewAsset.value = selectedAssets.last;
-    }
-
-    _expandCropView(thumbnailPosition);
   }
 
   /// Handle scroll on grid view to hide/expand the crop view
