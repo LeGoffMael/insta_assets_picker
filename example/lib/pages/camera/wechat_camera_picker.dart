@@ -89,7 +89,7 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    PickerCropResultScreen(cropStream: cropStream),
+                    PickerResultScreen(cropStream: cropStream),
               ),
             );
           },

@@ -128,7 +128,7 @@ class _CameraPickerState extends State<CameraPicker> {
               context,
               MaterialPageRoute(
                 builder: (context) =>
-                    PickerCropResultScreen(cropStream: cropStream),
+                    PickerResultScreen(cropStream: cropStream),
               ),
             );
           },

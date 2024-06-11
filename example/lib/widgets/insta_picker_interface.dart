@@ -88,7 +88,7 @@ mixin InstaPickerInterface on Widget {
             context,
             MaterialPageRoute(
               builder: (context) =>
-                  PickerCropResultScreen(cropStream: cropStream),
+                  PickerResultScreen(cropStream: cropStream),
             ),
           );
         },

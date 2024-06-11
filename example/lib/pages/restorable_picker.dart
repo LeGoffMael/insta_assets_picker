@@ -74,9 +74,9 @@ class _PickerScreenState extends State<RestorablePicker> {
                     'Using this picker means that you must dispose it manually',
               ),
             ),
-            CropResultView(
+            MediaResultView(
               selectedAssets: selectedAssets,
-              croppedFiles: exportDetails?.croppedFiles ?? [],
+              pickedFiles: exportDetails?.croppedFiles ?? [],
               progress: exportDetails?.progress,
             )
           ],

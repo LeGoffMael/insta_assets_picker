@@ -1,10 +1,12 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
-class PickerCropResultScreen extends StatelessWidget {
-  const PickerCropResultScreen({super.key, required this.cropStream});
+class PickerResultScreen extends StatelessWidget {
+  const PickerResultScreen({super.key, required this.cropStream});
 
   final Stream<InstaAssetsExportDetails> cropStream;
 
@@ -16,9 +18,9 @@ class PickerCropResultScreen extends StatelessWidget {
       appBar: AppBar(title: const Text('Insta picker result')),
       body: StreamBuilder<InstaAssetsExportDetails>(
         stream: cropStream,
-        builder: (context, snapshot) => CropResultView(
+        builder: (context, snapshot) => MediaResultView(
           selectedAssets: snapshot.data?.selectedAssets ?? [],
-          croppedFiles: snapshot.data?.croppedFiles ?? [],
+          pickedFiles: snapshot.data?.croppedFiles ?? [],
           progress: snapshot.data?.progress,
           heightFiles: height / 2,
           heightAssets: height / 4,
@@ -28,18 +30,18 @@ class PickerCropResultScreen extends StatelessWidget {
   }
 }
 
-class CropResultView extends StatelessWidget {
-  const CropResultView({
+class MediaResultView extends StatelessWidget {
+  const MediaResultView({
     super.key,
     required this.selectedAssets,
-    required this.croppedFiles,
+    required this.pickedFiles,
     this.progress,
     this.heightFiles = 300.0,
     this.heightAssets = 120.0,
   });
 
   final List<AssetEntity> selectedAssets;
-  final List<File> croppedFiles;
+  final List<File> pickedFiles;
   final double? progress;
   final double heightFiles;
   final double heightAssets;
@@ -84,7 +86,7 @@ class CropResultView extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             scrollDirection: Axis.horizontal,
-            itemCount: croppedFiles.length,
+            itemCount: pickedFiles.length,
             itemBuilder: (BuildContext _, int index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(
@@ -95,7 +97,16 @@ class CropResultView extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4.0),
                   ),
-                  child: Image.file(croppedFiles[index]),
+                  // It's possible to use Video player here
+                  child: selectedAssets[index].type == AssetType.video ? FutureBuilder(
+                    future: selectedAssets[index].thumbnailData,
+                    builder: (_,data) {
+                      if(data.connectionState == ConnectionState.done) {
+                        return Image.memory(data.data!);
+                      }
+                      return const CupertinoActivityIndicator();
+                    },
+                  ) : Image.file(pickedFiles[index]),
                 ),
               );
             },
@@ -139,7 +150,6 @@ class CropResultView extends StatelessWidget {
         itemCount: selectedAssets.length,
         itemBuilder: (BuildContext _, int index) {
           final AssetEntity asset = selectedAssets.elementAt(index);
-
           return Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: 8.0,
@@ -166,10 +176,10 @@ class CropResultView extends StatelessWidget {
         AnimatedContainer(
           duration: kThemeChangeDuration,
           curve: Curves.easeInOut,
-          height: croppedFiles.isNotEmpty ? heightFiles : 40.0,
+          height: pickedFiles.isNotEmpty ? heightFiles : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Cropped Images', croppedFiles.length),
+              _buildTitle('Picked Files', pickedFiles.length),
               _buildCroppedImagesListView(context),
             ],
           ),
@@ -180,7 +190,7 @@ class CropResultView extends StatelessWidget {
           height: selectedAssets.isNotEmpty ? heightAssets : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Selected Assets', selectedAssets.length),
+              _buildTitle('Thumbnails', selectedAssets.length),
               _buildSelectedAssetsListView(),
             ],
           ),
