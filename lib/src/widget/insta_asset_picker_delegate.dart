@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
-import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
+import 'package:insta_assets_picker/src/widget/media_viewer.dart';
 import 'package:provider/provider.dart';
 
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -50,16 +50,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     this.title,
     this.closeOnComplete = false,
     this.actionsBuilder,
-    this.stopVideo,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
   })  : _cropController =
-            InstaAssetsCropController(keepScrollOffset, cropDelegate),
+            InstaAssetsCropController(keepScrollOffset, cropDelegate), _videoController = InstaAssetsVideoController(),
         super(
           shouldRevertGrid: false,
           specialItemPosition: specialItemPosition ?? SpecialItemPosition.none,
         );
 
-  final Function? stopVideo;
   final String? title;
 
   final Function(Stream<InstaAssetsExportDetails>) onCompleted;
@@ -81,10 +79,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   double? _scrollTargetOffset;
 
   final ValueNotifier<double> _cropViewPosition = ValueNotifier<double>(0);
-  final _cropViewerKey = GlobalKey<CropViewerState>();
+  final _cropViewerKey = GlobalKey<MediaViewerState>();
 
   /// Controller handling the state of asset crop values and the exportation
   final InstaAssetsCropController _cropController;
+
+  /// Controller handling the videos
+  final InstaAssetsVideoController _videoController;
 
   /// Whether the picker is mounted. Set to `false` if disposed.
   bool _mounted = true;
@@ -207,7 +208,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       final thumbnailPosition = indexPosition(context, index);
       final prevCount = provider.selectedAssets.length;
       await super.selectAsset(context, asset, index, selected);
-      stopVideo?.call();
+      // pause video if user clicks on image
+      _videoController.dispose();
       // update preview asset with selected
       final selectedAssets = provider.selectedAssets;
       if (prevCount < selectedAssets.length) {
@@ -218,7 +220,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         _cropController.previewAsset.value = selectedAssets.last;
       }
       _expandCropView(thumbnailPosition);
+    } else  if(asset.type == AssetType.video) {
+      await super.selectAsset(context, asset, index, selected);
     } else {
+      _videoController.dispose();
       await super.selectAsset(context, asset, index, selected);
     }
   }
@@ -518,9 +523,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                       .jumpTo(gridScrollController.offset);
                                 }
                               },
-                              child: CropViewer(
+                              child: MediaViewer(
                                 key: _cropViewerKey,
-                                controller: _cropController,
+                                cropController: _cropController,
+                                videoController: _videoController,
                                 textDelegate: textDelegate,
                                 provider: provider,
                                 opacity: opacity,

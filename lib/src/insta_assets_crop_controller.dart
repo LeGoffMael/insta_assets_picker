@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:fraction/fraction.dart';
 import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
+import 'package:video_player/video_player.dart';
 
 /// Uses [InstaAssetsCropSingleton] to keep crop parameters in memory until the picker is disposed
 /// Similar to [Singleton] class from `wechat_assets_picker` package
@@ -67,8 +69,7 @@ class InstaAssetsCropData {
 
 /// The controller that handles the exportation and save the state of the selected assets crop parameters
 class InstaAssetsCropController {
-  InstaAssetsCropController(this.keepMemory, this.cropDelegate)
-      : cropRatioIndex = ValueNotifier<int>(0);
+  InstaAssetsCropController(this.keepMemory, this.cropDelegate) : cropRatioIndex = ValueNotifier<int>(0);
 
   /// The index of the selected aspectRatio among the possibilities
   final ValueNotifier<int> cropRatioIndex;
@@ -77,8 +78,7 @@ class InstaAssetsCropController {
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
 
   /// The asset [AssetEntity] currently displayed in the crop view
-  final ValueNotifier<AssetEntity?> previewAsset =
-      ValueNotifier<AssetEntity?>(null);
+  final ValueNotifier<AssetEntity?> previewAsset = ValueNotifier<AssetEntity?>(null);
 
   /// Options related to crop
   final InstaAssetCropDelegate cropDelegate;
@@ -98,8 +98,7 @@ class InstaAssetsCropController {
   }
 
   double get aspectRatio {
-    assert(cropDelegate.cropRatios.isNotEmpty,
-        'The list of supported crop ratios cannot be empty.');
+    assert(cropDelegate.cropRatios.isNotEmpty, 'The list of supported crop ratios cannot be empty.');
     return cropDelegate.cropRatios[cropRatioIndex.value];
   }
 
@@ -160,8 +159,7 @@ class InstaAssetsCropController {
         // if it is not the asset to save and no crop parameter exists
       } else if (savedCropAsset == null) {
         // set empty crop parameters
-        newList
-            .add(InstaAssetsCropData.fromState(asset: asset, cropState: null));
+        newList.add(InstaAssetsCropData.fromState(asset: asset, cropState: null));
       } else {
         // keep existing crop parameters
         newList.add(savedCropAsset);
@@ -221,8 +219,7 @@ class InstaAssetsCropController {
         croppedFiles.add(sampledFile);
       } else {
         // crop the file with the area selected
-        final croppedFile =
-            await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
+        final croppedFile = await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
         // delete the not needed sample file
         sampledFile.delete();
 
@@ -237,5 +234,29 @@ class InstaAssetsCropController {
     }
     // complete progress
     yield makeDetail(1);
+  }
+}
+
+/// The controller that handles the video controller to play or stop video
+class InstaAssetsVideoController {
+  ChewieController? chewieController;
+  VideoPlayerController? videoPlayerController;
+
+  Future<void> initialize({required File file}) async {
+    dispose();
+    videoPlayerController = VideoPlayerController.file(file);
+    await videoPlayerController!.initialize();
+    chewieController = ChewieController(videoPlayerController: videoPlayerController!, autoPlay: true, looping: false);
+  }
+
+  void dispose() {
+    if(chewieController != null) {
+      chewieController?.dispose();
+      chewieController = null;
+    }
+    if(videoPlayerController != null) {
+      videoPlayerController?.dispose();
+      videoPlayerController = null;
+    }
   }
 }
