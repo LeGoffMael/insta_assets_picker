@@ -31,7 +31,8 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Crop all images at once and receive a stream with a progress value
 - ✅ Prepend or append a custom item in the assets list
 - ✅ Add custom action buttons
-- ❌ Videos are not supported
+- ✅ Videos are not supported
+- ✅ Specify what sort of Media
 
 ## 📸 Screenshots
 
