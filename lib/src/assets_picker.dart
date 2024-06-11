@@ -179,7 +179,7 @@ class InstaAssetPicker {
     InstaPickerActionsBuilder? actionsBuilder,
     RequestType requestType = RequestType.common,
   }) async {
-    // assert(provider.requestType == RequestType.image, 'Only images can be shown in the picker for now');
+    assert(provider.requestType == RequestType.image || provider.requestType == RequestType.video, 'Only images or Videos can be shown in the picker for now');
 
     final text = textDelegate ?? defaultTextDelegate(context);
 
@@ -327,6 +327,7 @@ class InstaAssetPicker {
     InstaPickerActionsBuilder? actionsBuilder,
     RequestType requestType = RequestType.common
   }) async {
+    assert(requestType == RequestType.image || requestType == RequestType.video, 'Only images or Videos can be shown in the picker for now');
     final text = textDelegate ?? defaultTextDelegate(context);
 
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
