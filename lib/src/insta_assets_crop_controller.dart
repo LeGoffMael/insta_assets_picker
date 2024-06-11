@@ -6,6 +6,7 @@ import 'package:fraction/fraction.dart';
 import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 /// Uses [InstaAssetsCropSingleton] to keep crop parameters in memory until the picker is disposed
 /// Similar to [Singleton] class from `wechat_assets_picker` package
@@ -201,29 +202,32 @@ class InstaAssetsCropController {
 
     for (var i = 0; i < list.length; i++) {
       final file = await list[i].asset.originFile;
-
-      final scale = list[i].scale;
-      final area = list[i].area;
-
       if (file == null) {
         throw 'error file is null';
       }
 
-      // makes the sample file to not be too small
-      final sampledFile = await InstaAssetsCrop.sampleImage(
-        file: file,
-        preferredSize: (cropDelegate.preferredSize / scale).round(),
-      );
+      if(list[i].asset.type == AssetType.image) {
+        final scale = list[i].scale;
+        final area = list[i].area;
 
-      if (area == null) {
-        croppedFiles.add(sampledFile);
-      } else {
-        // crop the file with the area selected
-        final croppedFile = await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
-        // delete the not needed sample file
-        sampledFile.delete();
+        // makes the sample file to not be too small
+        final sampledFile = await InstaAssetsCrop.sampleImage(
+          file: file,
+          preferredSize: (cropDelegate.preferredSize / scale).round(),
+        );
 
-        croppedFiles.add(croppedFile);
+        if (area == null) {
+          croppedFiles.add(sampledFile);
+        } else {
+          // crop the file with the area selected
+          final croppedFile = await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
+          // delete the not needed sample file
+          sampledFile.delete();
+
+          croppedFiles.add(croppedFile);
+        }
+      } else if(list[i].asset.type == AssetType.video) {
+        croppedFiles.add(file);
       }
 
       // increase progress
