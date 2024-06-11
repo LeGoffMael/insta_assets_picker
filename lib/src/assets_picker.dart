@@ -69,10 +69,10 @@ class InstaAssetPicker {
   /// Since the exception is thrown from the MethodChannel it cannot be caught by a try/catch
   ///
   /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
-  static Future<PermissionState> _permissionCheck() => AssetPicker.permissionCheck(
-        requestOption: const PermissionRequestOption(
+  static Future<PermissionState> _permissionCheck({RequestType requestType = RequestType.common}) => AssetPicker.permissionCheck(
+        requestOption: PermissionRequestOption(
           androidPermission: AndroidPermission(
-            type: RequestType.common,
+            type: requestType,
             mediaLocation: false,
           ),
         ),
@@ -177,6 +177,7 @@ class InstaAssetPicker {
     Widget? Function(BuildContext context, AssetPathEntity? path, int length)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
+    RequestType requestType = RequestType.common,
   }) async {
     // assert(provider.requestType == RequestType.image, 'Only images can be shown in the picker for now');
 
@@ -185,7 +186,7 @@ class InstaAssetPicker {
     PermissionState? ps;
     if (builder == null) {
       try {
-        ps = await _permissionCheck();
+        ps = await _permissionCheck(requestType: requestType);
       } catch (e) {
         _openErrorPermission(context, text, onPermissionDenied);
       }
@@ -324,13 +325,14 @@ class InstaAssetPicker {
     Widget? Function(BuildContext context, AssetPathEntity? path, int length)? specialItemBuilder,
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
+    RequestType requestType = RequestType.common
   }) async {
     final text = textDelegate ?? defaultTextDelegate(context);
 
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
     PermissionState? ps;
     try {
-      ps = await _permissionCheck();
+      ps = await _permissionCheck(requestType: requestType);
     } catch (e) {
       _openErrorPermission(context, text, onPermissionDenied);
       return [];
@@ -341,7 +343,7 @@ class InstaAssetPicker {
       maxAssets: maxAssets,
       pageSize: pageSize,
       pathThumbnailSize: pathThumbnailSize,
-      requestType: RequestType.common,
+      requestType: requestType,
       sortPathDelegate: sortPathDelegate,
       sortPathsByModifiedDate: sortPathsByModifiedDate,
       filterOptions: filterOptions,
