@@ -327,7 +327,7 @@ class InstaAssetPicker {
     InstaPickerActionsBuilder? actionsBuilder,
     RequestType requestType = RequestType.common
   }) async {
-    assert(requestType == RequestType.image || requestType == RequestType.video, 'Only images or Videos can be shown in the picker for now');
+    assert(requestType == RequestType.image || requestType == RequestType.video || requestType == RequestType.common, 'Only images or Videos can be shown in the picker for now');
     final text = textDelegate ?? defaultTextDelegate(context);
 
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
