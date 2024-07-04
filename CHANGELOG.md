@@ -1,3 +1,8 @@
+## 2.3.1
+
+- bump `wechat_assets_picker` to 9.1.0
+- fixes the deprecated `ColorScheme.background` warnings
+
 ## 2.3.0
 
 - bump `wechat_assets_picker` to 9.0.0
