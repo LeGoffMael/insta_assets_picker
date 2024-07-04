@@ -18,8 +18,8 @@ dependencies:
 
   # for camera examples
   path: ^1.8.3
-  camera: ^0.10.5+9
-  wechat_camera_picker: ^4.2.0
+  camera: ^0.10.6
+  wechat_camera_picker: ^4.3.1
 
 dev_dependencies:
   flutter_test:

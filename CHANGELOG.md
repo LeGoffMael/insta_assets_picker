@@ -1,6 +1,8 @@
 ## 2.3.1
 
-- fix empty gallery on restorable picker first open [#32](https://github.com/LeGoffMael/insta_assets_picker/pull/32)
+- bump `wechat_assets_picker` to 9.1.0
+- fixes the deprecated `ColorScheme.background` warnings
+- fixes empty gallery on restorable picker first open [#45](https://github.com/LeGoffMael/insta_assets_picker/pull/45)
 
 ## 2.3.0
 
