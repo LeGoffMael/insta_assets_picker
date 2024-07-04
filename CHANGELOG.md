@@ -1,3 +1,7 @@
+## 2.3.1
+
+- fix empty gallery on restorable picker first open [#32](https://github.com/LeGoffMael/insta_assets_picker/pull/32)
+
 ## 2.3.0
 
 - bump `wechat_assets_picker` to 9.0.0
