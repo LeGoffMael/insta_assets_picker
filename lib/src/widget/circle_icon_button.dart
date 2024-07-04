@@ -30,7 +30,7 @@ class InstaPickerCircleIconButton extends StatelessWidget {
         style: ElevatedButton.styleFrom(
           shape: const CircleBorder(side: BorderSide.none),
           padding: theme?.buttonTheme.padding,
-          backgroundColor: theme?.buttonTheme.colorScheme?.background,
+          backgroundColor: theme?.buttonTheme.colorScheme?.surface,
           foregroundColor: theme?.iconTheme.color,
         ),
         child: FittedBox(child: icon),
