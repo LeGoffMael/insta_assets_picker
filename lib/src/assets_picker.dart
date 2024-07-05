@@ -38,6 +38,7 @@ class InstaAssetPicker {
 
   void dispose() {
     builder?.dispose();
+    builder = null;
   }
 
   static AssetPickerTextDelegate defaultTextDelegate(BuildContext context) {
@@ -123,7 +124,8 @@ class InstaAssetPicker {
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
-  /// - Set [provider] of type [DefaultAssetPickerProvider] to specifies picker options.
+  /// - Set [provider] getter of type [DefaultAssetPickerProvider] to specifies picker options.
+  /// Getter needed to initialize the provider state after permission check.
   /// This argument is required.
   ///
   /// - Set [gridCount] to specifies the number of assets in the cross axis.
@@ -171,7 +173,7 @@ class InstaAssetPicker {
 
     /// InstaAssetPickerBuilder options
     int gridCount = _kGridCount,
-    required DefaultAssetPickerProvider provider,
+    required DefaultAssetPickerProvider Function() provider,
     ThemeData? pickerTheme,
     AssetPickerTextDelegate? textDelegate,
     String? title,
@@ -186,23 +188,24 @@ class InstaAssetPicker {
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {
-    assert(provider.requestType == RequestType.image,
-        'Only images can be shown in the picker for now');
-
     final text = textDelegate ?? defaultTextDelegate(context);
 
     PermissionState? ps;
-    if (builder == null) {
-      try {
-        ps = await _permissionCheck();
-      } catch (e) {
-        _openErrorPermission(context, text, onPermissionDenied);
-      }
+    try {
+      ps = await _permissionCheck();
+    } catch (e) {
+      _openErrorPermission(context, text, onPermissionDenied);
+      return [];
     }
 
+    /// Provider must be initialized after permission check or gallery is empty (#43)
+    final restoredProvider = provider();
+    assert(restoredProvider.requestType == RequestType.image,
+        'Only images can be shown in the picker for now');
+
     builder ??= InstaAssetPickerBuilder(
-      initialPermission: ps ?? PermissionState.denied,
-      provider: provider,
+      initialPermission: ps,
+      provider: restoredProvider,
       title: title,
       gridCount: gridCount,
       pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
@@ -332,7 +335,7 @@ class InstaAssetPicker {
     SortPathDelegate<AssetPathEntity>? sortPathDelegate =
         SortPathDelegate.common,
     bool sortPathsByModifiedDate = false,
-    FilterOptionGroup? filterOptions,
+    PMFilter? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
     Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
         specialItemBuilder,

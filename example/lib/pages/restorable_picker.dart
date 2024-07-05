@@ -19,7 +19,7 @@ class RestorablePicker extends StatefulWidget with InstaPickerInterface {
 
 class _PickerScreenState extends State<RestorablePicker> {
   final _instaAssetsPicker = InstaAssetPicker();
-  final _provider = DefaultAssetPickerProvider(maxAssets: 10);
+  late final _provider = DefaultAssetPickerProvider(maxAssets: 10);
   late final ThemeData _pickerTheme = widget.getPickerTheme(context);
 
   List<AssetEntity> selectedAssets = <AssetEntity>[];
@@ -38,7 +38,7 @@ class _PickerScreenState extends State<RestorablePicker> {
       context,
       title: widget.description.fullLabel,
       closeOnComplete: true,
-      provider: _provider,
+      provider: () => _provider,
       pickerTheme: _pickerTheme,
       onCompleted: (cropStream) {
         // example withtout StreamBuilder
