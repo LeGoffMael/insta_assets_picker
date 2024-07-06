@@ -72,11 +72,11 @@ class InstaAssetPicker {
   /// Since the exception is thrown from the MethodChannel it cannot be caught by a try/catch
   ///
   /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
-  static Future<PermissionState> _permissionCheck() =>
+  static Future<PermissionState> _permissionCheck(RequestType? requestType) =>
       AssetPicker.permissionCheck(
-        requestOption: const PermissionRequestOption(
+        requestOption: PermissionRequestOption(
           androidPermission: AndroidPermission(
-            type: RequestType.image,
+            type: requestType ?? RequestType.common,
             mediaLocation: false,
           ),
         ),
@@ -105,6 +105,14 @@ class InstaAssetPicker {
   /// check `AssetPickerDelegate.themeData()` from flutter_wechat_assets_picker package for more information.
   static ThemeData themeData(Color? themeColor, {bool light = false}) =>
       AssetPicker.themeData(themeColor, light: light);
+
+  static void _assertRequestType(RequestType requestType) {
+    assert(
+        requestType == RequestType.image ||
+            requestType == RequestType.video ||
+            requestType == RequestType.common,
+        'Only images and videos can be shown in the picker for now');
+  }
 
   /// When using `restorableAssetsPicker` function, the picker's state is preserved even after pop
   ///
@@ -192,7 +200,7 @@ class InstaAssetPicker {
 
     PermissionState? ps;
     try {
-      ps = await _permissionCheck();
+      ps = await _permissionCheck(null);
     } catch (e) {
       _openErrorPermission(context, text, onPermissionDenied);
       return [];
@@ -200,8 +208,7 @@ class InstaAssetPicker {
 
     /// Provider must be initialized after permission check or gallery is empty (#43)
     final restoredProvider = provider();
-    assert(restoredProvider.requestType == RequestType.image,
-        'Only images can be shown in the picker for now');
+    _assertRequestType(restoredProvider.requestType);
 
     builder ??= InstaAssetPickerBuilder(
       initialPermission: ps,
@@ -326,6 +333,7 @@ class InstaAssetPicker {
     Widget Function(BuildContext context, bool isAssetsEmpty)?
         loadingIndicatorBuilder,
     LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
+    RequestType requestType = RequestType.common,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -342,12 +350,14 @@ class InstaAssetPicker {
     SpecialItemPosition? specialItemPosition,
     InstaPickerActionsBuilder? actionsBuilder,
   }) async {
+    _assertRequestType(requestType);
+
     final text = textDelegate ?? defaultTextDelegate(context);
 
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
     PermissionState? ps;
     try {
-      ps = await _permissionCheck();
+      ps = await _permissionCheck(requestType);
     } catch (e) {
       _openErrorPermission(context, text, onPermissionDenied);
       return [];
@@ -358,7 +368,7 @@ class InstaAssetPicker {
       maxAssets: maxAssets,
       pageSize: pageSize,
       pathThumbnailSize: pathThumbnailSize,
-      requestType: RequestType.image,
+      requestType: requestType,
       sortPathDelegate: sortPathDelegate,
       sortPathsByModifiedDate: sortPathsByModifiedDate,
       filterOptions: filterOptions,
