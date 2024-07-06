@@ -17,7 +17,7 @@ class PickerCropResultScreen extends StatelessWidget {
       body: StreamBuilder<InstaAssetsExportDetails>(
         stream: cropStream,
         builder: (context, snapshot) => CropResultView(
-          selectedAssets: snapshot.data?.selectedAssets ?? [],
+          selectedData: snapshot.data?.selectedData ?? [],
           croppedFiles: snapshot.data?.croppedFiles ?? [],
           progress: snapshot.data?.progress,
           heightFiles: height / 2,
@@ -31,15 +31,15 @@ class PickerCropResultScreen extends StatelessWidget {
 class CropResultView extends StatelessWidget {
   const CropResultView({
     super.key,
-    required this.selectedAssets,
+    required this.selectedData,
     required this.croppedFiles,
     this.progress,
     this.heightFiles = 300.0,
     this.heightAssets = 120.0,
   });
 
-  final List<AssetEntity> selectedAssets;
-  final List<File> croppedFiles;
+  final List<InstaAssetsCropData> selectedData;
+  final List<File?> croppedFiles;
   final double? progress;
   final double heightFiles;
   final double heightAssets;
@@ -71,7 +71,7 @@ class CropResultView extends StatelessWidget {
     );
   }
 
-  Widget _buildCroppedImagesListView(BuildContext context) {
+  Widget _buildCroppedAssetsListView(BuildContext context) {
     if (progress == null) {
       return const SizedBox.shrink();
     }
@@ -95,7 +95,23 @@ class CropResultView extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4.0),
                   ),
-                  child: Image.file(croppedFiles[index]),
+                  child: croppedFiles[index] != null
+                      ? Image.file(croppedFiles[index]!)
+                      : selectedData[index].asset.type == AssetType.video
+                          ? SizedBox.fromSize(
+                              // need to set size (based on height - padding / aspect ratio)
+                              size: Size.fromWidth(
+                                (heightFiles - 16) /
+                                        selectedData[index].cropParam!.ratio -
+                                    32,
+                              ),
+                              child: InstaAssetsCropVideoPlayer.fromCropData(
+                                selectedData[index],
+                                aspectRatio:
+                                    selectedData[index].cropParam!.ratio,
+                              ),
+                            )
+                          : const Text('File is null'),
                 ),
               );
             },
@@ -129,16 +145,16 @@ class CropResultView extends StatelessWidget {
   }
 
   Widget _buildSelectedAssetsListView() {
-    if (selectedAssets.isEmpty) return const SizedBox.shrink();
+    if (selectedData.isEmpty) return const SizedBox.shrink();
 
     return Expanded(
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         scrollDirection: Axis.horizontal,
-        itemCount: selectedAssets.length,
+        itemCount: selectedData.length,
         itemBuilder: (BuildContext _, int index) {
-          final AssetEntity asset = selectedAssets.elementAt(index);
+          final AssetEntity asset = selectedData[index].asset;
 
           return Padding(
             padding: const EdgeInsets.symmetric(
@@ -169,18 +185,18 @@ class CropResultView extends StatelessWidget {
           height: croppedFiles.isNotEmpty ? heightFiles : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Cropped Images', croppedFiles.length),
-              _buildCroppedImagesListView(context),
+              _buildTitle('Cropped Assets', croppedFiles.length),
+              _buildCroppedAssetsListView(context),
             ],
           ),
         ),
         AnimatedContainer(
           duration: kThemeChangeDuration,
           curve: Curves.easeInOut,
-          height: selectedAssets.isNotEmpty ? heightAssets : 40.0,
+          height: selectedData.isNotEmpty ? heightAssets : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Selected Assets', selectedAssets.length),
+              _buildTitle('Selected Assets', selectedData.length),
               _buildSelectedAssetsListView(),
             ],
           ),

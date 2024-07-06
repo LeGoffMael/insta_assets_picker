@@ -4,35 +4,43 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
-import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:video_player/video_player.dart';
 import 'package:wechat_picker_library/wechat_picker_library.dart';
 
-class CropVideoPlayer extends StatefulWidget {
-  const CropVideoPlayer({
+class InstaAssetsCropVideoPlayer extends StatefulWidget {
+  const InstaAssetsCropVideoPlayer({
     super.key,
     required this.asset,
     required this.cropParam,
-    required this.controller,
     required this.textDelegate,
+    required this.aspectRatio,
   });
 
+  InstaAssetsCropVideoPlayer.fromCropData(
+    InstaAssetsCropData cropData, {
+    super.key,
+    this.textDelegate,
+    required this.aspectRatio,
+  })  : asset = cropData.asset,
+        cropParam = cropData.cropParam;
+
   final AssetEntity asset;
-
   final CropInternal? cropParam;
-
-  final InstaAssetsCropController controller;
-
-  final AssetPickerTextDelegate textDelegate;
+  final AssetPickerTextDelegate? textDelegate;
+  final double aspectRatio;
 
   @override
-  State<CropVideoPlayer> createState() => _CropVideoPlayerState();
+  State<InstaAssetsCropVideoPlayer> createState() =>
+      _InstaAssetsCropVideoPlayerState();
 }
 
-class _CropVideoPlayerState extends State<CropVideoPlayer> {
+class _InstaAssetsCropVideoPlayerState
+    extends State<InstaAssetsCropVideoPlayer> {
   VideoPlayerController? _controller;
-
   bool hasErrorWhenInitializing = false;
+
+  AssetPickerTextDelegate get textDelegate =>
+      widget.textDelegate ?? InstaAssetPicker.defaultTextDelegate(context);
 
   @override
   void initState() {
@@ -41,7 +49,7 @@ class _CropVideoPlayerState extends State<CropVideoPlayer> {
   }
 
   @override
-  void didUpdateWidget(CropVideoPlayer oldWidget) {
+  void didUpdateWidget(InstaAssetsCropVideoPlayer oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.asset != oldWidget.asset) {
       _controller
@@ -123,15 +131,15 @@ class _CropVideoPlayerState extends State<CropVideoPlayer> {
     if (hasErrorWhenInitializing) {
       return Center(
         child: ScaleText(
-          widget.textDelegate.loadFailed,
-          semanticsLabel: widget.textDelegate.semanticsTextDelegate.loadFailed,
+          textDelegate.loadFailed,
+          semanticsLabel: textDelegate.semanticsTextDelegate.loadFailed,
         ),
       );
     }
 
     final scale = widget.cropParam?.scale ?? 1;
     final view = widget.cropParam?.view ?? Rect.zero;
-    final ratio = widget.cropParam?.ratio ?? widget.controller.aspectRatio;
+    final ratio = widget.cropParam?.ratio ?? widget.aspectRatio;
 
     return LayoutBuilder(builder: (_, constraints) {
       final size = constraints.biggest;

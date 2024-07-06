@@ -126,11 +126,11 @@ class CropViewerState extends State<CropViewer> {
       );
 
   Widget _buildVideoPlayer(AssetEntity asset, CropInternal? cropParam) =>
-      CropVideoPlayer(
+      InstaAssetsCropVideoPlayer(
         asset: asset,
         cropParam: _cropKey.currentState?.internalParameters ?? cropParam,
-        controller: widget.controller,
         textDelegate: widget.textDelegate,
+        aspectRatio: widget.controller.aspectRatio,
       );
 
   @override

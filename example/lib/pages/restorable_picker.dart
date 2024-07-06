@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker_demo/widgets/crop_result_view.dart';
 import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
+import 'package:wechat_camera_picker/wechat_camera_picker.dart';
 
 class RestorablePicker extends StatefulWidget with InstaPickerInterface {
   const RestorablePicker({super.key});
@@ -19,7 +20,10 @@ class RestorablePicker extends StatefulWidget with InstaPickerInterface {
 
 class _PickerScreenState extends State<RestorablePicker> {
   final _instaAssetsPicker = InstaAssetPicker();
-  late final _provider = DefaultAssetPickerProvider(maxAssets: 10);
+  late final _provider = DefaultAssetPickerProvider(
+    maxAssets: 10,
+    requestType: RequestType.common,
+  );
   late final ThemeData _pickerTheme = widget.getPickerTheme(context);
 
   List<AssetEntity> selectedAssets = <AssetEntity>[];
@@ -75,7 +79,7 @@ class _PickerScreenState extends State<RestorablePicker> {
               ),
             ),
             CropResultView(
-              selectedAssets: selectedAssets,
+              selectedData: exportDetails?.selectedData ?? [],
               croppedFiles: exportDetails?.croppedFiles ?? [],
               progress: exportDetails?.progress,
             )
