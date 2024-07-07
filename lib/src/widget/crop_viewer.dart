@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:insta_assets_crop/insta_assets_crop.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
+import 'package:insta_assets_picker/src/widget/video/crop_video_player.dart';
 import 'package:provider/provider.dart';
 import 'package:extended_image/extended_image.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -64,6 +65,33 @@ class CropViewerState extends State<CropViewer> {
     );
   }
 
+  Widget buildPlaceholder(AssetEntity asset, {required Widget child}) => Stack(
+        alignment: Alignment.center,
+        children: [
+          Opacity(
+            opacity: widget.opacity,
+            child: ExtendedImage(
+              // to match crop alignment
+              alignment: widget.controller.aspectRatio == 1.0
+                  ? Alignment.center
+                  : Alignment.bottomCenter,
+              height: widget.height,
+              width: widget.height * widget.controller.aspectRatio,
+              image: AssetEntityImageProvider(asset, isOriginal: false),
+              enableMemoryCache: false,
+              fit: BoxFit.cover,
+            ),
+          ),
+          // show backdrop when image is loading or if an error occured
+          Positioned.fill(
+              child: DecoratedBox(
+            decoration:
+                BoxDecoration(color: widget.theme?.cardColor.withOpacity(0.4)),
+          )),
+          child,
+        ],
+      );
+
   /// Returns the [Crop] widget
   Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Opacity(
         opacity: widget.controller.isCropViewReady.value ? widget.opacity : 1.0,
@@ -76,33 +104,11 @@ class CropViewerState extends State<CropViewer> {
           ),
           placeholderWidget: ValueListenableBuilder<bool>(
             valueListenable: _isLoadingError,
-            builder: (context, isLoadingError, child) => Stack(
-              alignment: Alignment.center,
-              children: [
-                Opacity(
-                  opacity: widget.opacity,
-                  child: ExtendedImage(
-                    // to match crop alignment
-                    alignment: widget.controller.aspectRatio == 1.0
-                        ? Alignment.center
-                        : Alignment.bottomCenter,
-                    height: widget.height,
-                    width: widget.height * widget.controller.aspectRatio,
-                    image: AssetEntityImageProvider(asset, isOriginal: false),
-                    enableMemoryCache: false,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // show backdrop when image is loading or if an error occured
-                Positioned.fill(
-                    child: DecoratedBox(
-                  decoration: BoxDecoration(
-                      color: widget.theme?.cardColor.withOpacity(0.4)),
-                )),
-                isLoadingError
-                    ? Text(widget.textDelegate.loadFailed)
-                    : widget.loaderWidget,
-              ],
+            builder: (context, isLoadingError, child) => buildPlaceholder(
+              asset,
+              child: isLoadingError
+                  ? Text(widget.textDelegate.loadFailed)
+                  : widget.loaderWidget,
             ),
           ),
           // if the image could not be loaded (i.e unsupported format like RAW)
@@ -126,11 +132,15 @@ class CropViewerState extends State<CropViewer> {
       );
 
   Widget _buildVideoPlayer(AssetEntity asset, CropInternal? cropParam) =>
-      InstaAssetsCropVideoPlayer(
+      CropVideoPlayer(
         asset: asset,
         cropParam: _cropKey.currentState?.internalParameters ?? cropParam,
         textDelegate: widget.textDelegate,
         aspectRatio: widget.controller.aspectRatio,
+        isAutoPlay: true,
+        isLoop: true,
+        loaderBuilder: (context) =>
+            buildPlaceholder(asset, child: widget.loaderWidget),
       );
 
   @override

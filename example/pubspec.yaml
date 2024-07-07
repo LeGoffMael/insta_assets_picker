@@ -21,6 +21,9 @@ dependencies:
   camera: ^0.10.6
   wechat_camera_picker: ^4.3.1
   
+  # for video examples
+  video_player: ^2.9.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

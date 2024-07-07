@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
+import 'package:video_player/video_player.dart';
 
 class PickerCropResultScreen extends StatelessWidget {
   const PickerCropResultScreen({super.key, required this.cropStream});
@@ -105,10 +106,9 @@ class CropResultView extends StatelessWidget {
                                         selectedData[index].cropParam!.ratio -
                                     32,
                               ),
-                              child: InstaAssetsCropVideoPlayer.fromCropData(
-                                selectedData[index],
-                                aspectRatio:
-                                    selectedData[index].cropParam!.ratio,
+                              child: PickerResultVideoPlayer(
+                                cropData: selectedData[index],
+                                isAutoPlay: index == 0,
                               ),
                             )
                           : const Text('File is null'),
@@ -202,6 +202,65 @@ class CropResultView extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class PickerResultVideoPlayer extends InstaAssetVideoPlayerStatefulWidget {
+  PickerResultVideoPlayer({
+    super.key,
+    required this.cropData,
+    super.isAutoPlay,
+    super.isLoop,
+  }) : super(asset: cropData.asset);
+
+  final InstaAssetsCropData cropData;
+
+  @override
+  State<PickerResultVideoPlayer> createState() =>
+      _PickerResultVideoPlayerState();
+}
+
+class _PickerResultVideoPlayerState extends State<PickerResultVideoPlayer>
+    with InstaAssetVideoPlayerMixin {
+  @override
+  Widget buildLoader() => const Center(child: CircularProgressIndicator());
+
+  @override
+  Widget buildInitializationError() =>
+      const Center(child: Text('Sorry the video could not be loaded.'));
+
+  @override
+  Widget buildVideoPlayer() {
+    return GestureDetector(
+      onTap: playButtonCallback,
+      child: Stack(
+        alignment: Alignment.center,
+        children: <Widget>[
+          Positioned(
+            child: InstaAssetCropTransform(
+              asset: widget.asset,
+              cropParam: widget.cropData.cropParam,
+              targetAspectRatio: widget.cropData.cropParam!.ratio,
+              child: VideoPlayer(videoController!),
+            ),
+          ),
+          if (videoController != null)
+            AnimatedBuilder(
+              animation: videoController!,
+              builder: (_, __) => AnimatedOpacity(
+                opacity: isControllerPlaying ? 0 : 1,
+                duration: kThemeAnimationDuration,
+                child: CircleAvatar(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.black.withOpacity(0.7),
+                  radius: 24,
+                  child: const Icon(Icons.play_arrow_rounded, size: 40),
+                ),
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
