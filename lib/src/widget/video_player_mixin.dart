@@ -62,12 +62,16 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
   }
 
   Future<void> _initializeVideoPlayer() async {
+    if (widget.asset.type != AssetType.video) return;
+
+    onLoading(true);
     final String? url = await widget.asset.getMediaUrl();
     if (url == null) {
       hasErrorWhenInitializing = true;
       if (mounted) {
         setState(() {});
       }
+      onLoading(false);
       return;
     }
     final Uri uri = Uri.parse(url);
@@ -99,6 +103,7 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
         setState(() {});
       }
     }
+    onLoading(false);
   }
 
   /// Callback for the play button.
@@ -120,12 +125,13 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
     videoController?.play();
   }
 
+  void onLoading(bool isLoading) {}
+
   Widget buildLoader();
   Widget buildInitializationError();
   Widget buildVideoPlayer();
 
-  @override
-  Widget build(BuildContext context) {
+  Widget buildVideoPlayerWrapper() {
     return LocallyAvailableBuilder(
       key: ValueKey<String>(widget.asset.id),
       asset: widget.asset,
@@ -140,4 +146,7 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
       },
     );
   }
+
+  @override
+  Widget build(BuildContext context) => buildVideoPlayerWrapper();
 }

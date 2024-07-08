@@ -5,7 +5,7 @@ export 'src/insta_assets_crop_controller.dart'
     show InstaAssetsExportDetails, InstaAssetsCropData;
 export 'src/widget/circle_icon_button.dart';
 export 'src/widget/crop_transform.dart';
-export 'src/widget/video/video_player_mixin.dart';
+export 'src/widget/video_player_mixin.dart';
 export 'package:wechat_assets_picker/wechat_assets_picker.dart'
     show
         AssetEntity,
