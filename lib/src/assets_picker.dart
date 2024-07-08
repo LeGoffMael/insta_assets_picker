@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/widget/insta_asset_picker_delegate.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 const _kGridCount = 4;
 const _kInitializeDelayDuration = Duration(milliseconds: 250);

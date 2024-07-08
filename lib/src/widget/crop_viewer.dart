@@ -6,7 +6,6 @@ import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_picker_library/wechat_picker_library.dart';
 
 class CropViewer extends StatefulWidget {
