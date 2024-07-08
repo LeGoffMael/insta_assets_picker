@@ -521,13 +521,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                 opacity: opacity,
                                 height: cropViewHeight(context),
                                 // center the loader in the visible viewport of the crop view
-                                loaderWidget: Align(
-                                  alignment: Alignment.bottomCenter,
-                                  child: SizedBox(
-                                    height: cropViewVisibleHeight,
-                                    child: Center(
-                                      child: _buildLoader(context, 16),
-                                    ),
+                                loaderWidget: SizedBox(
+                                  height: cropViewVisibleHeight,
+                                  child: Center(
+                                    child: _buildLoader(context, 16),
                                   ),
                                 ),
                                 theme: pickerTheme,
