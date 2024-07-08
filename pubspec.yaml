@@ -19,6 +19,8 @@ dependencies:
   insta_assets_crop: # ^0.0.3 # custom package from image_crop
     path: ../../forks/image_crop/
   fraction: ^5.0.2 # to show crop ratio in crop view
+
+  photo_manager: ^3.0.0
   wechat_assets_picker: ^9.1.0
   wechat_picker_library: ^1.0.0
 

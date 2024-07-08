@@ -6,13 +6,7 @@ export 'src/insta_assets_crop_controller.dart'
 export 'src/widget/circle_icon_button.dart';
 export 'src/widget/crop_transform.dart';
 export 'src/widget/video_player_mixin.dart';
-export 'package:wechat_assets_picker/wechat_assets_picker.dart'
-    show
-        AssetEntity,
-        AssetEntityImageProvider,
-        AssetType,
-        DefaultAssetPickerProvider,
-        SpecialItemPosition,
-        PhotoManager,
-        PermissionState;
+
+export 'package:photo_manager/photo_manager.dart';
+export 'package:wechat_assets_picker/wechat_assets_picker.dart';
 export 'package:wechat_assets_picker/src/delegates/asset_picker_text_delegate.dart';
