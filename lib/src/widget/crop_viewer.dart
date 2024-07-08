@@ -236,10 +236,9 @@ class _InnerCropViewState extends State<InnerCropView>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Visibility.maintain(
-                visible: widget.hideCropButton,
-                child: _buildCropButton(),
-              ),
+              widget.hideCropButton
+                  ? const SizedBox.shrink()
+                  : _buildCropButton(),
               if (widget.asset.type == AssetType.video) _buildPlayVideoButton(),
             ],
           ),
