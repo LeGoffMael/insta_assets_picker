@@ -57,13 +57,19 @@ class CropViewerState extends State<CropViewer> {
   Widget buildPlaceholder(AssetEntity asset) => Stack(
         alignment: Alignment.center,
         children: [
-          Opacity(
-            opacity: widget.opacity,
+          // scale it up to match the future video size
+          Transform.scale(
+            scale: asset.height / widget.height,
             child: Image(
-              height: widget.height * 2,
-              width: (widget.height * 2) * widget.controller.aspectRatio,
-              image: AssetEntityImageProvider(asset, isOriginal: false),
-              fit: BoxFit.cover,
+              // generate video thumbnail (low quality for performances)
+              image: AssetEntityImageProvider(
+                asset,
+                thumbnailSize: ThumbnailSize(
+                  (widget.height * asset.size.aspectRatio).toInt(),
+                  widget.height.toInt(),
+                ),
+                isOriginal: false,
+              ),
             ),
           ),
           // show backdrop when image is loading or if an error occured
