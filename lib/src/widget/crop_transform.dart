@@ -22,12 +22,17 @@ class InstaAssetCropTransform extends StatelessWidget {
 
     final scale = cropParam!.scale;
     final view = cropParam!.view;
-    // final area = cropParam!.area;
-    // final aspectRatio = area.size.aspectRatio;
+    final area = cropParam!.area;
+    final aspectRatio = area.size.aspectRatio;
 
     return LayoutBuilder(builder: (_, constraints) {
-      final maxSize = constraints.biggest;
-      final size = Size(maxSize.height, maxSize.height);
+      Size size = constraints.biggest;
+      if (size.isInfinite) {
+        size = Size(
+          constraints.biggest.shortestSide,
+          constraints.biggest.shortestSide,
+        );
+      }
 
       final ratio = max(
         size.width / asset.size.width,
@@ -35,14 +40,23 @@ class InstaAssetCropTransform extends StatelessWidget {
       );
 
       return SizedBox.fromSize(
-        size: size,
-        child: insta_crop_view.CropTransform(
-          ratio: ratio,
-          scale: scale,
-          view: view,
-          childSize: asset.size,
-          getRect: (s) => Offset.zero & size,
-          child: child,
+        size: Size(size.height * aspectRatio, size.height),
+        child: ClipRect(
+          child: FittedBox(
+            fit: BoxFit.cover,
+            child: SizedBox.fromSize(
+              size: size,
+              child: insta_crop_view.CropTransform(
+                ratio: ratio,
+                scale: scale,
+                view: view,
+                childSize: asset.size,
+                layoutSize: size,
+                getRect: (s) => Offset.zero & s,
+                child: child,
+              ),
+            ),
+          ),
         ),
       );
     });

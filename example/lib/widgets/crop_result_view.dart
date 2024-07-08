@@ -101,7 +101,7 @@ class CropResultView extends StatelessWidget {
                       : selectedData[index].asset.type == AssetType.video
                           ? PickerResultVideoPlayer(
                               cropData: selectedData[index],
-                              isAutoPlay: false, // index == 0,
+                              isAutoPlay: index == 0,
                             )
                           : const Text('File is null'),
                 ),
