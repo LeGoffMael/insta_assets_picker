@@ -11,7 +11,7 @@ class PickerCropResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery.of(context).size.height - kToolbarHeight;
+    final height = MediaQuery.sizeOf(context).height - kToolbarHeight;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Insta picker result')),
@@ -99,17 +99,9 @@ class CropResultView extends StatelessWidget {
                   child: croppedFiles[index] != null
                       ? Image.file(croppedFiles[index]!)
                       : selectedData[index].asset.type == AssetType.video
-                          ? SizedBox.fromSize(
-                              // need to set size (based on height - padding / aspect ratio)
-                              size: Size.fromWidth(
-                                (heightFiles - 16) /
-                                        selectedData[index].cropParam!.ratio -
-                                    32,
-                              ),
-                              child: PickerResultVideoPlayer(
-                                cropData: selectedData[index],
-                                isAutoPlay: index == 0,
-                              ),
+                          ? PickerResultVideoPlayer(
+                              cropData: selectedData[index],
+                              isAutoPlay: false, // index == 0,
                             )
                           : const Text('File is null'),
                 ),
@@ -237,13 +229,10 @@ class _PickerResultVideoPlayerState extends State<PickerResultVideoPlayer>
       child: Stack(
         alignment: Alignment.center,
         children: <Widget>[
-          Positioned(
-            child: InstaAssetCropTransform(
-              asset: widget.asset,
-              cropParam: widget.cropData.cropParam,
-              targetAspectRatio: widget.cropData.cropParam!.ratio,
-              child: VideoPlayer(videoController!),
-            ),
+          InstaAssetCropTransform(
+            asset: widget.asset,
+            cropParam: widget.cropData.cropParam,
+            child: VideoPlayer(videoController!),
           ),
           if (videoController != null)
             AnimatedBuilder(
