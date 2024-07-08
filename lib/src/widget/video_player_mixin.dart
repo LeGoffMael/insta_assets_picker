@@ -139,10 +139,13 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
         if (hasErrorWhenInitializing) {
           return buildInitializationError();
         }
-        if (!hasLoaded) {
-          return buildLoader();
-        }
-        return buildVideoPlayer();
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          reverseDuration: const Duration(milliseconds: 300),
+          transitionBuilder: (Widget child, Animation<double> animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child: hasLoaded ? buildVideoPlayer() : buildLoader(),
+        );
       },
     );
   }

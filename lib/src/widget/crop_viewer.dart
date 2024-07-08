@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_crop/insta_assets_crop.dart' as insta_crop_view;
 import 'package:insta_assets_picker/insta_assets_picker.dart';
@@ -53,7 +54,7 @@ class CropViewerState extends State<CropViewer> {
     );
   }
 
-  Widget buildPlaceholder(AssetEntity asset) => Stack(
+  Widget buildPlaceholder(AssetEntity asset, Widget? child) => Stack(
         alignment: Alignment.center,
         children: [
           // scale it up to match the future video size
@@ -79,7 +80,8 @@ class CropViewerState extends State<CropViewer> {
               ),
             ),
           ),
-          widget.loaderWidget,
+          // TODO: fix size (is being reduced in crop widget)
+          child ?? widget.loaderWidget,
         ],
       );
 
@@ -130,7 +132,8 @@ class CropViewerState extends State<CropViewer> {
                 opacity: widget.opacity,
                 height: widget.height,
                 hideCropButton: hideCropButton,
-                loaderBuilder: (context) => buildPlaceholder(asset),
+                loaderBuilder: ([Widget? child]) =>
+                    buildPlaceholder(asset, child),
               ),
             );
           },
@@ -158,7 +161,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
   final insta_crop_view.CropInternal? cropParam;
   final InstaAssetsCropController controller;
   final AssetPickerTextDelegate textDelegate;
-  final Widget Function(BuildContext context) loaderBuilder;
+  final Widget Function([Widget? child]) loaderBuilder;
   final ThemeData? theme;
   final double opacity, height;
   final bool hideCropButton;
@@ -191,7 +194,7 @@ class _InnerCropViewState extends State<InnerCropView>
   }
 
   @override
-  Widget buildLoader() => widget.loaderBuilder(context);
+  Widget buildLoader() => widget.loaderBuilder();
 
   @override
   Widget buildInitializationError() => Center(
@@ -220,14 +223,26 @@ class _InnerCropViewState extends State<InnerCropView>
             initialParam: widget.cropParam,
             size: widget.asset.size,
             child: widget.asset.type == AssetType.image
-                ? Image(
+                ? ExtendedImage(
                     key: ValueKey<String>(widget.asset.id),
                     image: AssetEntityImageProvider(
                       widget.asset,
-                      thumbnailSize:
-                          ThumbnailSize.square(widget.height.toInt()),
-                      isOriginal: widget.asset.type == AssetType.image,
+                      isOriginal: true,
                     ),
+                    loadStateChanged: (ExtendedImageState state) {
+                      switch (state.extendedImageLoadState) {
+                        case LoadState.completed:
+                          onLoading(false);
+                          return state.completedWidget;
+                        case LoadState.loading:
+                          onLoading(true);
+                          return widget.loaderBuilder();
+                        case LoadState.failed:
+                          onLoading(false);
+                          return widget
+                              .loaderBuilder(buildInitializationError());
+                      }
+                    },
                   )
                 : buildVideoPlayerWrapper(),
           ),
