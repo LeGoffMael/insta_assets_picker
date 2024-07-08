@@ -22,21 +22,17 @@ class InstaAssetCropTransform extends StatelessWidget {
 
     final scale = cropParam!.scale;
     final view = cropParam!.view;
-    final area = cropParam!.area;
-    final aspectRatio = area.size.aspectRatio;
+    // final area = cropParam!.area;
+    // final aspectRatio = area.size.aspectRatio;
 
     return LayoutBuilder(builder: (_, constraints) {
       final maxSize = constraints.biggest;
-      final size = maxSize.aspectRatio == aspectRatio
-          ? maxSize
-          : Size(maxSize.height * aspectRatio, maxSize.height);
+      final size = Size(maxSize.height, maxSize.height);
 
       final ratio = max(
         size.width / asset.size.width,
         size.height / asset.size.height,
       );
-
-      print(ratio);
 
       return SizedBox.fromSize(
         size: size,
@@ -45,7 +41,7 @@ class InstaAssetCropTransform extends StatelessWidget {
           scale: scale,
           view: view,
           childSize: asset.size,
-          getRect: (s) => Offset.zero & s,
+          getRect: (s) => Offset.zero & size,
           child: child,
         ),
       );
