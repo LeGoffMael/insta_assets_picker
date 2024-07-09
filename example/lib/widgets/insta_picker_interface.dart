@@ -79,10 +79,13 @@ mixin InstaPickerInterface on Widget {
   void pickAssets(BuildContext context, {required int maxAssets}) =>
       InstaAssetPicker.pickAssets(
         context,
-        title: description.fullLabel,
-        closeOnComplete: true,
+        builderOptions: InstaAssetPickerBuilderOptions(
+          context,
+          title: description.fullLabel,
+          closeOnComplete: true,
+          pickerTheme: getPickerTheme(context),
+        ),
         maxAssets: maxAssets,
-        pickerTheme: getPickerTheme(context),
         onCompleted: (Stream<InstaAssetsExportDetails> cropStream) {
           Navigator.push(
             context,

@@ -33,6 +33,68 @@ class InstaAssetCropDelegate {
   final List<double> cropRatios;
 }
 
+class InstaAssetPickerBuilderOptions {
+  InstaAssetPickerBuilderOptions(
+    BuildContext context, {
+    ThemeData? pickerTheme,
+    AssetPickerTextDelegate? textDelegate,
+    Locale? locale,
+    this.gridCount = _kGridCount,
+    this.title,
+    this.closeOnComplete = false,
+    this.loadingIndicatorBuilder,
+    this.limitedPermissionOverlayPredicate,
+    this.specialItemBuilder,
+    this.specialItemPosition,
+    this.actionsBuilder,
+  })  : pickerTheme = pickerTheme ??
+            InstaAssetPicker.themeData(Theme.of(context).primaryColor),
+        textDelegate =
+            textDelegate ?? InstaAssetPicker.defaultTextDelegate(context),
+        locale = locale ?? Localizations.maybeLocaleOf(context);
+
+  /// Specifies the number of assets in the cross axis.
+  /// Defaults to [_kGridCount], like instagram.
+  final int gridCount;
+
+  /// Specifies the theme to apply to the picker.
+  /// It is by default initialized with the `primaryColor` of the context theme.
+  final ThemeData? pickerTheme;
+
+  /// Specifies the language to apply to the picker.
+  /// Default is the locale language from the context.
+  final AssetPickerTextDelegate? textDelegate;
+
+  /// Specifies the text title in the picker [AppBar].
+  final String? title;
+
+  /// Specifies if the picker should be closed after assets selection confirmation.
+  /// Defaults to `false`.
+  final bool closeOnComplete;
+
+  /// The loader indicator to display in the picker.
+  final LoadingIndicatorBuilder? loadingIndicatorBuilder;
+
+  /// Specifies if the limited permission overlay should be displayed.
+  final LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate;
+
+  /// Specifies [Widget] for the the special item.
+  final SpecialItemBuilder<AssetPathEntity>? specialItemBuilder;
+
+  /// Set a special item in the picker with several positions.
+  /// Since the grid view is reversed, [SpecialItemPosition.prepend]
+  /// will be at the top and [SpecialItemPosition.append] at the bottom.
+  /// Defaults to [SpecialItemPosition.none].
+  final SpecialItemPosition? specialItemPosition;
+
+  /// The [Widget] to display on top of the assets grid view.
+  /// Default is unselect all assets button.
+  final InstaPickerActionsBuilder? actionsBuilder;
+
+  /// Identifier used to select picker language
+  final Locale? locale;
+}
+
 class InstaAssetPicker {
   InstaAssetPickerBuilder? builder;
 
@@ -85,11 +147,13 @@ class InstaAssetPicker {
   /// Open a [ScaffoldMessenger] describing the reason why the picker cannot be opened.
   static void _openErrorPermission(
     BuildContext context,
-    AssetPickerTextDelegate textDelegate,
+    AssetPickerTextDelegate? textDelegate,
     Function(BuildContext context, String error)? customHandler,
   ) {
+    final text = textDelegate ?? defaultTextDelegate(context);
+
     final defaultDescription =
-        '${textDelegate.unableToAccessAll}\n${textDelegate.goToSystemSettings}';
+        '${text.unableToAccessAll}\n${text.goToSystemSettings}';
 
     if (customHandler != null) {
       customHandler(context, defaultDescription);
@@ -128,38 +192,10 @@ class InstaAssetPicker {
   /// Getter needed to initialize the provider state after permission check.
   /// This argument is required.
   ///
-  /// - Set [gridCount] to specifies the number of assets in the cross axis.
-  /// Defaults to [_kGridCount], like instagram.
-  ///
-  /// - Set [pickerTheme] to specifies the theme to apply to the picker.
-  /// It is by default initialized with the `primaryColor` of the context theme.
-  ///
-  /// - Set [textDelegate] to specifies the language to apply to the picker.
-  /// Default is the locale language from the context.
-  ///
-  /// - Set [title] to specifies the text title in the picker [AppBar].
-  ///
-  /// - Set [closeOnComplete] to specifies if the picker should be closed
-  /// after assets selection confirmation.
-  ///
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
   ///
-  /// - Set [loadingIndicatorBuilder] to specifies the loader indicator
-  /// to display in the picker.
-  ///
-  /// - Set [limitedPermissionOverlayPredicate] to specifies if the limited
-  /// permission overlay should be displayed.
-  ///
-  /// - Set [specialItemPosition] to allows users to set a special item in the picker
-  /// with several positions. Since the grid view is reversed, [SpecialItemPosition.prepend]
-  /// will be at the top and [SpecialItemPosition.append] at the bottom.
-  /// Defaults to [SpecialItemPosition.none].
-  ///
-  /// - Set [specialItemBuilder] to specifies [Widget] for the the special item.
-  ///
-  /// - Set [actionsBuilder] function to specifies the [Widget]s to display
-  /// on top of the assets grid view. Default is unselect all assets button.
+  /// - Set [builderOptions] to specifies more optional parameters for the picker.
   Future<List<AssetEntity>?> restorableAssetsPicker(
     BuildContext context, {
     Key? key,
@@ -172,29 +208,22 @@ class InstaAssetPicker {
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
     /// InstaAssetPickerBuilder options
-    int gridCount = _kGridCount,
     required DefaultAssetPickerProvider Function() provider,
-    ThemeData? pickerTheme,
-    AssetPickerTextDelegate? textDelegate,
-    String? title,
-    bool closeOnComplete = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Widget Function(BuildContext context, bool isAssetsEmpty)?
-        loadingIndicatorBuilder,
-    LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
-    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
-        specialItemBuilder,
-    SpecialItemPosition? specialItemPosition,
-    InstaPickerActionsBuilder? actionsBuilder,
+    InstaAssetPickerBuilderOptions? builderOptions,
   }) async {
-    final text = textDelegate ?? defaultTextDelegate(context);
+    builderOptions ??= InstaAssetPickerBuilderOptions(context);
 
     PermissionState? ps;
     try {
       ps = await _permissionCheck();
     } catch (e) {
-      _openErrorPermission(context, text, onPermissionDenied);
+      _openErrorPermission(
+        context,
+        builderOptions.textDelegate,
+        onPermissionDenied,
+      );
       return [];
     }
 
@@ -206,20 +235,10 @@ class InstaAssetPicker {
     builder ??= InstaAssetPickerBuilder(
       initialPermission: ps,
       provider: restoredProvider,
-      title: title,
-      gridCount: gridCount,
-      pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
-      locale: Localizations.maybeLocaleOf(context),
       keepScrollOffset: true,
-      textDelegate: text,
-      loadingIndicatorBuilder: loadingIndicatorBuilder,
-      limitedPermissionOverlayPredicate: limitedPermissionOverlayPredicate,
-      closeOnComplete: closeOnComplete,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
-      specialItemBuilder: specialItemBuilder,
-      specialItemPosition: specialItemPosition,
-      actionsBuilder: actionsBuilder,
+      options: builderOptions,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
@@ -246,31 +265,10 @@ class InstaAssetPicker {
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
-  /// - Set [gridCount] to specifies the number of assets in the cross axis.
-  /// Defaults to [_kGridCount], like instagram.
-  ///
-  /// - Set [pickerTheme] to specifies the theme to apply to the picker.
-  /// It is by default initialized with the `primaryColor` of the context theme.
-  ///
-  /// - Set [textDelegate] to specifies the language to apply to the picker.
-  /// Default is the locale language from the context.
-  ///
-  /// - Set [title] to specifies the text title in the picker [AppBar].
-  ///
-  /// - Set [closeOnComplete] to specifies if the picker should be closed
-  /// after assets selection confirmation.
-  ///
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
   ///
-  /// - Set [loadingIndicatorBuilder] to specifies the loader indicator
-  /// to display in the picker.
-  ///
-  /// - Set [limitedPermissionOverlayPredicate] to specifies if the limited
-  /// permission overlay should be displayed.
-  ///
-  /// - Set [actionsBuilder] function to specifies the [Widget]s to display
-  /// on top of the assets grid view. Default is unselect all assets button.
+  /// - Set [builderOptions] to specifies more optional parameters for the picker.
   ///
   /// Those arguments are used by [DefaultAssetPickerProvider]
   ///
@@ -297,13 +295,6 @@ class InstaAssetPicker {
   ///
   /// - Set [initializeDelayDuration] to specifies the delay before loading the assets
   /// Defaults to [_kInitializeDelayDuration].
-  ///
-  /// - Set [specialItemPosition] to allows users to set a special item in the picker
-  /// with several positions. Since the grid view is reversed, [SpecialItemPosition.prepend]
-  /// will be at the top and [SpecialItemPosition.append] at the bottom.
-  /// Defaults to [SpecialItemPosition.none].
-  ///
-  /// - Set [specialItemBuilder] to specifies [Widget] for the the special item.
   static Future<List<AssetEntity>?> pickAssets(
     BuildContext context, {
     Key? key,
@@ -316,16 +307,9 @@ class InstaAssetPicker {
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
     /// InstaAssetPickerBuilder options
-    int gridCount = _kGridCount,
-    ThemeData? pickerTheme,
-    AssetPickerTextDelegate? textDelegate,
-    String? title,
-    bool closeOnComplete = false,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    Widget Function(BuildContext context, bool isAssetsEmpty)?
-        loadingIndicatorBuilder,
-    LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate,
+    InstaAssetPickerBuilderOptions? builderOptions,
 
     /// DefaultAssetPickerProvider options
     List<AssetEntity>? selectedAssets,
@@ -337,19 +321,19 @@ class InstaAssetPicker {
     bool sortPathsByModifiedDate = false,
     PMFilter? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
-    Widget? Function(BuildContext context, AssetPathEntity? path, int length)?
-        specialItemBuilder,
-    SpecialItemPosition? specialItemPosition,
-    InstaPickerActionsBuilder? actionsBuilder,
   }) async {
-    final text = textDelegate ?? defaultTextDelegate(context);
+    builderOptions ??= InstaAssetPickerBuilderOptions(context);
 
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
     PermissionState? ps;
     try {
       ps = await _permissionCheck();
     } catch (e) {
-      _openErrorPermission(context, text, onPermissionDenied);
+      _openErrorPermission(
+        context,
+        builderOptions.textDelegate,
+        onPermissionDenied,
+      );
       return [];
     }
 
@@ -368,20 +352,10 @@ class InstaAssetPicker {
     final InstaAssetPickerBuilder builder = InstaAssetPickerBuilder(
       initialPermission: ps,
       provider: provider,
-      title: title,
-      gridCount: gridCount,
-      pickerTheme: pickerTheme ?? themeData(Theme.of(context).primaryColor),
-      locale: Localizations.maybeLocaleOf(context),
       keepScrollOffset: false,
-      textDelegate: text,
-      loadingIndicatorBuilder: loadingIndicatorBuilder,
-      limitedPermissionOverlayPredicate: limitedPermissionOverlayPredicate,
-      closeOnComplete: closeOnComplete,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
-      specialItemBuilder: specialItemBuilder,
-      specialItemPosition: specialItemPosition,
-      actionsBuilder: actionsBuilder,
+      options: builderOptions,
     );
 
     return AssetPicker.pickAssetsWithDelegate(

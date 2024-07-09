@@ -79,50 +79,53 @@ class _CameraPickerState extends State<CameraPicker> {
         context,
         onPressed: () => InstaAssetPicker.pickAssets(
           context,
-          title: widget.description.fullLabel,
-          maxAssets: 4,
-          pickerTheme: widget.getPickerTheme(context),
-          actionsBuilder: (
-            BuildContext context,
-            ThemeData? pickerTheme,
-            double height,
-            VoidCallback unselectAll,
-          ) =>
-              [
-            InstaPickerCircleIconButton.unselectAll(
-              onTap: unselectAll,
-              theme: pickerTheme,
-              size: height,
-            ),
-            const SizedBox(width: 8),
-            InstaPickerCircleIconButton(
-              onTap: () => _pickFromCamera(context),
-              theme: pickerTheme,
-              icon: const Icon(Icons.camera_alt),
-              size: height,
-            ),
-          ],
-          specialItemBuilder: (BuildContext context, _, __) {
-            // return a button that open the camera
-            return ElevatedButton(
-              onPressed: () => _pickFromCamera(context),
-              style: ElevatedButton.styleFrom(
-                shape: const RoundedRectangleBorder(),
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.transparent,
+          builderOptions: InstaAssetPickerBuilderOptions(
+            context,
+            title: widget.description.fullLabel,
+            pickerTheme: widget.getPickerTheme(context),
+            actionsBuilder: (
+              BuildContext context,
+              ThemeData? pickerTheme,
+              double height,
+              VoidCallback unselectAll,
+            ) =>
+                [
+              InstaPickerCircleIconButton.unselectAll(
+                onTap: unselectAll,
+                theme: pickerTheme,
+                size: height,
               ),
-              child: FittedBox(
-                fit: BoxFit.cover,
-                child: Text(
-                  InstaAssetPicker.defaultTextDelegate(context)
-                      .sActionUseCameraHint,
-                  textAlign: TextAlign.center,
+              const SizedBox(width: 8),
+              InstaPickerCircleIconButton(
+                onTap: () => _pickFromCamera(context),
+                theme: pickerTheme,
+                icon: const Icon(Icons.camera_alt),
+                size: height,
+              ),
+            ],
+            specialItemBuilder: (BuildContext context, _, __) {
+              // return a button that open the camera
+              return ElevatedButton(
+                onPressed: () => _pickFromCamera(context),
+                style: ElevatedButton.styleFrom(
+                  shape: const RoundedRectangleBorder(),
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.transparent,
                 ),
-              ),
-            );
-          },
-          // since the list is revert, use prepend to be at the top
-          specialItemPosition: SpecialItemPosition.prepend,
+                child: FittedBox(
+                  fit: BoxFit.cover,
+                  child: Text(
+                    InstaAssetPicker.defaultTextDelegate(context)
+                        .sActionUseCameraHint,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              );
+            },
+            // since the list is revert, use prepend to be at the top
+            specialItemPosition: SpecialItemPosition.prepend,
+          ),
+          maxAssets: 4,
           onCompleted: (cropStream) {
             Navigator.push(
               context,
