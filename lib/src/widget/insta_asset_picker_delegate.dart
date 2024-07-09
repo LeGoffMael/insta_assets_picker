@@ -36,30 +36,37 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     required super.initialPermission,
     required super.provider,
     required this.onCompleted,
-    super.gridCount = 4,
-    super.pickerTheme,
-    super.textDelegate,
-    super.locale,
-    super.keepScrollOffset,
-    super.loadingIndicatorBuilder,
-    super.limitedPermissionOverlayPredicate,
-    super.specialItemBuilder,
-    SpecialItemPosition? specialItemPosition,
-    this.title,
-    this.closeOnComplete = false,
-    this.actionsBuilder,
+    required InstaAssetPickerBuilderOptions options,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
+    super.keepScrollOffset,
   })  : _cropController =
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
+        title = options.title,
+        closeOnComplete = options.closeOnComplete,
+        actionsBuilder = options.actionsBuilder,
         super(
+          gridCount: options.gridCount,
+          pickerTheme: options.pickerTheme,
+          textDelegate: options.textDelegate,
+          loadingIndicatorBuilder: options.loadingIndicatorBuilder,
+          limitedPermissionOverlayPredicate:
+              options.limitedPermissionOverlayPredicate,
+          specialItemBuilder: options.specialItemBuilder,
+          specialItemPosition:
+              options.specialItemPosition ?? SpecialItemPosition.none,
+          locale: options.locale,
           shouldRevertGrid: false,
-          specialItemPosition: specialItemPosition ?? SpecialItemPosition.none,
         );
 
+  /// The text title in the picker [AppBar].
   final String? title;
 
+  /// Callback called when the assets selection is confirmed.
+  /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
   final Function(Stream<InstaAssetsExportDetails>) onCompleted;
 
+  /// The [Widget] to display on top of the assets grid view.
+  /// Default is unselect all assets button.
   final InstaPickerActionsBuilder? actionsBuilder;
 
   /// Should the picker be closed when the selection is confirmed
