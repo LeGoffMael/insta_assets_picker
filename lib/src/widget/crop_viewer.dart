@@ -54,37 +54,6 @@ class CropViewerState extends State<CropViewer> {
     );
   }
 
-  Widget buildPlaceholder(AssetEntity asset, Widget? child) => Stack(
-        alignment: Alignment.center,
-        children: [
-          // scale it up to match the future video size
-          Transform.scale(
-            scale: asset.height / widget.height,
-            child: Image(
-              // generate video thumbnail (low quality for performances)
-              image: AssetEntityImageProvider(
-                asset,
-                thumbnailSize: ThumbnailSize(
-                  (widget.height * asset.size.aspectRatio).toInt(),
-                  widget.height.toInt(),
-                ),
-                isOriginal: false,
-              ),
-            ),
-          ),
-          // show backdrop when image is loading or if an error occured
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: widget.theme?.cardColor.withOpacity(0.4),
-              ),
-            ),
-          ),
-          // TODO: fix size (is being reduced in crop widget)
-          child ?? widget.loaderWidget,
-        ],
-      );
-
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.sizeOf(context).width;
@@ -132,8 +101,7 @@ class CropViewerState extends State<CropViewer> {
                 opacity: widget.opacity,
                 height: widget.height,
                 hideCropButton: hideCropButton,
-                loaderBuilder: ([Widget? child]) =>
-                    buildPlaceholder(asset, child),
+                loaderWidget: widget.loaderWidget,
               ),
             );
           },
@@ -150,7 +118,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
     required this.cropParam,
     required this.controller,
     required this.textDelegate,
-    required this.loaderBuilder,
+    required this.loaderWidget,
     required this.theme,
     required this.opacity,
     required this.height,
@@ -161,7 +129,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
   final insta_crop_view.CropInternal? cropParam;
   final InstaAssetsCropController controller;
   final AssetPickerTextDelegate textDelegate;
-  final Widget Function([Widget? child]) loaderBuilder;
+  final Widget loaderWidget;
   final ThemeData? theme;
   final double opacity, height;
   final bool hideCropButton;
@@ -173,16 +141,12 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
 
 class _InnerCropViewState extends State<InnerCropView>
     with InstaAssetVideoPlayerMixin {
-  @override
-  void initState() {
-    super.initState();
-    if (widget.asset.type != AssetType.video) onLoading(false);
-  }
+  final ValueNotifier<bool> _isLoadingError = ValueNotifier<bool>(false);
 
   @override
-  void didUpdateWidget(covariant InnerCropView oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.asset.type != AssetType.video) onLoading(false);
+  void dispose() {
+    super.dispose();
+    _isLoadingError.dispose();
   }
 
   @override
@@ -194,14 +158,31 @@ class _InnerCropViewState extends State<InnerCropView>
   }
 
   @override
-  Widget buildLoader() => widget.loaderBuilder();
+  void onError(bool isError) {
+    super.onError(isError);
+    _isLoadingError.value = isError;
+  }
 
   @override
-  Widget buildInitializationError() => Center(
-        child: ScaleText(
-          widget.textDelegate.loadFailed,
-          semanticsLabel: widget.textDelegate.semanticsTextDelegate.loadFailed,
+  Widget buildLoader() => Transform.scale(
+        scale: widget.asset.height / widget.height,
+        child: Image(
+          // generate video thumbnail (low quality for performances)
+          image: AssetEntityImageProvider(
+            widget.asset,
+            thumbnailSize: ThumbnailSize(
+              (widget.height * widget.asset.size.aspectRatio).toInt(),
+              widget.height.toInt(),
+            ),
+            isOriginal: false,
+          ),
         ),
+      );
+
+  @override
+  Widget buildInitializationError() => ScaleText(
+        widget.textDelegate.loadFailed,
+        semanticsLabel: widget.textDelegate.semanticsTextDelegate.loadFailed,
       );
 
   @override
@@ -211,40 +192,72 @@ class _InnerCropViewState extends State<InnerCropView>
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        Opacity(
-          opacity:
-              widget.controller.isCropViewReady.value ? widget.opacity : 1.0,
-          child: insta_crop_view.Crop(
-            key: widget.cropKey,
-            maximumScale: 10,
-            aspectRatio: widget.controller.aspectRatio,
-            disableResize: true,
-            backgroundColor: widget.theme!.canvasColor,
-            initialParam: widget.cropParam,
-            size: widget.asset.size,
-            child: widget.asset.type == AssetType.image
-                ? ExtendedImage(
-                    key: ValueKey<String>(widget.asset.id),
-                    image: AssetEntityImageProvider(
-                      widget.asset,
-                      isOriginal: true,
-                    ),
-                    loadStateChanged: (ExtendedImageState state) {
-                      switch (state.extendedImageLoadState) {
-                        case LoadState.completed:
-                          onLoading(false);
-                          return state.completedWidget;
-                        case LoadState.loading:
-                          onLoading(true);
-                          return widget.loaderBuilder();
-                        case LoadState.failed:
-                          onLoading(false);
-                          return widget
-                              .loaderBuilder(buildInitializationError());
-                      }
-                    },
-                  )
-                : buildVideoPlayerWrapper(),
+        insta_crop_view.Crop(
+          key: widget.cropKey,
+          maximumScale: 10,
+          aspectRatio: widget.controller.aspectRatio,
+          disableResize: true,
+          backgroundColor: widget.theme!.canvasColor,
+          initialParam: widget.cropParam,
+          size: widget.asset.size,
+          child: widget.asset.type == AssetType.image
+              ? ExtendedImage(
+                  key: ValueKey<String>(widget.asset.id),
+                  image: AssetEntityImageProvider(
+                    widget.asset,
+                    isOriginal: true,
+                  ),
+                  loadStateChanged: (ExtendedImageState state) {
+                    switch (state.extendedImageLoadState) {
+                      case LoadState.completed:
+                        onLoading(false);
+                        onError(false);
+                        return state.completedWidget;
+                      case LoadState.loading:
+                        onLoading(true);
+                        onError(false);
+                        return buildLoader();
+                      case LoadState.failed:
+                        onLoading(false);
+                        onError(true);
+                        return buildLoader();
+                    }
+                  },
+                )
+              : buildVideoPlayerBuilder(
+                  builder: (BuildContext context, AssetEntity asset) {
+                    return AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 300),
+                      reverseDuration: const Duration(milliseconds: 300),
+                      transitionBuilder:
+                          (Widget child, Animation<double> animation) =>
+                              FadeTransition(opacity: animation, child: child),
+                      child: hasLoaded ? buildVideoPlayer() : buildLoader(),
+                    );
+                  },
+                ),
+        ),
+
+        ValueListenableBuilder<bool>(
+          valueListenable: widget.controller.isCropViewReady,
+          builder: (context, isCropViewReady, __) =>
+              ValueListenableBuilder<bool>(
+            valueListenable: _isLoadingError,
+            builder: (context, isLoadingError, __) =>
+                !isCropViewReady || isLoadingError
+                    ? Positioned.fill(
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: widget.theme?.cardColor.withOpacity(0.4),
+                          ),
+                          child: Center(
+                            child: isLoadingError
+                                ? buildInitializationError()
+                                : widget.loaderWidget,
+                          ),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
           ),
         ),
 

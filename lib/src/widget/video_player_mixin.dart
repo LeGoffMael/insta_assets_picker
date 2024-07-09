@@ -48,7 +48,7 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
         ..dispose();
       videoController = null;
       hasLoaded = false;
-      hasErrorWhenInitializing = false;
+      onError(false);
       _initializeVideoPlayer();
     }
   }
@@ -67,7 +67,7 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
     onLoading(true);
     final String? url = await widget.asset.getMediaUrl();
     if (url == null) {
-      hasErrorWhenInitializing = true;
+      onError(true);
       if (mounted) {
         setState(() {});
       }
@@ -97,7 +97,7 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
           silent: true,
         ),
       );
-      hasErrorWhenInitializing = true;
+      onError(true);
     } finally {
       if (mounted) {
         setState(() {});
@@ -126,30 +126,35 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
   }
 
   void onLoading(bool isLoading) {}
+  void onError(bool isError) {
+    hasErrorWhenInitializing = isError;
+  }
 
   Widget buildLoader();
   Widget buildInitializationError();
   Widget buildVideoPlayer();
 
-  Widget buildVideoPlayerWrapper() {
-    return LocallyAvailableBuilder(
-      key: ValueKey<String>(widget.asset.id),
-      asset: widget.asset,
-      builder: (BuildContext context, AssetEntity asset) {
-        if (hasErrorWhenInitializing) {
-          return buildInitializationError();
-        }
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          reverseDuration: const Duration(milliseconds: 300),
-          transitionBuilder: (Widget child, Animation<double> animation) =>
-              FadeTransition(opacity: animation, child: child),
-          child: hasLoaded ? buildVideoPlayer() : buildLoader(),
-        );
-      },
-    );
-  }
+  Widget buildDefault() => buildVideoPlayerBuilder(
+        builder: (BuildContext context, AssetEntity asset) {
+          if (hasErrorWhenInitializing) {
+            return buildInitializationError();
+          }
+          if (!hasLoaded) {
+            return buildLoader();
+          }
+          return buildVideoPlayer();
+        },
+      );
+
+  Widget buildVideoPlayerBuilder({
+    required Widget Function(BuildContext, AssetEntity) builder,
+  }) =>
+      LocallyAvailableBuilder(
+        key: ValueKey<String>(widget.asset.id),
+        asset: widget.asset,
+        builder: builder,
+      );
 
   @override
-  Widget build(BuildContext context) => buildVideoPlayerWrapper();
+  Widget build(BuildContext context) => buildDefault();
 }
