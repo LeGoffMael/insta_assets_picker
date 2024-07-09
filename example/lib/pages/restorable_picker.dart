@@ -36,10 +36,13 @@ class _PickerScreenState extends State<RestorablePicker> {
     final List<AssetEntity>? result =
         await _instaAssetsPicker.restorableAssetsPicker(
       context,
-      title: widget.description.fullLabel,
-      closeOnComplete: true,
+      builderOptions: InstaAssetPickerBuilderOptions(
+        context,
+        title: widget.description.fullLabel,
+        closeOnComplete: true,
+        pickerTheme: _pickerTheme,
+      ),
       provider: () => _provider,
-      pickerTheme: _pickerTheme,
       onCompleted: (cropStream) {
         // example withtout StreamBuilder
         cropStream.listen((event) {
