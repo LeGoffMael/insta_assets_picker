@@ -43,6 +43,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
         title = options.title,
         closeOnComplete = options.closeOnComplete,
+        skipCropOnComplete = options.skipCropOnComplete,
         actionsBuilder = options.actionsBuilder,
         super(
           gridCount: options.gridCount,
@@ -73,6 +74,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   ///
   /// Defaults to `false`, like instagram
   final bool closeOnComplete;
+
+  /// Should the picker automatically crop when the selection is confirmed
+  ///
+  /// Defaults to `false`.
+  final bool skipCropOnComplete;
 
   // LOCAL PARAMETERS
 
@@ -108,7 +114,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       Navigator.of(context).pop(provider.selectedAssets);
     }
     _cropViewerKey.currentState?.saveCurrentCropChanges();
-    onCompleted(_cropController.exportCropFiles(provider.selectedAssets));
+    onCompleted(
+      _cropController.exportCropFiles(
+        provider.selectedAssets,
+        skipCrop: skipCropOnComplete,
+      ),
+    );
   }
 
   /// The responsive height of the crop view

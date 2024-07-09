@@ -41,6 +41,7 @@ class InstaAssetPickerBuilderOptions {
     this.gridCount = _kGridCount,
     this.title,
     this.closeOnComplete = false,
+    this.skipCropOnComplete = false,
     this.loadingIndicatorBuilder,
     this.limitedPermissionOverlayPredicate,
     this.specialItemBuilder,
@@ -70,6 +71,10 @@ class InstaAssetPickerBuilderOptions {
   /// Specifies if the picker should be closed after assets selection confirmation.
   /// Defaults to `false`.
   final bool closeOnComplete;
+
+  /// Specifies if the assets should be cropped when the picker is closed.
+  /// Defaults to `false`.
+  final bool skipCropOnComplete;
 
   /// The loader indicator to display in the picker.
   final LoadingIndicatorBuilder? loadingIndicatorBuilder;
@@ -301,6 +306,10 @@ class InstaAssetPicker {
   ///
   /// - Set [initializeDelayDuration] to specifies the delay before loading the assets
   /// Defaults to [_kInitializeDelayDuration].
+  ///
+  /// - Set [requestType] to specifies which type of asset to show in the picker.
+  /// Defaults is [RequestType.common]. Only [RequestType.image], [RequestType.common]
+  /// and [RequestType.common] are supported.
   static Future<List<AssetEntity>?> pickAssets(
     BuildContext context, {
     Key? key,
