@@ -39,6 +39,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     required InstaAssetPickerConfig config,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
     super.keepScrollOffset,
+    super.locale,
   })  : _cropController =
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
         title = config.title,
@@ -57,7 +58,6 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               config.limitedPermissionOverlayPredicate,
           themeColor: config.themeColor,
           textDelegate: config.textDelegate,
-          locale: config.locale,
           gridThumbnailSize: config.gridThumbnailSize,
           previewThumbnailSize: config.previewThumbnailSize,
           shouldRevertGrid: false,
