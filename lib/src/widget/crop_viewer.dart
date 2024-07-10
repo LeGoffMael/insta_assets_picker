@@ -19,6 +19,7 @@ class CropViewer extends StatefulWidget {
     required this.height,
     this.opacity = 1.0,
     this.theme,
+    this.previewThumbnailSize,
   });
 
   final DefaultAssetPickerProvider provider;
@@ -27,6 +28,7 @@ class CropViewer extends StatefulWidget {
   final Widget loaderWidget;
   final double height, opacity;
   final ThemeData? theme;
+  final ThumbnailSize? previewThumbnailSize;
 
   @override
   State<CropViewer> createState() => CropViewerState();
@@ -102,6 +104,7 @@ class CropViewerState extends State<CropViewer> {
                 height: widget.height,
                 hideCropButton: hideCropButton,
                 loaderWidget: widget.loaderWidget,
+                previewThumbnailSize: widget.previewThumbnailSize,
               ),
             );
           },
@@ -124,6 +127,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
     required this.height,
     required this.hideCropButton,
     required this.cropKey,
+    required this.previewThumbnailSize,
   });
 
   final insta_crop_view.CropInternal? cropParam;
@@ -134,6 +138,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
   final double opacity, height;
   final bool hideCropButton;
   final GlobalKey<insta_crop_view.CropState> cropKey;
+  final ThumbnailSize? previewThumbnailSize;
 
   @override
   State<InnerCropView> createState() => _InnerCropViewState();
@@ -170,10 +175,18 @@ class _InnerCropViewState extends State<InnerCropView>
           // generate video thumbnail (low quality for performances)
           image: AssetEntityImageProvider(
             widget.asset,
-            thumbnailSize: ThumbnailSize(
-              (widget.height * widget.asset.orientatedSize.aspectRatio).toInt(),
-              widget.height.toInt(),
-            ),
+            thumbnailSize: widget.previewThumbnailSize != null
+                ? ThumbnailSize(
+                    (widget.previewThumbnailSize!.height *
+                            widget.asset.orientatedSize.aspectRatio)
+                        .toInt(),
+                    widget.previewThumbnailSize!.height.toInt(),
+                  )
+                : ThumbnailSize(
+                    (widget.height * widget.asset.orientatedSize.aspectRatio)
+                        .toInt(),
+                    widget.height.toInt(),
+                  ),
             isOriginal: false,
           ),
         ),

@@ -48,6 +48,7 @@ class InstaAssetPickerConfig {
     this.textDelegate,
     this.locale,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
+    this.previewThumbnailSize,
 
     /// [InstaAssetPickerBuilder] config
 
@@ -69,6 +70,7 @@ class InstaAssetPickerConfig {
     this.limitedPermissionOverlayPredicate,
     this.themeColor,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
+    this.previewThumbnailSize,
 
     /// [InstaAssetPickerBuilder] config
 
@@ -120,6 +122,9 @@ class InstaAssetPickerConfig {
 
   /// Thumbnail size in the grid.
   final ThumbnailSize gridThumbnailSize;
+
+  /// Preview thumbnail size in the crop viewer.
+  final ThumbnailSize? previewThumbnailSize;
 
   /* [InstaAssetPickerBuilder] config */
 
