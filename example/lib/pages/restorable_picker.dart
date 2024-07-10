@@ -39,8 +39,7 @@ class _PickerScreenState extends State<RestorablePicker> {
     final List<AssetEntity>? result =
         await _instaAssetsPicker.restorableAssetsPicker(
       context,
-      builderOptions: InstaAssetPickerBuilderOptions(
-        context,
+      pickerConfig: InstaAssetPickerConfig(
         title: widget.description.fullLabel,
         closeOnComplete: true,
         pickerTheme: _pickerTheme,

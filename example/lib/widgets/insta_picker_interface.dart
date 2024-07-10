@@ -79,8 +79,7 @@ mixin InstaPickerInterface on Widget {
   void pickAssets(BuildContext context, {required int maxAssets}) =>
       InstaAssetPicker.pickAssets(
         context,
-        builderOptions: InstaAssetPickerBuilderOptions(
-          context,
+        pickerConfig: InstaAssetPickerConfig(
           title: description.fullLabel,
           closeOnComplete: true,
           pickerTheme: getPickerTheme(context),

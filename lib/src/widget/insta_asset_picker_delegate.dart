@@ -36,26 +36,29 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     required super.initialPermission,
     required super.provider,
     required this.onCompleted,
-    required InstaAssetPickerBuilderOptions options,
+    required InstaAssetPickerConfig config,
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
     super.keepScrollOffset,
   })  : _cropController =
             InstaAssetsCropController(keepScrollOffset, cropDelegate),
-        title = options.title,
-        closeOnComplete = options.closeOnComplete,
-        skipCropOnComplete = options.skipCropOnComplete,
-        actionsBuilder = options.actionsBuilder,
+        title = config.title,
+        closeOnComplete = config.closeOnComplete,
+        skipCropOnComplete = config.skipCropOnComplete,
+        actionsBuilder = config.actionsBuilder,
         super(
-          gridCount: options.gridCount,
-          pickerTheme: options.pickerTheme,
-          textDelegate: options.textDelegate,
-          loadingIndicatorBuilder: options.loadingIndicatorBuilder,
-          limitedPermissionOverlayPredicate:
-              options.limitedPermissionOverlayPredicate,
-          specialItemBuilder: options.specialItemBuilder,
+          gridCount: config.gridCount,
+          pickerTheme: config.pickerTheme,
           specialItemPosition:
-              options.specialItemPosition ?? SpecialItemPosition.none,
-          locale: options.locale,
+              config.specialItemPosition ?? SpecialItemPosition.none,
+          specialItemBuilder: config.specialItemBuilder,
+          loadingIndicatorBuilder: config.loadingIndicatorBuilder,
+          selectPredicate: config.selectPredicate,
+          limitedPermissionOverlayPredicate:
+              config.limitedPermissionOverlayPredicate,
+          themeColor: config.themeColor,
+          textDelegate: config.textDelegate,
+          locale: config.locale,
+          gridThumbnailSize: config.gridThumbnailSize,
           shouldRevertGrid: false,
         );
 
