@@ -33,25 +33,54 @@ class InstaAssetCropDelegate {
   final List<double> cropRatios;
 }
 
-class InstaAssetPickerBuilderOptions {
-  InstaAssetPickerBuilderOptions(
-    BuildContext context, {
-    ThemeData? pickerTheme,
-    AssetPickerTextDelegate? textDelegate,
-    Locale? locale,
+/// Configurations for the [InstaAssetPickerBuilder].
+class InstaAssetPickerConfig {
+  const InstaAssetPickerConfig({
+    /// [DefaultAssetPickerBuilderDelegate] config
+
     this.gridCount = _kGridCount,
+    this.pickerTheme,
+    this.specialItemPosition,
+    this.specialItemBuilder,
+    this.loadingIndicatorBuilder,
+    this.selectPredicate,
+    this.limitedPermissionOverlayPredicate,
+    this.themeColor,
+    this.textDelegate,
+    this.locale,
+    this.gridThumbnailSize = defaultAssetGridPreviewSize,
+
+    /// [InstaAssetPickerBuilder] config
+
     this.title,
     this.closeOnComplete = false,
-    this.loadingIndicatorBuilder,
-    this.limitedPermissionOverlayPredicate,
-    this.specialItemBuilder,
-    this.specialItemPosition,
     this.actionsBuilder,
-  })  : pickerTheme = pickerTheme ??
+  });
+
+  InstaAssetPickerConfig.withContext(
+    BuildContext context, {
+    /// [DefaultAssetPickerBuilderDelegate] config
+
+    this.gridCount = _kGridCount,
+    this.specialItemPosition,
+    this.specialItemBuilder,
+    this.loadingIndicatorBuilder,
+    this.selectPredicate,
+    this.limitedPermissionOverlayPredicate,
+    this.themeColor,
+    this.gridThumbnailSize = defaultAssetGridPreviewSize,
+
+    /// [InstaAssetPickerBuilder] config
+
+    this.title,
+    this.closeOnComplete = false,
+    this.actionsBuilder,
+  })  : pickerTheme =
             InstaAssetPicker.themeData(Theme.of(context).primaryColor),
-        textDelegate =
-            textDelegate ?? InstaAssetPicker.defaultTextDelegate(context),
-        locale = locale ?? Localizations.maybeLocaleOf(context);
+        textDelegate = InstaAssetPicker.defaultTextDelegate(context),
+        locale = Localizations.maybeLocaleOf(context);
+
+  /* [DefaultAssetPickerBuilderDelegate] config */
 
   /// Specifies the number of assets in the cross axis.
   /// Defaults to [_kGridCount], like instagram.
@@ -61,9 +90,37 @@ class InstaAssetPickerBuilderOptions {
   /// It is by default initialized with the `primaryColor` of the context theme.
   final ThemeData? pickerTheme;
 
+  /// Set a special item in the picker with several positions.
+  /// Since the grid view is reversed, [SpecialItemPosition.prepend]
+  /// will be at the top and [SpecialItemPosition.append] at the bottom.
+  /// Defaults to [SpecialItemPosition.none].
+  final SpecialItemPosition? specialItemPosition;
+
+  /// Specifies [Widget] for the the special item.
+  final SpecialItemBuilder<AssetPathEntity>? specialItemBuilder;
+
+  /// The loader indicator to display in the picker.
+  final LoadingIndicatorBuilder? loadingIndicatorBuilder;
+
+  final AssetSelectPredicate<AssetEntity>? selectPredicate;
+
+  /// Specifies if the limited permission overlay should be displayed.
+  final LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate;
+
+  /// Main color for the picker.
+  final Color? themeColor;
+
   /// Specifies the language to apply to the picker.
   /// Default is the locale language from the context.
   final AssetPickerTextDelegate? textDelegate;
+
+  /// Identifier used to select picker language
+  final Locale? locale;
+
+  /// Thumbnail size in the grid.
+  final ThumbnailSize gridThumbnailSize;
+
+  /* [InstaAssetPickerBuilder] config */
 
   /// Specifies the text title in the picker [AppBar].
   final String? title;
@@ -72,27 +129,9 @@ class InstaAssetPickerBuilderOptions {
   /// Defaults to `false`.
   final bool closeOnComplete;
 
-  /// The loader indicator to display in the picker.
-  final LoadingIndicatorBuilder? loadingIndicatorBuilder;
-
-  /// Specifies if the limited permission overlay should be displayed.
-  final LimitedPermissionOverlayPredicate? limitedPermissionOverlayPredicate;
-
-  /// Specifies [Widget] for the the special item.
-  final SpecialItemBuilder<AssetPathEntity>? specialItemBuilder;
-
-  /// Set a special item in the picker with several positions.
-  /// Since the grid view is reversed, [SpecialItemPosition.prepend]
-  /// will be at the top and [SpecialItemPosition.append] at the bottom.
-  /// Defaults to [SpecialItemPosition.none].
-  final SpecialItemPosition? specialItemPosition;
-
   /// The [Widget] to display on top of the assets grid view.
   /// Default is unselect all assets button.
   final InstaPickerActionsBuilder? actionsBuilder;
-
-  /// Identifier used to select picker language
-  final Locale? locale;
 }
 
 class InstaAssetPicker {
@@ -183,7 +222,7 @@ class InstaAssetPicker {
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
   ///
-  /// Crop options
+  /// Crop parameters
   /// - Set [cropDelegate] to customize the display and export of crops.
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
@@ -195,7 +234,7 @@ class InstaAssetPicker {
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
   ///
-  /// - Set [builderOptions] to specifies more optional parameters for the picker.
+  /// - Set [pickerConfig] to specifies more optional parameters for the picker.
   Future<List<AssetEntity>?> restorableAssetsPicker(
     BuildContext context, {
     Key? key,
@@ -204,24 +243,22 @@ class InstaAssetPicker {
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
 
-    /// Crop options
+    /// Crop parameters
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
-    /// InstaAssetPickerBuilder options
+    /// InstaAssetPickerBuilder parameters
     required DefaultAssetPickerProvider Function() provider,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    InstaAssetPickerBuilderOptions? builderOptions,
+    InstaAssetPickerConfig pickerConfig = const InstaAssetPickerConfig(),
   }) async {
-    builderOptions ??= InstaAssetPickerBuilderOptions(context);
-
     PermissionState? ps;
     try {
       ps = await _permissionCheck();
     } catch (e) {
       _openErrorPermission(
         context,
-        builderOptions.textDelegate,
+        pickerConfig.textDelegate,
         onPermissionDenied,
       );
       return [];
@@ -238,7 +275,7 @@ class InstaAssetPicker {
       keepScrollOffset: true,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
-      options: builderOptions,
+      config: pickerConfig,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
@@ -268,7 +305,7 @@ class InstaAssetPicker {
   /// - The [onCompleted] callback is called when the assets selection is confirmed.
   /// It will as argument a [Stream] with exportation details [InstaAssetsExportDetails].
   ///
-  /// - Set [builderOptions] to specifies more optional parameters for the picker.
+  /// - Set [pickerConfig] to specifies more optional parameters for the picker.
   ///
   /// Those arguments are used by [DefaultAssetPickerProvider]
   ///
@@ -303,15 +340,15 @@ class InstaAssetPicker {
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
 
-    /// Crop options
+    /// Crop parameters
     InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
-    /// InstaAssetPickerBuilder options
+    /// InstaAssetPickerBuilder parameters
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    InstaAssetPickerBuilderOptions? builderOptions,
+    InstaAssetPickerConfig pickerConfig = const InstaAssetPickerConfig(),
 
-    /// DefaultAssetPickerProvider options
+    /// DefaultAssetPickerProvider parameters
     List<AssetEntity>? selectedAssets,
     int maxAssets = defaultMaxAssetsCount,
     int pageSize = defaultAssetsPerPage,
@@ -322,8 +359,6 @@ class InstaAssetPicker {
     PMFilter? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
   }) async {
-    builderOptions ??= InstaAssetPickerBuilderOptions(context);
-
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
     PermissionState? ps;
     try {
@@ -331,7 +366,7 @@ class InstaAssetPicker {
     } catch (e) {
       _openErrorPermission(
         context,
-        builderOptions.textDelegate,
+        pickerConfig.textDelegate,
         onPermissionDenied,
       );
       return [];
@@ -355,7 +390,7 @@ class InstaAssetPicker {
       keepScrollOffset: false,
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
-      options: builderOptions,
+      config: pickerConfig,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
