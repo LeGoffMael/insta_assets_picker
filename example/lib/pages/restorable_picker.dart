@@ -47,7 +47,7 @@ class _PickerScreenState extends State<RestorablePicker> {
       ),
       provider: () => _provider,
       onCompleted: (cropStream) {
-        // example withtout StreamBuilder
+        // example without StreamBuilder
         cropStream.listen((event) {
           if (mounted) {
             setState(() {
@@ -80,11 +80,7 @@ class _PickerScreenState extends State<RestorablePicker> {
                     'Using this picker means that you must dispose it manually',
               ),
             ),
-            CropResultView(
-              selectedData: exportDetails?.selectedData ?? [],
-              croppedFiles: exportDetails?.croppedFiles ?? [],
-              progress: exportDetails?.progress,
-            )
+            CropResultView(result: exportDetails)
           ],
         ),
       );

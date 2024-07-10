@@ -18,9 +18,7 @@ class PickerCropResultScreen extends StatelessWidget {
       body: StreamBuilder<InstaAssetsExportDetails>(
         stream: cropStream,
         builder: (context, snapshot) => CropResultView(
-          selectedData: snapshot.data?.selectedData ?? [],
-          croppedFiles: snapshot.data?.croppedFiles ?? [],
-          progress: snapshot.data?.progress,
+          result: snapshot.data,
           heightFiles: height / 2,
           heightAssets: height / 4,
         ),
@@ -32,18 +30,17 @@ class PickerCropResultScreen extends StatelessWidget {
 class CropResultView extends StatelessWidget {
   const CropResultView({
     super.key,
-    required this.selectedData,
-    required this.croppedFiles,
-    this.progress,
+    required this.result,
     this.heightFiles = 300.0,
     this.heightAssets = 120.0,
   });
 
-  final List<InstaAssetsCropData> selectedData;
-  final List<File?> croppedFiles;
-  final double? progress;
+  final InstaAssetsExportDetails? result;
   final double heightFiles;
   final double heightAssets;
+
+  List<File?> get croppedFiles => result?.croppedFiles ?? [];
+  List<InstaAssetsCropData> get selectedData => result?.selectedData ?? [];
 
   Widget _buildTitle(String title, int length) {
     return SizedBox(
@@ -73,9 +70,11 @@ class CropResultView extends StatelessWidget {
   }
 
   Widget _buildCroppedAssetsListView(BuildContext context) {
-    if (progress == null) {
+    if (result?.progress == null) {
       return const SizedBox.shrink();
     }
+
+    final double progress = result!.progress;
 
     return Expanded(
       child: Stack(
@@ -108,7 +107,7 @@ class CropResultView extends StatelessWidget {
               );
             },
           ),
-          if (progress! < 1.0)
+          if (progress < 1.0)
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
@@ -117,7 +116,7 @@ class CropResultView extends StatelessWidget {
                 ),
               ),
             ),
-          if (progress! < 1.0)
+          if (progress < 1.0)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: ClipRRect(
@@ -126,7 +125,7 @@ class CropResultView extends StatelessWidget {
                   height: 6,
                   child: LinearProgressIndicator(
                     value: progress,
-                    semanticsLabel: '${progress! * 100}%',
+                    semanticsLabel: '${progress * 100}%',
                   ),
                 ),
               ),
@@ -177,7 +176,7 @@ class CropResultView extends StatelessWidget {
           height: croppedFiles.isNotEmpty ? heightFiles : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Cropped Assets', croppedFiles.length),
+              _buildTitle('Cropped Files', croppedFiles.length),
               _buildCroppedAssetsListView(context),
             ],
           ),
