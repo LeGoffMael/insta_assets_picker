@@ -35,8 +35,8 @@ class InstaAssetCropTransform extends StatelessWidget {
       }
 
       final ratio = max(
-        size.width / asset.size.width,
-        size.height / asset.size.height,
+        size.width / asset.orientatedSize.width,
+        size.height / asset.orientatedSize.height,
       );
 
       return SizedBox.fromSize(
@@ -50,7 +50,7 @@ class InstaAssetCropTransform extends StatelessWidget {
                 ratio: ratio,
                 scale: scale,
                 view: view,
-                childSize: asset.size,
+                childSize: asset.orientatedSize,
                 layoutSize: size,
                 getRect: (s) => Offset.zero & s,
                 child: child,

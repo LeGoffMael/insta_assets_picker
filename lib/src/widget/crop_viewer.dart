@@ -165,13 +165,13 @@ class _InnerCropViewState extends State<InnerCropView>
 
   @override
   Widget buildLoader() => Transform.scale(
-        scale: widget.asset.height / widget.height,
+        scale: widget.asset.orientatedHeight / widget.height,
         child: Image(
           // generate video thumbnail (low quality for performances)
           image: AssetEntityImageProvider(
             widget.asset,
             thumbnailSize: ThumbnailSize(
-              (widget.height * widget.asset.size.aspectRatio).toInt(),
+              (widget.height * widget.asset.orientatedSize.aspectRatio).toInt(),
               widget.height.toInt(),
             ),
             isOriginal: false,
@@ -199,7 +199,7 @@ class _InnerCropViewState extends State<InnerCropView>
           disableResize: true,
           backgroundColor: widget.theme!.canvasColor,
           initialParam: widget.cropParam,
-          size: widget.asset.size,
+          size: widget.asset.orientatedSize,
           child: widget.asset.type == AssetType.image
               ? ExtendedImage(
                   key: ValueKey<String>(widget.asset.id),

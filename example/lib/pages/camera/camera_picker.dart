@@ -67,10 +67,7 @@ class _CameraPickerState extends State<CameraPicker> {
     if (entity == null) return;
 
     if (context.mounted) {
-      await InstaAssetPicker.refreshAndSelectEntity(
-        context,
-        entity,
-      );
+      await InstaAssetPicker.refreshAndSelectEntity(context, entity);
     }
   }
 
