@@ -47,7 +47,6 @@ class InstaAssetPickerConfig {
     this.limitedPermissionOverlayPredicate,
     this.themeColor,
     this.textDelegate,
-    this.locale,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
 
     /// [InstaAssetPickerBuilder] config
@@ -56,29 +55,6 @@ class InstaAssetPickerConfig {
     this.closeOnComplete = false,
     this.actionsBuilder,
   });
-
-  InstaAssetPickerConfig.withContext(
-    BuildContext context, {
-    /// [DefaultAssetPickerBuilderDelegate] config
-
-    this.gridCount = _kGridCount,
-    this.specialItemPosition,
-    this.specialItemBuilder,
-    this.loadingIndicatorBuilder,
-    this.selectPredicate,
-    this.limitedPermissionOverlayPredicate,
-    this.themeColor,
-    this.gridThumbnailSize = defaultAssetGridPreviewSize,
-
-    /// [InstaAssetPickerBuilder] config
-
-    this.title,
-    this.closeOnComplete = false,
-    this.actionsBuilder,
-  })  : pickerTheme =
-            InstaAssetPicker.themeData(Theme.of(context).primaryColor),
-        textDelegate = InstaAssetPicker.defaultTextDelegate(context),
-        locale = Localizations.maybeLocaleOf(context);
 
   /* [DefaultAssetPickerBuilderDelegate] config */
 
@@ -113,9 +89,6 @@ class InstaAssetPickerConfig {
   /// Specifies the language to apply to the picker.
   /// Default is the locale language from the context.
   final AssetPickerTextDelegate? textDelegate;
-
-  /// Identifier used to select picker language
-  final Locale? locale;
 
   /// Thumbnail size in the grid.
   final ThumbnailSize gridThumbnailSize;
@@ -276,6 +249,7 @@ class InstaAssetPicker {
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
       config: pickerConfig,
+      locale: Localizations.maybeLocaleOf(context),
     );
 
     return AssetPicker.pickAssetsWithDelegate(
@@ -391,6 +365,7 @@ class InstaAssetPicker {
       cropDelegate: cropDelegate,
       onCompleted: onCompleted,
       config: pickerConfig,
+      locale: Localizations.maybeLocaleOf(context),
     );
 
     return AssetPicker.pickAssetsWithDelegate(
