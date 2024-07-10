@@ -23,6 +23,7 @@ dependencies:
   
   # for video examples
   video_player: ^2.9.1
+  mime: ^1.0.5
 
 dev_dependencies:
   flutter_test:

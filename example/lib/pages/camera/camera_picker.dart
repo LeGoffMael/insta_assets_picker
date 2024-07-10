@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker_demo/widgets/crop_result_view.dart';
 import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
+import 'package:mime/mime.dart';
 import 'package:path/path.dart' as path;
 
 class CameraPicker extends StatefulWidget with InstaPickerInterface {
@@ -47,7 +50,7 @@ class _CameraPickerState extends State<CameraPicker> {
   /// Needs a [BuildContext] that is coming from the picker
   Future<void> _pickFromCamera(BuildContext context) async {
     Feedback.forTap(context);
-    final XFile? image =
+    final XFile? cameraFile =
         await Navigator.of(context, rootNavigator: true).push<XFile?>(
       MaterialPageRoute(
         builder: (context) => CameraView(
@@ -57,12 +60,19 @@ class _CameraPickerState extends State<CameraPicker> {
       ),
     );
 
-    if (!context.mounted || image == null) return;
+    if (!context.mounted || cameraFile == null) return;
 
-    final AssetEntity? entity = await PhotoManager.editor.saveImageWithPath(
-      image.path,
-      title: path.basename(image.path),
-    );
+    final bool isVideo =
+        lookupMimeType(cameraFile.path)?.startsWith('video') ?? false;
+
+    final String title = path.basename(cameraFile.path);
+
+    final AssetEntity? entity = isVideo
+        ? await PhotoManager.editor
+            .saveVideo(File(cameraFile.path), title: title)
+        // TODO: fix saved has wrong size (inverse width & height)
+        : await PhotoManager.editor
+            .saveImageWithPath(cameraFile.path, title: title);
 
     if (entity == null) return;
 
@@ -135,8 +145,8 @@ class _CameraPickerState extends State<CameraPicker> {
       );
 }
 
-/// Widget based on Flutter docs : https://docs.flutter.dev/cookbook/plugins/picture-using-camera
-class CameraView extends StatelessWidget {
+/// Widget based on camera package example : https://github.com/flutter/packages/blob/main/packages/camera/camera/example/lib/main.dart
+class CameraView extends StatefulWidget {
   const CameraView({
     super.key,
     required this.controller,
@@ -147,34 +157,162 @@ class CameraView extends StatelessWidget {
   final Future<void> initializeControllerFuture;
 
   @override
+  State<CameraView> createState() => _CameraViewState();
+}
+
+class _CameraViewState extends State<CameraView> {
+  void onTakePictureButtonPressed() {
+    takePicture().then((XFile? file) {
+      if (mounted) {
+        if (file != null) {
+          debugPrint('Picture saved to ${file.path}');
+        }
+        Navigator.pop(context, file);
+      }
+    });
+  }
+
+  void onVideoRecordButtonPressed() {
+    startVideoRecording().then((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  void onStopButtonPressed() {
+    stopVideoRecording().then((XFile? file) {
+      if (mounted) {
+        setState(() {});
+        if (file != null) {
+          debugPrint('Video recorded to ${file.path}');
+        }
+        Navigator.pop(context, file);
+      }
+    });
+  }
+
+  Future<void> startVideoRecording() async {
+    // Ensure that the camera is initialized.
+    await widget.initializeControllerFuture;
+
+    if (!widget.controller.value.isInitialized) {
+      debugPrint('Error: select a camera first.');
+      return;
+    }
+
+    if (widget.controller.value.isRecordingVideo) {
+      // A recording is already started, do nothing.
+      return;
+    }
+
+    try {
+      await widget.controller.startVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return;
+    }
+  }
+
+  Future<XFile?> stopVideoRecording() async {
+    if (!widget.controller.value.isRecordingVideo) {
+      return null;
+    }
+
+    try {
+      return widget.controller.stopVideoRecording();
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return null;
+    }
+  }
+
+  Future<XFile?> takePicture() async {
+    // Ensure that the camera is initialized.
+    await widget.initializeControllerFuture;
+
+    if (!widget.controller.value.isInitialized) {
+      debugPrint('Error: select a camera first.');
+      return null;
+    }
+
+    if (widget.controller.value.isTakingPicture) {
+      // A capture is already pending, do nothing.
+      return null;
+    }
+
+    try {
+      final XFile file = await widget.controller.takePicture();
+      return file;
+    } on CameraException catch (e) {
+      _showCameraException(e);
+      return null;
+    }
+  }
+
+  void _showCameraException(CameraException e) {
+    final errorMsg = 'Error: ${e.code}\n${e.description}';
+    debugPrint(errorMsg);
+  }
+
+  /// Display the control bar with buttons to take pictures and record videos.
+  Widget _captureControlRowWidget() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.camera_alt),
+          onPressed: widget.controller.value.isInitialized &&
+                  !widget.controller.value.isRecordingVideo
+              ? onTakePictureButtonPressed
+              : null,
+        ),
+        IconButton(
+          icon: const Icon(Icons.videocam),
+          color: widget.controller.value.isRecordingVideo ? Colors.red : null,
+          onPressed: widget.controller.value.isInitialized &&
+                  !widget.controller.value.isRecordingVideo
+              ? onVideoRecordButtonPressed
+              : onStopButtonPressed,
+        ),
+      ],
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Take a picture')),
-      body: FutureBuilder<void>(
-        future: initializeControllerFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return CameraPreview(controller);
-          } else {
-            return const Center(child: CircularProgressIndicator());
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          try {
-            // Ensure that the camera is initialized.
-            await initializeControllerFuture;
-            // Attempt to take a picture and get the image's file where it was saved.
-            final image = await controller.takePicture();
-
-            if (!context.mounted) return;
-            Navigator.pop(context, image);
-          } catch (e) {
-            debugPrint(e.toString());
-          }
-        },
-        child: const Icon(Icons.camera_alt),
+      appBar: AppBar(title: const Text('Camera example')),
+      body: Column(
+        children: <Widget>[
+          Expanded(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(
+                  color: widget.controller.value.isRecordingVideo
+                      ? Colors.redAccent
+                      : Colors.grey,
+                  width: 3.0,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(1.0),
+                child: FutureBuilder<void>(
+                  future: widget.initializeControllerFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      return CameraPreview(widget.controller);
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+          _captureControlRowWidget(),
+        ],
       ),
     );
   }
