@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -9,9 +10,7 @@ import 'package:mime/mime.dart';
 import 'package:path/path.dart' as path;
 
 class CameraPicker extends StatefulWidget with InstaPickerInterface {
-  const CameraPicker({super.key, required this.camera});
-
-  final CameraDescription camera;
+  const CameraPicker({super.key});
 
   @override
   State<CameraPicker> createState() => _CameraPickerState();
@@ -26,25 +25,35 @@ class CameraPicker extends StatefulWidget with InstaPickerInterface {
 }
 
 class _CameraPickerState extends State<CameraPicker> {
+  late List<CameraDescription> cameras;
   late CameraController _controller;
   late Future<void> _initializeControllerFuture;
 
   @override
   void initState() {
     super.initState();
-    _controller = CameraController(widget.camera, ResolutionPreset.max);
-    _initializeControllerFuture = _controller.initialize().then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
-    });
+    _initializeCamera();
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _initializeCamera() async {
+    cameras = await availableCameras();
+    final int preferredIndex = cameras.indexWhere(
+      (CameraDescription e) => e.lensDirection == CameraLensDirection.back,
+    );
+    _controller =
+        CameraController(cameras[max(preferredIndex, 0)], ResolutionPreset.max);
+    _initializeControllerFuture = _controller.initialize().then((_) {
+      if (!mounted) {
+        return;
+      }
+      setState(() {});
+    });
   }
 
   /// Needs a [BuildContext] that is coming from the picker
@@ -62,22 +71,37 @@ class _CameraPickerState extends State<CameraPicker> {
 
     if (!context.mounted || cameraFile == null) return;
 
-    final bool isVideo =
-        lookupMimeType(cameraFile.path)?.startsWith('video') ?? false;
+    AssetEntity? entity;
+    try {
+      final PermissionState ps = await PhotoManager.requestPermissionExtend();
+      if (ps == PermissionState.authorized || ps == PermissionState.limited) {
+        final File file = File(cameraFile.path);
+        final bool isVideo =
+            lookupMimeType(file.path)?.startsWith('video') ?? false;
+        final String title = path.basename(file.path);
 
-    final String title = path.basename(cameraFile.path);
-
-    final AssetEntity? entity = isVideo
-        ? await PhotoManager.editor
-            .saveVideo(File(cameraFile.path), title: title)
-        // TODO: fix saved has wrong size (inverse width & height)
-        : await PhotoManager.editor
-            .saveImageWithPath(cameraFile.path, title: title);
-
-    if (entity == null) return;
-
-    if (context.mounted) {
-      await InstaAssetPicker.refreshAndSelectEntity(context, entity);
+        if (isVideo) {
+          entity = await PhotoManager.editor.saveVideo(file, title: title);
+        } else {
+          // NOTE: for some unknown reason, when an asset is saved
+          // from a picture took with `camera` package, it size is inversed.
+          final wrongSizeEntity = await PhotoManager.editor
+              .saveImageWithPath(file.path, title: title);
+          // TEMP FIX: Fetching it one more time seems to fix the issue
+          if (wrongSizeEntity != null) {
+            entity = await AssetEntity.fromId(wrongSizeEntity.id);
+          }
+        }
+      } else {
+        debugPrint(
+            'Permission is not fully granted to save the captured file.');
+      }
+    } catch (e) {
+      debugPrint('Exception $e');
+    } finally {
+      if (context.mounted) {
+        await InstaAssetPicker.refreshAndSelectEntity(context, entity);
+      }
     }
   }
 

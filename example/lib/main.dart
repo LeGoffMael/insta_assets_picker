@@ -1,4 +1,3 @@
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:insta_assets_picker_demo/pages/stateless_pickers.dart';
@@ -9,13 +8,7 @@ import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
 
 const kDefaultColor = Colors.deepPurple;
 
-late List<CameraDescription> _cameras;
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  _cameras = await availableCameras();
-  runApp(const MyApp());
-}
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -66,7 +59,7 @@ class PickersScreen extends StatelessWidget {
       const SinglePicker(),
       const MultiplePicker(),
       const RestorablePicker(),
-      CameraPicker(camera: _cameras.first),
+      const CameraPicker(),
       const WeChatCameraPicker(),
     ];
 
