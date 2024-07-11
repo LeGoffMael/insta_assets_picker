@@ -200,56 +200,61 @@ class _InnerCropViewState extends State<InnerCropView>
   Widget buildVideoPlayer() => VideoPlayer(videoController!);
 
   @override
+  Widget buildDefault() {
+    if (!isLocallyAvailable && !isInitializing) {
+      initializeVideoPlayerController();
+    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      reverseDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (Widget child, Animation<double> animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: hasLoaded ? buildVideoPlayer() : buildLoader(),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        insta_crop_view.Crop(
-          key: widget.cropKey,
-          maximumScale: 10,
-          aspectRatio: widget.controller.aspectRatio,
-          disableResize: true,
-          backgroundColor: widget.theme!.canvasColor,
-          initialParam: widget.cropParam,
-          size: widget.asset.orientatedSize,
-          child: widget.asset.type == AssetType.image
-              ? ExtendedImage(
-                  key: ValueKey<String>(widget.asset.id),
-                  image: AssetEntityImageProvider(
-                    widget.asset,
-                    isOriginal: true,
-                  ),
-                  loadStateChanged: (ExtendedImageState state) {
-                    switch (state.extendedImageLoadState) {
-                      case LoadState.completed:
-                        onLoading(false);
-                        onError(false);
-                        return state.completedWidget;
-                      case LoadState.loading:
-                        onLoading(true);
-                        onError(false);
-                        return buildLoader();
-                      case LoadState.failed:
-                        onLoading(false);
-                        onError(true);
-                        return buildLoader();
-                    }
-                  },
-                )
-              : buildVideoPlayerBuilder(
-                  builder: (BuildContext context, AssetEntity asset) {
-                    if (!isLocallyAvailable && !isInitializing) {
-                      initializeVideoPlayerController();
-                    }
-                    return AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      reverseDuration: const Duration(milliseconds: 300),
-                      transitionBuilder:
-                          (Widget child, Animation<double> animation) =>
-                              FadeTransition(opacity: animation, child: child),
-                      child: hasLoaded ? buildVideoPlayer() : buildLoader(),
-                    );
-                  },
-                ),
+        LocallyAvailableBuilder(
+          key: ValueKey<String>(widget.asset.id),
+          asset: widget.asset,
+          builder: (BuildContext context, AssetEntity asset) =>
+              insta_crop_view.Crop(
+            key: widget.cropKey,
+            maximumScale: 10,
+            aspectRatio: widget.controller.aspectRatio,
+            disableResize: true,
+            backgroundColor: widget.theme!.canvasColor,
+            initialParam: widget.cropParam,
+            size: widget.asset.orientatedSize,
+            child: widget.asset.type == AssetType.image
+                ? ExtendedImage(
+                    image: AssetEntityImageProvider(
+                      widget.asset,
+                      isOriginal: true,
+                    ),
+                    loadStateChanged: (ExtendedImageState state) {
+                      switch (state.extendedImageLoadState) {
+                        case LoadState.completed:
+                          onLoading(false);
+                          onError(false);
+                          return state.completedWidget;
+                        case LoadState.loading:
+                          onLoading(true);
+                          onError(false);
+                          return buildLoader();
+                        case LoadState.failed:
+                          onLoading(false);
+                          onError(true);
+                          return buildLoader();
+                      }
+                    },
+                  )
+                // build video
+                : buildDefault(),
+          ),
         ),
 
         ValueListenableBuilder<bool>(
