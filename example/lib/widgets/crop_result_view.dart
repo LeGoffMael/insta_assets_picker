@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
+import 'package:insta_assets_picker_demo/post_provider.dart';
+import 'package:insta_assets_picker_demo/widgets/post.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 class PickerCropResultScreen extends StatelessWidget {
@@ -183,6 +186,31 @@ class CropResultView extends StatelessWidget {
               _buildTitle('Selected Assets', selectedAssets.length),
               _buildSelectedAssetsListView(),
             ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: result != null &&
+                      result?.progress != null &&
+                      result!.progress >= 1 &&
+                      selectedAssets.isNotEmpty
+                  ? () {
+                      context.read<PostProvider>().uploadNewPost(result!);
+                      // go back to main and open post list page
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => PostList()),
+                        (route) => route.isFirst,
+                      );
+                    }
+                  : null,
+              icon: const Icon(Icons.cloud_upload),
+              label: const Text('Upload'),
+            ),
           ),
         ),
       ],

@@ -60,6 +60,27 @@ class InstaAssetsCropData {
   final double scale;
   final Rect? area;
 
+  /// Returns crop filter for ffmpeg in "out_w:out_h:x:y" format
+  String? get ffmpegCrop {
+    final area = this.area;
+    if (area == null) return null;
+
+    final w = area.width * asset.orientatedWidth;
+    final h = area.height * asset.orientatedHeight;
+    final x = area.left * asset.orientatedWidth;
+    final y = area.top * asset.orientatedHeight;
+
+    return '$w:$h:$x:$y';
+  }
+
+  /// Returns scale filter for ffmpeg in "iw*[scale]:ih*[scale]" format
+  String? get ffmpegScale {
+    final scale = cropParam?.scale;
+    if (scale == null) return null;
+
+    return 'iw*$scale:ih*$scale';
+  }
+
   const InstaAssetsCropData({
     required this.asset,
     required this.cropParam,

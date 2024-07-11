@@ -4,10 +4,9 @@ import 'dart:math';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
+import 'package:insta_assets_picker_demo/utils.dart';
 import 'package:insta_assets_picker_demo/widgets/crop_result_view.dart';
 import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
-import 'package:mime/mime.dart';
-import 'package:path/path.dart' as path;
 
 class CameraPicker extends StatefulWidget with InstaPickerInterface {
   const CameraPicker({super.key});
@@ -76,9 +75,8 @@ class _CameraPickerState extends State<CameraPicker> {
       final PermissionState ps = await PhotoManager.requestPermissionExtend();
       if (ps == PermissionState.authorized || ps == PermissionState.limited) {
         final File file = File(cameraFile.path);
-        final bool isVideo =
-            lookupMimeType(file.path)?.startsWith('video') ?? false;
-        final String title = path.basename(file.path);
+        final bool isVideo = isVideoFile(file);
+        final String title = getFileNameWithExtension(file);
 
         if (isVideo) {
           entity = await PhotoManager.editor.saveVideo(file, title: title);

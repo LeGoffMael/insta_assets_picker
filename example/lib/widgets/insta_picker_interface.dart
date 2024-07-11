@@ -83,6 +83,7 @@ mixin InstaPickerInterface on Widget {
           title: description.fullLabel,
           closeOnComplete: true,
           pickerTheme: getPickerTheme(context),
+          skipCropOnComplete: true,
           // previewThumbnailSize: const ThumbnailSize(240, 240),
         ),
         maxAssets: maxAssets,
