@@ -14,27 +14,38 @@ class InstaAssetsCropSingleton {
   static List<InstaAssetsCropData> cropParameters = [];
 }
 
-/// Contains all the parameters of the exportation
-class InstaAssetsExportDetails {
-  /// The list of the cropped files
-  final List<File?> croppedFiles;
+class InstaAssetsExportData {
+  const InstaAssetsExportData({
+    required this.croppedFile,
+    required this.selectedData,
+  });
+
+  /// The cropped file, can be null if the asset is not an image or if the
+  /// exportation was skipped ([skipCropOnComplete]=true)
+  final File? croppedFile;
 
   /// The selected data, contains the asset and it's crop values
-  final List<InstaAssetsCropData> selectedData;
+  final InstaAssetsCropData selectedData;
+}
 
-  /// The selected [aspectRatio] (1 or 4/5)
+/// Contains all the parameters of the exportation
+class InstaAssetsExportDetails {
+  /// The export result, containing the selected assets, crop parameters
+  /// and possible crop file.
+  final List<InstaAssetsExportData> data;
+
+  /// The selected thumbnails, can be provided to the picker to preselect those assets
+  final List<AssetEntity> selectedAssets;
+
+  /// The selected [aspectRatio]
   final double aspectRatio;
 
   /// The [progress] param represents progress indicator between `0.0` and `1.0`.
   final double progress;
 
-  /// The selected thumbnails, can be provided to the picker to preselect those assets
-  List<AssetEntity> get selectedAssets =>
-      selectedData.map((e) => e.asset).toList();
-
   const InstaAssetsExportDetails({
-    required this.croppedFiles,
-    required this.selectedData,
+    required this.data,
+    required this.selectedAssets,
     required this.aspectRatio,
     required this.progress,
   });
@@ -190,31 +201,29 @@ class InstaAssetsCropController {
     List<AssetEntity> selectedAssets, {
     bool skipCrop = false,
   }) async* {
-    final List<File?> croppedFiles = [];
-    final List<InstaAssetsCropData> list = cropParameters;
+    final List<InstaAssetsExportData> data = [];
 
     /// Returns the [InstaAssetsExportDetails] with given progress value [p]
     InstaAssetsExportDetails makeDetail(double p) => InstaAssetsExportDetails(
-          croppedFiles: croppedFiles,
-          selectedData: list,
+          data: data,
+          selectedAssets: selectedAssets,
           aspectRatio: aspectRatio,
           progress: p,
         );
 
     // start progress
     yield makeDetail(0);
-
-    if (skipCrop) {
-      yield makeDetail(1);
-      return;
-    }
+    final List<InstaAssetsCropData> list = cropParameters;
 
     final step = 1 / list.length;
 
     for (int i = 0; i < list.length; i++) {
       final asset = list[i].asset;
 
-      if (asset.type == AssetType.image) {
+      if (skipCrop || asset.type != AssetType.image) {
+        data.add(
+            InstaAssetsExportData(croppedFile: null, selectedData: list[i]));
+      } else {
         final file = await asset.originFile;
 
         final scale = list[i].scale;
@@ -231,7 +240,8 @@ class InstaAssetsCropController {
         );
 
         if (area == null) {
-          croppedFiles.add(sampledFile);
+          data.add(InstaAssetsExportData(
+              croppedFile: sampledFile, selectedData: list[i]));
         } else {
           // crop the file with the area selected
           final croppedFile =
@@ -239,11 +249,9 @@ class InstaAssetsCropController {
           // delete the not needed sample file
           sampledFile.delete();
 
-          croppedFiles.add(croppedFile);
+          data.add(InstaAssetsExportData(
+              croppedFile: croppedFile, selectedData: list[i]));
         }
-      } else {
-        // If the asset is not of type image
-        croppedFiles.add(null);
       }
 
       // increase progress

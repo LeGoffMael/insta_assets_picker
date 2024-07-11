@@ -61,6 +61,7 @@ class InstaAssetPickerConfig {
   /* [DefaultAssetPickerBuilderDelegate] config */
 
   /// Specifies the number of assets in the cross axis.
+  ///
   /// Defaults to [_kGridCount], like instagram.
   final int gridCount;
 
@@ -71,6 +72,7 @@ class InstaAssetPickerConfig {
   /// Set a special item in the picker with several positions.
   /// Since the grid view is reversed, [SpecialItemPosition.prepend]
   /// will be at the top and [SpecialItemPosition.append] at the bottom.
+  ///
   /// Defaults to [SpecialItemPosition.none].
   final SpecialItemPosition? specialItemPosition;
 
@@ -80,6 +82,7 @@ class InstaAssetPickerConfig {
   /// The loader indicator to display in the picker.
   final LoadingIndicatorBuilder? loadingIndicatorBuilder;
 
+  /// Predicate whether an asset can be selected or unselected.
   final AssetSelectPredicate<AssetEntity>? selectPredicate;
 
   /// Specifies if the limited permission overlay should be displayed.
@@ -89,6 +92,7 @@ class InstaAssetPickerConfig {
   final Color? themeColor;
 
   /// Specifies the language to apply to the picker.
+  ///
   /// Default is the locale language from the context.
   final AssetPickerTextDelegate? textDelegate;
 
@@ -107,14 +111,18 @@ class InstaAssetPickerConfig {
   final InstaAssetCropDelegate cropDelegate;
 
   /// Specifies if the picker should be closed after assets selection confirmation.
+  ///
   /// Defaults to `false`.
   final bool closeOnComplete;
 
   /// Specifies if the assets should be cropped when the picker is closed.
+  /// Set to `true` if you want to perform the crop yourself.
+  ///
   /// Defaults to `false`.
   final bool skipCropOnComplete;
 
   /// The [Widget] to display on top of the assets grid view.
+  ///
   /// Default is unselect all assets button.
   final InstaPickerActionsBuilder? actionsBuilder;
 }

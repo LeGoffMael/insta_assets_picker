@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:video_player/video_player.dart';
@@ -39,8 +37,8 @@ class CropResultView extends StatelessWidget {
   final double heightFiles;
   final double heightAssets;
 
-  List<File?> get croppedFiles => result?.croppedFiles ?? [];
-  List<InstaAssetsCropData> get selectedData => result?.selectedData ?? [];
+  List<InstaAssetsExportData?> get data => result?.data ?? [];
+  List<AssetEntity> get selectedAssets => result?.selectedAssets ?? [];
 
   Widget _buildTitle(String title, int length) {
     return SizedBox(
@@ -58,10 +56,7 @@ class CropResultView extends StatelessWidget {
             ),
             child: Text(
               length.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                height: 1.0,
-              ),
+              style: const TextStyle(color: Colors.white, height: .7),
             ),
           ),
         ],
@@ -84,7 +79,7 @@ class CropResultView extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
             scrollDirection: Axis.horizontal,
-            itemCount: croppedFiles.length,
+            itemCount: data.length,
             itemBuilder: (BuildContext _, int index) {
               return Padding(
                 padding: const EdgeInsets.symmetric(
@@ -95,14 +90,12 @@ class CropResultView extends StatelessWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(4.0),
                   ),
-                  child: croppedFiles[index] != null
-                      ? Image.file(croppedFiles[index]!)
-                      : selectedData[index].asset.type == AssetType.video
-                          ? PickerResultVideoPlayer(
-                              cropData: selectedData[index],
-                              isAutoPlay: index == 0,
-                            )
-                          : const Text('File is null'),
+                  child: data[index]?.croppedFile != null
+                      ? Image.file(data[index]!.croppedFile!)
+                      : PickerResultPreview(
+                          cropData: data[index]!.selectedData,
+                          isAutoPlay: index == 0,
+                        ),
                 ),
               );
             },
@@ -136,16 +129,16 @@ class CropResultView extends StatelessWidget {
   }
 
   Widget _buildSelectedAssetsListView() {
-    if (selectedData.isEmpty) return const SizedBox.shrink();
+    if (selectedAssets.isEmpty) return const SizedBox.shrink();
 
     return Expanded(
       child: ListView.builder(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 8.0),
         scrollDirection: Axis.horizontal,
-        itemCount: selectedData.length,
+        itemCount: selectedAssets.length,
         itemBuilder: (BuildContext _, int index) {
-          final AssetEntity asset = selectedData[index].asset;
+          final AssetEntity asset = selectedAssets[index];
 
           return Padding(
             padding: const EdgeInsets.symmetric(
@@ -155,7 +148,7 @@ class CropResultView extends StatelessWidget {
             // TODO : add delete action
             child: RepaintBoundary(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(8.0),
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
                 child: Image(image: AssetEntityImageProvider(asset)),
               ),
             ),
@@ -173,10 +166,10 @@ class CropResultView extends StatelessWidget {
         AnimatedContainer(
           duration: kThemeChangeDuration,
           curve: Curves.easeInOut,
-          height: croppedFiles.isNotEmpty ? heightFiles : 40.0,
+          height: data.isNotEmpty ? heightFiles : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Cropped Files', croppedFiles.length),
+              _buildTitle('Crop Results', data.length),
               _buildCroppedAssetsListView(context),
             ],
           ),
@@ -184,10 +177,10 @@ class CropResultView extends StatelessWidget {
         AnimatedContainer(
           duration: kThemeChangeDuration,
           curve: Curves.easeInOut,
-          height: selectedData.isNotEmpty ? heightAssets : 40.0,
+          height: selectedAssets.isNotEmpty ? heightAssets : 40.0,
           child: Column(
             children: <Widget>[
-              _buildTitle('Selected Assets', selectedData.length),
+              _buildTitle('Selected Assets', selectedAssets.length),
               _buildSelectedAssetsListView(),
             ],
           ),
@@ -197,8 +190,8 @@ class CropResultView extends StatelessWidget {
   }
 }
 
-class PickerResultVideoPlayer extends InstaAssetVideoPlayerStatefulWidget {
-  PickerResultVideoPlayer({
+class PickerResultPreview extends InstaAssetVideoPlayerStatefulWidget {
+  PickerResultPreview({
     super.key,
     required this.cropData,
     super.isAutoPlay,
@@ -208,11 +201,10 @@ class PickerResultVideoPlayer extends InstaAssetVideoPlayerStatefulWidget {
   final InstaAssetsCropData cropData;
 
   @override
-  State<PickerResultVideoPlayer> createState() =>
-      _PickerResultVideoPlayerState();
+  State<PickerResultPreview> createState() => _PickerResultVideoPlayerState();
 }
 
-class _PickerResultVideoPlayerState extends State<PickerResultVideoPlayer>
+class _PickerResultVideoPlayerState extends State<PickerResultPreview>
     with InstaAssetVideoPlayerMixin {
   @override
   Widget buildLoader() => const Center(child: CircularProgressIndicator());
@@ -249,6 +241,23 @@ class _PickerResultVideoPlayerState extends State<PickerResultVideoPlayer>
             ),
         ],
       ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        widget.asset.type == AssetType.image
+            ? InstaAssetCropTransform(
+                asset: widget.asset,
+                cropParam: widget.cropData.cropParam,
+                child: Image(image: AssetEntityImageProvider(widget.asset)),
+              )
+            : buildDefault(),
+        const Text('⚠️ Preview ⚠️', style: TextStyle(color: Colors.redAccent)),
+      ],
     );
   }
 }
