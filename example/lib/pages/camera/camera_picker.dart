@@ -45,8 +45,11 @@ class _CameraPickerState extends State<CameraPicker> {
     final int preferredIndex = cameras.indexWhere(
       (CameraDescription e) => e.lensDirection == CameraLensDirection.back,
     );
-    _controller =
-        CameraController(cameras[max(preferredIndex, 0)], ResolutionPreset.max);
+
+    _controller = CameraController(
+      cameras[max(preferredIndex, 0)],
+      widget.cameraResolutionPreset,
+    );
     _initializeControllerFuture = _controller.initialize().then((_) {
       if (!mounted) {
         return;

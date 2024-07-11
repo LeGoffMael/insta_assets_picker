@@ -8,6 +8,23 @@ import 'package:insta_assets_picker_demo/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
+class PostsPage extends StatelessWidget {
+  const PostsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text('My Posts')),
+      body: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: PostProgressList()),
+          const PostList(),
+        ],
+      ),
+    );
+  }
+}
+
 class PostProgressList extends StatelessWidget {
   const PostProgressList({super.key});
 
@@ -86,18 +103,24 @@ class PostList extends StatelessWidget {
   Widget build(BuildContext context) {
     final List<Post> posts = context.select((PostProvider p) => p.posts);
 
-    return Scaffold(
-      appBar: AppBar(title: Text('My Posts')),
-      body: CustomScrollView(
-        slivers: [
-          const SliverToBoxAdapter(child: PostProgressList()),
-          SliverList.separated(
-            itemCount: posts.length,
-            itemBuilder: (context, index) => PostCard(post: posts[index]),
-            separatorBuilder: (_, __) => SizedBox(height: 32),
+    if (posts.isEmpty) {
+      return SliverFillRemaining(
+        child: Center(
+          child: Text(
+            'Empty list.\nOpen a picker to add a new post.',
+            textAlign: TextAlign.center,
           ),
-        ],
+        ),
+      );
+    }
+
+    return SliverList.separated(
+      itemCount: posts.length,
+      itemBuilder: (context, index) => PostCard(
+        key: ValueKey<int>(posts[index].id),
+        post: posts[index],
       ),
+      separatorBuilder: (_, __) => SizedBox(height: 32),
     );
   }
 }
@@ -139,7 +162,7 @@ class _PostVideoPlayer extends StatefulWidget {
   State<_PostVideoPlayer> createState() => _PostVideoPlayerState();
 }
 
-// Based on `video_player` example: https://pub.dev/packages/video_player/example
+/// Based on `video_player` example: https://pub.dev/packages/video_player/example
 class _PostVideoPlayerState extends State<_PostVideoPlayer> {
   late VideoPlayerController _controller;
 

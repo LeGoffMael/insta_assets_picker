@@ -78,7 +78,7 @@ class PickersScreen extends StatelessWidget {
         actions: [
           IconButton(
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const PostList()),
+              MaterialPageRoute(builder: (context) => const PostsPage()),
             ),
             icon: Icon(Icons.feed, semanticLabel: 'Feed'),
           )

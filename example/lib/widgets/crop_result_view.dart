@@ -203,7 +203,8 @@ class CropResultView extends StatelessWidget {
                       Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
-                            builder: (BuildContext context) => PostList()),
+                          builder: (BuildContext context) => PostsPage(),
+                        ),
                         (route) => route.isFirst,
                       );
                     }

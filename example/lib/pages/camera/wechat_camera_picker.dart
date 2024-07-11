@@ -22,7 +22,8 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
         locale: Localizations.maybeLocaleOf(context),
         pickerConfig: CameraPickerConfig(
           theme: Theme.of(context),
-          // to allow video
+          resolutionPreset: cameraResolutionPreset,
+          // to allow video recording
           enableRecording: true,
         ),
       );

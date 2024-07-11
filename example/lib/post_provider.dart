@@ -41,7 +41,7 @@ class PostProvider with ChangeNotifier {
     _posts = [post, ..._posts];
     notifyListeners();
     // remove the progress after a delay
-    Future.delayed(Duration(seconds: 2), () => _removeProgress(post.id));
+    Future.delayed(Duration(seconds: 1), () => _removeProgress(post.id));
   }
 
   void remove(int postId) {

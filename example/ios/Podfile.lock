@@ -1,21 +1,16 @@
 PODS:
   - camera_avfoundation (0.0.1):
     - Flutter
+  - ffmpeg-kit-ios-min (6.0)
+  - ffmpeg_kit_flutter_min (6.0.3):
+    - ffmpeg_kit_flutter_min/min (= 6.0.3)
+    - Flutter
+  - ffmpeg_kit_flutter_min/min (6.0.3):
+    - ffmpeg-kit-ios-min (= 6.0)
+    - Flutter
   - Flutter (1.0.0)
   - insta_assets_crop (0.0.1):
     - Flutter
-  - libwebp (1.3.2):
-    - libwebp/demux (= 1.3.2)
-    - libwebp/mux (= 1.3.2)
-    - libwebp/sharpyuv (= 1.3.2)
-    - libwebp/webp (= 1.3.2)
-  - libwebp/demux (1.3.2):
-    - libwebp/webp
-  - libwebp/mux (1.3.2):
-    - libwebp/demux
-  - libwebp/sharpyuv (1.3.2)
-  - libwebp/webp (1.3.2):
-    - libwebp/sharpyuv
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
@@ -27,27 +22,26 @@ PODS:
   - video_player_avfoundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - video_thumbnail (0.0.1):
-    - Flutter
-    - libwebp
 
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
+  - ffmpeg_kit_flutter_min (from `.symlinks/plugins/ffmpeg_kit_flutter_min/ios`)
   - Flutter (from `Flutter`)
   - insta_assets_crop (from `.symlinks/plugins/insta_assets_crop/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - photo_manager (from `.symlinks/plugins/photo_manager/ios`)
   - sensors_plus (from `.symlinks/plugins/sensors_plus/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
-  - video_thumbnail (from `.symlinks/plugins/video_thumbnail/ios`)
 
 SPEC REPOS:
   trunk:
-    - libwebp
+    - ffmpeg-kit-ios-min
 
 EXTERNAL SOURCES:
   camera_avfoundation:
     :path: ".symlinks/plugins/camera_avfoundation/ios"
+  ffmpeg_kit_flutter_min:
+    :path: ".symlinks/plugins/ffmpeg_kit_flutter_min/ios"
   Flutter:
     :path: Flutter
   insta_assets_crop:
@@ -60,20 +54,18 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sensors_plus/ios"
   video_player_avfoundation:
     :path: ".symlinks/plugins/video_player_avfoundation/darwin"
-  video_thumbnail:
-    :path: ".symlinks/plugins/video_thumbnail/ios"
 
 SPEC CHECKSUMS:
   camera_avfoundation: 759172d1a77ae7be0de08fc104cfb79738b8a59e
+  ffmpeg-kit-ios-min: 4e9a088f4ee9629435960b9d68e54848975f1931
+  ffmpeg_kit_flutter_min: 5eff47f4965bf9d1150e98961eb6129f5ae3f28c
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   insta_assets_crop: 46c0be4cbfe48cff466b6924ec93b77f656ebaa8
-  libwebp: 1786c9f4ff8a279e4dac1e8f385004d5fc253009
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   photo_manager: ff695c7a1dd5bc379974953a2b5c0a293f7c4c8a
   sensors_plus: 18a9b346c43e157da17d2c8e99def703f9efb9d8
   video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
-  video_thumbnail: c4e2a3c539e247d4de13cd545344fd2d26ffafd1
 
-PODFILE CHECKSUM: c4c93c5f6502fe2754f48404d3594bf779584011
+PODFILE CHECKSUM: e4638883b73f42d1731a85e8757b8cd858a2954c
 
 COCOAPODS: 1.15.2
