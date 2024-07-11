@@ -37,11 +37,10 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     required super.provider,
     required this.onCompleted,
     required InstaAssetPickerConfig config,
-    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
     super.keepScrollOffset,
     super.locale,
   })  : _cropController =
-            InstaAssetsCropController(keepScrollOffset, cropDelegate),
+            InstaAssetsCropController(keepScrollOffset, config.cropDelegate),
         title = config.title,
         closeOnComplete = config.closeOnComplete,
         skipCropOnComplete = config.skipCropOnComplete,

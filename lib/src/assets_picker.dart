@@ -52,6 +52,7 @@ class InstaAssetPickerConfig {
     /// [InstaAssetPickerBuilder] config
 
     this.title,
+    this.cropDelegate = const InstaAssetCropDelegate(),
     this.closeOnComplete = false,
     this.skipCropOnComplete = false,
     this.actionsBuilder,
@@ -101,6 +102,9 @@ class InstaAssetPickerConfig {
 
   /// Specifies the text title in the picker [AppBar].
   final String? title;
+
+  /// Customize the display and export options of crops
+  final InstaAssetCropDelegate cropDelegate;
 
   /// Specifies if the picker should be closed after assets selection confirmation.
   /// Defaults to `false`.
@@ -211,9 +215,6 @@ class InstaAssetPicker {
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
   ///
-  /// Crop parameters
-  /// - Set [cropDelegate] to customize the display and export of crops.
-  ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
   /// - Set [provider] getter of type [DefaultAssetPickerProvider] to specifies picker options.
@@ -231,9 +232,6 @@ class InstaAssetPicker {
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
-
-    /// Crop parameters
-    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
     /// InstaAssetPickerBuilder parameters
     required DefaultAssetPickerProvider Function() provider,
@@ -261,7 +259,6 @@ class InstaAssetPicker {
       initialPermission: ps,
       provider: restoredProvider,
       keepScrollOffset: true,
-      cropDelegate: cropDelegate,
       onCompleted: onCompleted,
       config: pickerConfig,
       locale: Localizations.maybeLocaleOf(context),
@@ -285,9 +282,6 @@ class InstaAssetPicker {
   ///
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
-  ///
-  /// Crop options
-  /// - Set [cropDelegate] to customize the display and export of crops.
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
@@ -332,9 +326,6 @@ class InstaAssetPicker {
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
-
-    /// Crop parameters
-    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
     /// InstaAssetPickerBuilder parameters
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
@@ -384,7 +375,6 @@ class InstaAssetPicker {
       initialPermission: ps,
       provider: provider,
       keepScrollOffset: false,
-      cropDelegate: cropDelegate,
       onCompleted: onCompleted,
       config: pickerConfig,
       locale: Localizations.maybeLocaleOf(context),
