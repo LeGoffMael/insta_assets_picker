@@ -16,8 +16,10 @@ dependencies:
   flutter:
     sdk: flutter
 
-  insta_assets_crop: # ^0.0.3 # custom package from image_crop
-    path: ../../forks/image_crop/
+  insta_assets_crop: # ^0.0.4 # custom package from image_crop
+    git:
+      url: https://github.com/LeGoffMael/image_crop
+      ref: feat/child-transform
   fraction: ^5.0.2 # to show crop ratio in crop view
 
   wechat_assets_picker: ^9.1.0
