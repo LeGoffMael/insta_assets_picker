@@ -19,6 +19,7 @@ abstract class InstaAssetVideoPlayerStatefulWidget extends StatefulWidget {
   final bool isAutoPlay;
 }
 
+/// Based on _VideoPageBuilderState from wechat_assets_picker: https://github.com/fluttercandies/flutter_wechat_assets_picker/blob/main/lib/src/widget/builder/video_page_builder.dart
 mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
     on State<T> {
   /// Controller for the video player.
@@ -33,11 +34,8 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
   /// Whether the controller is playing.
   bool get isControllerPlaying => videoController?.value.isPlaying ?? false;
 
-  @override
-  void initState() {
-    super.initState();
-    _initializeVideoPlayer();
-  }
+  bool isInitializing = false;
+  bool isLocallyAvailable = false;
 
   @override
   void didUpdateWidget(T oldWidget) {
@@ -48,8 +46,10 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
         ..dispose();
       videoController = null;
       hasLoaded = false;
+      isInitializing = false;
+      isLocallyAvailable = false;
       onError(false);
-      _initializeVideoPlayer();
+      onLoading(false);
     }
   }
 
@@ -61,9 +61,9 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
     super.dispose();
   }
 
-  Future<void> _initializeVideoPlayer() async {
-    if (widget.asset.type != AssetType.video) return;
-
+  Future<void> initializeVideoPlayerController() async {
+    isInitializing = true;
+    isLocallyAvailable = true;
     onLoading(true);
     final String? url = await widget.asset.getMediaUrl();
     if (url == null) {
@@ -138,6 +138,9 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
         builder: (BuildContext context, AssetEntity asset) {
           if (hasErrorWhenInitializing) {
             return buildInitializationError();
+          }
+          if (!isLocallyAvailable && !isInitializing) {
+            initializeVideoPlayerController();
           }
           if (!hasLoaded) {
             return buildLoader();

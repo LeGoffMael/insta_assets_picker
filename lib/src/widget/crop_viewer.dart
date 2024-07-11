@@ -93,18 +93,19 @@ class CropViewerState extends State<CropViewer> {
 
             return ValueListenableBuilder<int>(
               valueListenable: widget.controller.cropRatioIndex,
-              builder: (context, _, __) => InnerCropView(
-                cropKey: _cropKey,
-                asset: asset,
-                cropParam: savedCropParam,
-                controller: widget.controller,
-                textDelegate: widget.textDelegate,
-                theme: widget.theme,
+              builder: (context, _, __) => Opacity(
                 opacity: widget.opacity,
-                height: widget.height,
-                hideCropButton: hideCropButton,
-                loaderWidget: widget.loaderWidget,
-                previewThumbnailSize: widget.previewThumbnailSize,
+                child: InnerCropView(
+                  cropKey: _cropKey,
+                  asset: asset,
+                  cropParam: savedCropParam,
+                  controller: widget.controller,
+                  textDelegate: widget.textDelegate,
+                  theme: widget.theme,
+                  height: widget.height,
+                  hideCropButton: hideCropButton,
+                  previewThumbnailSize: widget.previewThumbnailSize,
+                ),
               ),
             );
           },
@@ -121,9 +122,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
     required this.cropParam,
     required this.controller,
     required this.textDelegate,
-    required this.loaderWidget,
     required this.theme,
-    required this.opacity,
     required this.height,
     required this.hideCropButton,
     required this.cropKey,
@@ -133,9 +132,8 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
   final insta_crop_view.CropInternal? cropParam;
   final InstaAssetsCropController controller;
   final AssetPickerTextDelegate textDelegate;
-  final Widget loaderWidget;
   final ThemeData? theme;
-  final double opacity, height;
+  final double height;
   final bool hideCropButton;
   final GlobalKey<insta_crop_view.CropState> cropKey;
   final ThumbnailSize? previewThumbnailSize;
@@ -239,6 +237,9 @@ class _InnerCropViewState extends State<InnerCropView>
                 )
               : buildVideoPlayerBuilder(
                   builder: (BuildContext context, AssetEntity asset) {
+                    if (!isLocallyAvailable && !isInitializing) {
+                      initializeVideoPlayerController();
+                    }
                     return AnimatedSwitcher(
                       duration: const Duration(milliseconds: 300),
                       reverseDuration: const Duration(milliseconds: 300),
@@ -252,26 +253,17 @@ class _InnerCropViewState extends State<InnerCropView>
         ),
 
         ValueListenableBuilder<bool>(
-          valueListenable: widget.controller.isCropViewReady,
-          builder: (context, isCropViewReady, __) =>
-              ValueListenableBuilder<bool>(
-            valueListenable: _isLoadingError,
-            builder: (context, isLoadingError, __) =>
-                !isCropViewReady || isLoadingError
-                    ? Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            color: widget.theme?.cardColor.withOpacity(0.4),
-                          ),
-                          child: Center(
-                            child: isLoadingError
-                                ? buildInitializationError()
-                                : widget.loaderWidget,
-                          ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-          ),
+          valueListenable: _isLoadingError,
+          builder: (context, isLoadingError, __) => isLoadingError
+              ? Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: widget.theme?.cardColor.withOpacity(0.4),
+                    ),
+                    child: Center(child: buildInitializationError()),
+                  ),
+                )
+              : const SizedBox.shrink(),
         ),
 
         // Build crop aspect ratio button
