@@ -11,7 +11,7 @@
   - new `InstaAssetCropTransform` widget to preview the cropped asset.
 - Crop view initialization time is now much faster.
 
-### Breaking changes
+### [Breaking changes](migration_guide.md#3.0.0-dev.1)
 
 - new `InstaAssetPickerConfig` config class to provide picker configuration [#48](https://github.com/LeGoffMael/insta_assets_picker/pull/48)
   - new `gridThumbnailSize`, `themeColor` & `selectPredicate` parameters
