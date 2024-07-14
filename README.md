@@ -15,7 +15,7 @@
 </p>
 
 
-An image picker based on Instagram picker UI. It is using the powerful [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker)
+An image (also with videos) picker based on Instagram picker UI. It is using the powerful [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker)
 package to handle the picker and a custom version of [image_crop](https://pub.dev/packages/image_crop) for crop.
 
 ## 🚀 Features
@@ -23,7 +23,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Instagram layout
     - Scroll behaviors, animation
     - Preview, select, unselect action logic
-- ✅ Image and Video (no crop) support
+- ✅ Image and Video ([but not video processing]((#video))) support
 - ✅ Theme and language customization
 - ✅ Multiple assets pick (with maximum limit)
 - ✅ Single asset pick mode
@@ -169,6 +169,14 @@ However, since version `2.0.0`, it is now possible to trigger this action using 
 
 The ability to take a photo from the camera must be handled on your side, but the picker is now able to refresh the list and select the new photo.
 New [examples](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/pages/camera) have been written to show how to manage this process with the [camera](https://pub.dev/packages/camera) or [wechat_camera_picker](https://pub.dev/packages/wechat_camera_picker) package.
+
+### Video
+
+Video are now supported on version `3.0.0`. You can pick a video asset and select the crop area directly in the picker.
+However, as video processing is a heavy operation it is not handled by this package.
+Which means you must handle it yourself. If you want to preview the video result, you can use the `InstaAssetCropTransform` which will transform the Image or VideoPlayer to fit the selected crop area.
+
+The example app has been updated to support videos (+ camera recording) and shows [how to process the video](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/post_provider.dart#L84) using [ffmpeg_kit_flutter](https://pub.dev/packages/ffmpeg_kit_flutter).
 
 ## ✨ Credit
 

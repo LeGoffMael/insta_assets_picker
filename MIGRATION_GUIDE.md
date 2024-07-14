@@ -30,7 +30,7 @@ InstaAssetPicker.pickAssets(
 
 
 The `InstaAssetsExportDetails` was also updated.
-The crop files are now nullable, an all the crop parameters are returned in a new class called `InstaAssetsExportData`.
+The cropped files are now nullable, an all the crop parameters are returned in a new class called `InstaAssetsExportData`.
 
 ```diff
 + class InstaAssetsExportData {

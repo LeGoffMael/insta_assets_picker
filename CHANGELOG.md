@@ -5,11 +5,11 @@
 ### Features
 
 - Video support [#50](https://github.com/LeGoffMael/insta_assets_picker/pull/50)
-  - crop must be handled manually
+  - video processing must be handled manually
   - new `requestType` param set to `RequestType.common` by default.
   - new `previewThumbnailSize` & `skipCropOnComplete` config parameters.
   - new `InstaAssetCropTransform` widget to preview the cropped asset.
-- Crop view initialization time is now drastically faster.
+- Crop view initialization time is now much faster.
 
 ### Breaking changes
 

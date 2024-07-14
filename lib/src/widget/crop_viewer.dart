@@ -87,7 +87,7 @@ class CropViewerState extends State<CropViewer> {
 
             _previousAsset = asset;
 
-            // hide crop button if video player or if an asset is selected or if there is only one crop
+            // hide crop button if an asset is selected or if there is only one crop
             final hideCropButton = selected.length > 1 ||
                 widget.controller.cropDelegate.cropRatios.length <= 1;
 
