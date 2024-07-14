@@ -308,36 +308,44 @@ class _CameraViewState extends State<CameraView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Camera example')),
-      body: Column(
-        children: <Widget>[
-          Expanded(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: Colors.black,
-                border: Border.all(
-                  color: widget.controller.value.isRecordingVideo
-                      ? Colors.redAccent
-                      : Colors.grey,
-                  width: 3.0,
+      body: SafeArea(
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Colors.black,
+                  border: Border.all(
+                    color: widget.controller.value.isRecordingVideo
+                        ? Colors.redAccent
+                        : Colors.grey,
+                    width: 3.0,
+                  ),
                 ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(1.0),
-                child: FutureBuilder<void>(
-                  future: widget.initializeControllerFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.done) {
-                      return CameraPreview(widget.controller);
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                  },
+                child: Padding(
+                  padding: const EdgeInsets.all(1.0),
+                  child: FutureBuilder<void>(
+                    future: widget.initializeControllerFuture,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done) {
+                        return Center(
+                          child: AspectRatio(
+                            aspectRatio:
+                                1 / widget.controller.value.aspectRatio,
+                            child: CameraPreview(widget.controller),
+                          ),
+                        );
+                      } else {
+                        return const Center(child: CircularProgressIndicator());
+                      }
+                    },
+                  ),
                 ),
               ),
             ),
-          ),
-          _captureControlRowWidget(),
-        ],
+            _captureControlRowWidget(),
+          ],
+        ),
       ),
     );
   }
