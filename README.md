@@ -23,7 +23,7 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Instagram layout
     - Scroll behaviors, animation
     - Preview, select, unselect action logic
-- ✅ Image and Video ([but not video processing]((#video))) support
+- ✅ Image and Video ([but not video processing](#video)) support
 - ✅ Theme and language customization
 - ✅ Multiple assets pick (with maximum limit)
 - ✅ Single asset pick mode
