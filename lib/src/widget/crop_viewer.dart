@@ -1,11 +1,13 @@
 import 'dart:math' as math;
 
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
-import 'package:insta_assets_crop/insta_assets_crop.dart';
+import 'package:insta_assets_crop/insta_assets_crop.dart' as insta_crop_view;
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:provider/provider.dart';
-import 'package:extended_image/extended_image.dart';
+import 'package:video_player/video_player.dart';
+import 'package:wechat_picker_library/wechat_picker_library.dart';
 
 class CropViewer extends StatefulWidget {
   const CropViewer({
@@ -17,37 +19,30 @@ class CropViewer extends StatefulWidget {
     required this.height,
     this.opacity = 1.0,
     this.theme,
+    this.previewThumbnailSize,
   });
 
   final DefaultAssetPickerProvider provider;
-
   final AssetPickerTextDelegate textDelegate;
-
   final InstaAssetsCropController controller;
-
   final Widget loaderWidget;
-
-  final double opacity;
-
-  final double height;
-
+  final double height, opacity;
   final ThemeData? theme;
+  final ThumbnailSize? previewThumbnailSize;
 
   @override
   State<CropViewer> createState() => CropViewerState();
 }
 
 class CropViewerState extends State<CropViewer> {
-  final _cropKey = GlobalKey<CropState>();
+  final _cropKey = GlobalKey<insta_crop_view.CropState>();
   AssetEntity? _previousAsset;
-  final ValueNotifier<bool> _isLoadingError = ValueNotifier<bool>(false);
 
   @override
-  void dispose() {
-    // save current crop position on dispose (#25)
+  void deactivate() {
+    // save current crop position before dispose (#25)
     saveCurrentCropChanges();
-    _isLoadingError.dispose();
-    super.dispose();
+    super.deactivate();
   }
 
   /// Save the crop parameters state in [InstaAssetsCropController]
@@ -61,116 +56,237 @@ class CropViewerState extends State<CropViewer> {
     );
   }
 
-  /// Returns the [Crop] widget
-  Widget _buildCropView(AssetEntity asset, CropInternal? cropParam) => Opacity(
-        opacity: widget.controller.isCropViewReady.value ? widget.opacity : 1.0,
-        child: Crop(
-          key: _cropKey,
-          image: AssetEntityImageProvider(asset, isOriginal: true),
-          placeholderWidget: ValueListenableBuilder<bool>(
-            valueListenable: _isLoadingError,
-            builder: (context, isLoadingError, child) => Stack(
-              alignment: Alignment.center,
-              children: [
-                Opacity(
-                  opacity: widget.opacity,
-                  child: ExtendedImage(
-                    // to match crop alignment
-                    alignment: widget.controller.aspectRatio == 1.0
-                        ? Alignment.center
-                        : Alignment.bottomCenter,
-                    height: widget.height,
-                    width: widget.height * widget.controller.aspectRatio,
-                    image: AssetEntityImageProvider(asset, isOriginal: false),
-                    enableMemoryCache: false,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                // show backdrop when image is loading or if an error occured
-                Positioned.fill(
-                    child: DecoratedBox(
-                  decoration: BoxDecoration(
-                      color: widget.theme?.cardColor.withOpacity(0.4)),
-                )),
-                isLoadingError
-                    ? Text(widget.textDelegate.loadFailed)
-                    : widget.loaderWidget,
-              ],
-            ),
-          ),
-          // if the image could not be loaded (i.e unsupported format like RAW)
-          // unselect it and clear cache, also show the error widget
-          onImageError: (exception, stackTrace) {
-            widget.provider.unSelectAsset(asset);
-            AssetEntityImageProvider(asset).evict();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _isLoadingError.value = true;
-              widget.controller.isCropViewReady.value = true;
-            });
-          },
-          onLoading: (isReady) => WidgetsBinding.instance.addPostFrameCallback(
-              (_) => widget.controller.isCropViewReady.value = isReady),
-          maximumScale: 10,
-          aspectRatio: widget.controller.aspectRatio,
-          disableResize: true,
-          backgroundColor: widget.theme!.canvasColor,
-          initialParam: cropParam,
-        ),
-      );
-
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.sizeOf(context).width;
+
     return SizedBox(
       height: widget.height,
-      width: MediaQuery.of(context).size.width,
+      width: width,
       child: ValueListenableBuilder<AssetEntity?>(
         valueListenable: widget.controller.previewAsset,
         builder: (_, previewAsset, __) =>
             Selector<DefaultAssetPickerProvider, List<AssetEntity>>(
-                selector: (_, DefaultAssetPickerProvider p) => p.selectedAssets,
-                builder: (_, List<AssetEntity> selected, __) {
-                  _isLoadingError.value = false;
-                  final int effectiveIndex =
-                      selected.isEmpty ? 0 : selected.indexOf(selected.last);
+          selector: (_, DefaultAssetPickerProvider p) => p.selectedAssets,
+          builder: (_, List<AssetEntity> selected, __) {
+            final int effectiveIndex =
+                selected.isEmpty ? 0 : selected.indexOf(selected.last);
 
-                  // if no asset is selected yet, returns the loader
-                  if (previewAsset == null && selected.isEmpty) {
-                    return widget.loaderWidget;
-                  }
+            // if no asset is selected yet, returns the loader
+            if (previewAsset == null && selected.isEmpty) {
+              return widget.loaderWidget;
+            }
 
-                  final asset = previewAsset ?? selected[effectiveIndex];
-                  final savedCropParam =
-                      widget.controller.get(asset)?.cropParam;
+            final asset = previewAsset ?? selected[effectiveIndex];
+            final savedCropParam = widget.controller.get(asset)?.cropParam;
 
-                  // if the selected asset changed, save the previous crop parameters state
-                  if (asset != _previousAsset && _previousAsset != null) {
-                    saveCurrentCropChanges();
-                  }
+            // if the selected asset changed, save the previous crop parameters state
+            if (asset != _previousAsset && _previousAsset != null) {
+              saveCurrentCropChanges();
+            }
 
-                  _previousAsset = asset;
+            _previousAsset = asset;
 
-                  // don't show crop button if an asset is selected or if there is only one crop
-                  return selected.length > 1 ||
-                          widget.controller.cropDelegate.cropRatios.length <= 1
-                      ? _buildCropView(asset, savedCropParam)
-                      : ValueListenableBuilder<int>(
-                          valueListenable: widget.controller.cropRatioIndex,
-                          builder: (context, index, child) => Stack(
-                            children: [
-                              Positioned.fill(
-                                child: _buildCropView(asset, savedCropParam),
-                              ),
-                              // Build crop aspect ratio button
-                              Positioned(
-                                left: 12,
-                                bottom: 12,
-                                child: _buildCropButton(),
-                              ),
-                            ],
-                          ),
-                        );
-                }),
+            // hide crop button if an asset is selected or if there is only one crop
+            final hideCropButton = selected.length > 1 ||
+                widget.controller.cropDelegate.cropRatios.length <= 1;
+
+            return ValueListenableBuilder<int>(
+              valueListenable: widget.controller.cropRatioIndex,
+              builder: (context, _, __) => Opacity(
+                opacity: widget.opacity,
+                child: InnerCropView(
+                  cropKey: _cropKey,
+                  asset: asset,
+                  cropParam: savedCropParam,
+                  controller: widget.controller,
+                  textDelegate: widget.textDelegate,
+                  theme: widget.theme,
+                  height: widget.height,
+                  hideCropButton: hideCropButton,
+                  previewThumbnailSize: widget.previewThumbnailSize,
+                ),
+              ),
+            );
+          },
+        ),
       ),
+    );
+  }
+}
+
+class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
+  const InnerCropView({
+    super.key,
+    required super.asset,
+    required this.cropParam,
+    required this.controller,
+    required this.textDelegate,
+    required this.theme,
+    required this.height,
+    required this.hideCropButton,
+    required this.cropKey,
+    required this.previewThumbnailSize,
+  });
+
+  final insta_crop_view.CropInternal? cropParam;
+  final InstaAssetsCropController controller;
+  final AssetPickerTextDelegate textDelegate;
+  final ThemeData? theme;
+  final double height;
+  final bool hideCropButton;
+  final GlobalKey<insta_crop_view.CropState> cropKey;
+  final ThumbnailSize? previewThumbnailSize;
+
+  @override
+  State<InnerCropView> createState() => _InnerCropViewState();
+}
+
+class _InnerCropViewState extends State<InnerCropView>
+    with InstaAssetVideoPlayerMixin {
+  final ValueNotifier<bool> _isLoadingError = ValueNotifier<bool>(false);
+
+  @override
+  void dispose() {
+    super.dispose();
+    _isLoadingError.dispose();
+  }
+
+  @override
+  void onLoading(bool isLoading) {
+    super.onLoading(isLoading);
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => widget.controller.isCropViewReady.value = !isLoading,
+    );
+  }
+
+  @override
+  void onError(bool isError) {
+    super.onError(isError);
+    _isLoadingError.value = isError;
+  }
+
+  @override
+  Widget buildLoader() => Transform.scale(
+        scale: widget.asset.orientatedHeight / widget.height,
+        child: Image(
+          // generate video thumbnail (low quality for performances)
+          image: AssetEntityImageProvider(
+            widget.asset,
+            thumbnailSize: widget.previewThumbnailSize != null
+                ? ThumbnailSize(
+                    (widget.previewThumbnailSize!.height *
+                            widget.asset.orientatedSize.aspectRatio)
+                        .toInt(),
+                    widget.previewThumbnailSize!.height.toInt(),
+                  )
+                : ThumbnailSize(
+                    (widget.height * widget.asset.orientatedSize.aspectRatio)
+                        .toInt(),
+                    widget.height.toInt(),
+                  ),
+            isOriginal: false,
+          ),
+        ),
+      );
+
+  @override
+  Widget buildInitializationError() => ScaleText(
+        widget.textDelegate.loadFailed,
+        semanticsLabel: widget.textDelegate.semanticsTextDelegate.loadFailed,
+      );
+
+  @override
+  Widget buildVideoPlayer() => VideoPlayer(videoController!);
+
+  @override
+  Widget buildDefault() {
+    if (!isLocallyAvailable && !isInitializing) {
+      initializeVideoPlayerController();
+    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      reverseDuration: const Duration(milliseconds: 300),
+      transitionBuilder: (Widget child, Animation<double> animation) =>
+          FadeTransition(opacity: animation, child: child),
+      child: hasLoaded ? buildVideoPlayer() : buildLoader(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      children: [
+        LocallyAvailableBuilder(
+          key: ValueKey<String>(widget.asset.id),
+          asset: widget.asset,
+          builder: (BuildContext context, AssetEntity asset) =>
+              insta_crop_view.Crop(
+            key: widget.cropKey,
+            maximumScale: 10,
+            aspectRatio: widget.controller.aspectRatio,
+            disableResize: true,
+            backgroundColor: widget.theme!.canvasColor,
+            initialParam: widget.cropParam,
+            size: widget.asset.orientatedSize,
+            child: widget.asset.type == AssetType.image
+                ? ExtendedImage(
+                    image: AssetEntityImageProvider(
+                      widget.asset,
+                      isOriginal: true,
+                    ),
+                    loadStateChanged: (ExtendedImageState state) {
+                      switch (state.extendedImageLoadState) {
+                        case LoadState.completed:
+                          onLoading(false);
+                          onError(false);
+                          return state.completedWidget;
+                        case LoadState.loading:
+                          onLoading(true);
+                          onError(false);
+                          return buildLoader();
+                        case LoadState.failed:
+                          onLoading(false);
+                          onError(true);
+                          return buildLoader();
+                      }
+                    },
+                  )
+                // build video
+                : buildDefault(),
+          ),
+        ),
+
+        ValueListenableBuilder<bool>(
+          valueListenable: _isLoadingError,
+          builder: (context, isLoadingError, __) => isLoadingError
+              ? Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: widget.theme?.cardColor.withOpacity(0.4),
+                    ),
+                    child: Center(child: buildInitializationError()),
+                  ),
+                )
+              : const SizedBox.shrink(),
+        ),
+
+        // Build crop aspect ratio button
+        Positioned(
+          left: 12,
+          right: 12,
+          bottom: 12,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              widget.hideCropButton
+                  ? const SizedBox.shrink()
+                  : _buildCropButton(),
+              if (widget.asset.type == AssetType.video) _buildPlayVideoButton(),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -200,6 +316,27 @@ class CropViewerState extends State<CropViewer> {
                   )
                 // otherwise simply display the selected aspect ratio
                 : Text(widget.controller.aspectRatioString),
+      ),
+    );
+  }
+
+  Widget _buildPlayVideoButton() {
+    if (videoController == null || !hasLoaded) return const SizedBox.shrink();
+
+    return AnimatedBuilder(
+      animation: videoController!,
+      builder: (_, __) => Opacity(
+        opacity: 0.6,
+        child: InstaPickerCircleIconButton(
+          onTap: playButtonCallback,
+          theme: widget.theme?.copyWith(
+            buttonTheme: const ButtonThemeData(padding: EdgeInsets.all(2)),
+          ),
+          size: 32,
+          icon: isControllerPlaying
+              ? const Icon(Icons.pause_rounded)
+              : const Icon(Icons.play_arrow_rounded),
+        ),
       ),
     );
   }

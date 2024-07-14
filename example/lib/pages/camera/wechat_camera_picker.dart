@@ -16,12 +16,24 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
       );
 
   /// Needs a [BuildContext] that is coming from the picker
-  Future<AssetEntity?> _pickFromWeChatCamera(BuildContext context) =>
-      CameraPicker.pickFromCamera(
-        context,
-        locale: Localizations.maybeLocaleOf(context),
-        pickerConfig: CameraPickerConfig(theme: Theme.of(context)),
-      );
+  Future<void> _pickFromWeChatCamera(BuildContext context) async {
+    Feedback.forTap(context);
+    final AssetEntity? entity = await CameraPicker.pickFromCamera(
+      context,
+      locale: Localizations.maybeLocaleOf(context),
+      pickerConfig: CameraPickerConfig(
+        theme: Theme.of(context),
+        resolutionPreset: cameraResolutionPreset,
+        // to allow video recording
+        enableRecording: true,
+      ),
+    );
+    if (entity == null) return;
+
+    if (context.mounted) {
+      await InstaAssetPicker.refreshAndSelectEntity(context, entity);
+    }
+  }
 
   @override
   Widget build(BuildContext context) => buildLayout(
@@ -54,19 +66,7 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
             specialItemBuilder: (context, _, __) {
               // return a button that open the camera
               return ElevatedButton(
-                onPressed: () async {
-                  Feedback.forTap(context);
-                  final AssetEntity? entity =
-                      await _pickFromWeChatCamera(context);
-                  if (entity == null) return;
-
-                  if (context.mounted) {
-                    await InstaAssetPicker.refreshAndSelectEntity(
-                      context,
-                      entity,
-                    );
-                  }
-                },
+                onPressed: () => _pickFromWeChatCamera(context),
                 style: ElevatedButton.styleFrom(
                   shape: const RoundedRectangleBorder(),
                   foregroundColor: Colors.white,

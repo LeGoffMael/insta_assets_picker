@@ -9,7 +9,6 @@ import 'package:insta_assets_picker/src/insta_assets_crop_controller.dart';
 import 'package:insta_assets_picker/src/widget/crop_viewer.dart';
 import 'package:provider/provider.dart';
 
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:wechat_picker_library/wechat_picker_library.dart';
 
 /// The reduced height of the crop view
@@ -38,13 +37,13 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     required super.provider,
     required this.onCompleted,
     required InstaAssetPickerConfig config,
-    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
     super.keepScrollOffset,
     super.locale,
   })  : _cropController =
-            InstaAssetsCropController(keepScrollOffset, cropDelegate),
+            InstaAssetsCropController(keepScrollOffset, config.cropDelegate),
         title = config.title,
         closeOnComplete = config.closeOnComplete,
+        skipCropOnComplete = config.skipCropOnComplete,
         actionsBuilder = config.actionsBuilder,
         super(
           gridCount: config.gridCount,
@@ -59,6 +58,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           themeColor: config.themeColor,
           textDelegate: config.textDelegate,
           gridThumbnailSize: config.gridThumbnailSize,
+          previewThumbnailSize: config.previewThumbnailSize,
           shouldRevertGrid: false,
         );
 
@@ -77,6 +77,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   ///
   /// Defaults to `false`, like instagram
   final bool closeOnComplete;
+
+  /// Should the picker automatically crop when the selection is confirmed
+  ///
+  /// Defaults to `false`.
+  final bool skipCropOnComplete;
 
   // LOCAL PARAMETERS
 
@@ -112,7 +117,12 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       Navigator.of(context).pop(provider.selectedAssets);
     }
     _cropViewerKey.currentState?.saveCurrentCropChanges();
-    onCompleted(_cropController.exportCropFiles(provider.selectedAssets));
+    onCompleted(
+      _cropController.exportCropFiles(
+        provider.selectedAssets,
+        skipCrop: skipCropOnComplete,
+      ),
+    );
   }
 
   /// The responsive height of the crop view

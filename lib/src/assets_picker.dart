@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
 import 'package:insta_assets_picker/src/widget/insta_asset_picker_delegate.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 const _kGridCount = 4;
 const _kInitializeDelayDuration = Duration(milliseconds: 250);
@@ -48,17 +47,21 @@ class InstaAssetPickerConfig {
     this.themeColor,
     this.textDelegate,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
+    this.previewThumbnailSize,
 
     /// [InstaAssetPickerBuilder] config
 
     this.title,
+    this.cropDelegate = const InstaAssetCropDelegate(),
     this.closeOnComplete = false,
+    this.skipCropOnComplete = false,
     this.actionsBuilder,
   });
 
   /* [DefaultAssetPickerBuilderDelegate] config */
 
   /// Specifies the number of assets in the cross axis.
+  ///
   /// Defaults to [_kGridCount], like instagram.
   final int gridCount;
 
@@ -69,6 +72,7 @@ class InstaAssetPickerConfig {
   /// Set a special item in the picker with several positions.
   /// Since the grid view is reversed, [SpecialItemPosition.prepend]
   /// will be at the top and [SpecialItemPosition.append] at the bottom.
+  ///
   /// Defaults to [SpecialItemPosition.none].
   final SpecialItemPosition? specialItemPosition;
 
@@ -78,6 +82,7 @@ class InstaAssetPickerConfig {
   /// The loader indicator to display in the picker.
   final LoadingIndicatorBuilder? loadingIndicatorBuilder;
 
+  /// Predicate whether an asset can be selected or unselected.
   final AssetSelectPredicate<AssetEntity>? selectPredicate;
 
   /// Specifies if the limited permission overlay should be displayed.
@@ -87,22 +92,37 @@ class InstaAssetPickerConfig {
   final Color? themeColor;
 
   /// Specifies the language to apply to the picker.
+  ///
   /// Default is the locale language from the context.
   final AssetPickerTextDelegate? textDelegate;
 
   /// Thumbnail size in the grid.
   final ThumbnailSize gridThumbnailSize;
 
+  /// Preview thumbnail size in the crop viewer.
+  final ThumbnailSize? previewThumbnailSize;
+
   /* [InstaAssetPickerBuilder] config */
 
   /// Specifies the text title in the picker [AppBar].
   final String? title;
 
+  /// Customize the display and export options of crops
+  final InstaAssetCropDelegate cropDelegate;
+
   /// Specifies if the picker should be closed after assets selection confirmation.
+  ///
   /// Defaults to `false`.
   final bool closeOnComplete;
 
+  /// Specifies if the assets should be cropped when the picker is closed.
+  /// Set to `true` if you want to perform the crop yourself.
+  ///
+  /// Defaults to `false`.
+  final bool skipCropOnComplete;
+
   /// The [Widget] to display on top of the assets grid view.
+  ///
   /// Default is unselect all assets button.
   final InstaPickerActionsBuilder? actionsBuilder;
 }
@@ -146,11 +166,11 @@ class InstaAssetPicker {
   /// Since the exception is thrown from the MethodChannel it cannot be caught by a try/catch
   ///
   /// check `AssetPickerDelegate.permissionCheck()` from flutter_wechat_assets_picker package for more information.
-  static Future<PermissionState> _permissionCheck() =>
+  static Future<PermissionState> _permissionCheck(RequestType? requestType) =>
       AssetPicker.permissionCheck(
-        requestOption: const PermissionRequestOption(
+        requestOption: PermissionRequestOption(
           androidPermission: AndroidPermission(
-            type: RequestType.image,
+            type: requestType ?? RequestType.common,
             mediaLocation: false,
           ),
         ),
@@ -182,6 +202,14 @@ class InstaAssetPicker {
   static ThemeData themeData(Color? themeColor, {bool light = false}) =>
       AssetPicker.themeData(themeColor, light: light);
 
+  static void _assertRequestType(RequestType requestType) {
+    assert(
+        requestType == RequestType.image ||
+            requestType == RequestType.video ||
+            requestType == RequestType.common,
+        'Only images and videos can be shown in the picker for now');
+  }
+
   /// When using `restorableAssetsPicker` function, the picker's state is preserved even after pop
   ///
   /// ⚠️ [InstaAssetPicker] and [provider] must be disposed manually
@@ -194,9 +222,6 @@ class InstaAssetPicker {
   ///
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
-  ///
-  /// Crop parameters
-  /// - Set [cropDelegate] to customize the display and export of crops.
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
@@ -216,9 +241,6 @@ class InstaAssetPicker {
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
 
-    /// Crop parameters
-    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
-
     /// InstaAssetPickerBuilder parameters
     required DefaultAssetPickerProvider Function() provider,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
@@ -227,7 +249,7 @@ class InstaAssetPicker {
   }) async {
     PermissionState? ps;
     try {
-      ps = await _permissionCheck();
+      ps = await _permissionCheck(null);
     } catch (e) {
       _openErrorPermission(
         context,
@@ -239,14 +261,12 @@ class InstaAssetPicker {
 
     /// Provider must be initialized after permission check or gallery is empty (#43)
     final restoredProvider = provider();
-    assert(restoredProvider.requestType == RequestType.image,
-        'Only images can be shown in the picker for now');
+    _assertRequestType(restoredProvider.requestType);
 
     builder ??= InstaAssetPickerBuilder(
       initialPermission: ps,
       provider: restoredProvider,
       keepScrollOffset: true,
-      cropDelegate: cropDelegate,
       onCompleted: onCompleted,
       config: pickerConfig,
       locale: Localizations.maybeLocaleOf(context),
@@ -270,9 +290,6 @@ class InstaAssetPicker {
   ///
   /// Set [onPermissionDenied] to manually handle the denied permission error.
   /// The default behavior is to open a [ScaffoldMessenger].
-  ///
-  /// Crop options
-  /// - Set [cropDelegate] to customize the display and export of crops.
   ///
   /// Those arguments are used by [InstaAssetPickerBuilder]
   ///
@@ -306,6 +323,10 @@ class InstaAssetPicker {
   ///
   /// - Set [initializeDelayDuration] to specifies the delay before loading the assets
   /// Defaults to [_kInitializeDelayDuration].
+  ///
+  /// - Set [requestType] to specifies which type of asset to show in the picker.
+  /// Defaults is [RequestType.common]. Only [RequestType.image], [RequestType.common]
+  /// and [RequestType.common] are supported.
   static Future<List<AssetEntity>?> pickAssets(
     BuildContext context, {
     Key? key,
@@ -313,9 +334,6 @@ class InstaAssetPicker {
     AssetPickerPageRouteBuilder<List<AssetEntity>>? pageRouteBuilder,
     Function(BuildContext context, String delegateDescription)?
         onPermissionDenied,
-
-    /// Crop parameters
-    InstaAssetCropDelegate cropDelegate = const InstaAssetCropDelegate(),
 
     /// InstaAssetPickerBuilder parameters
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
@@ -332,11 +350,14 @@ class InstaAssetPicker {
     bool sortPathsByModifiedDate = false,
     PMFilter? filterOptions,
     Duration initializeDelayDuration = _kInitializeDelayDuration,
+    RequestType requestType = RequestType.common,
   }) async {
+    _assertRequestType(requestType);
+
     // must be called before initializing any picker provider to avoid `PlatformException(PERMISSION_REQUESTING)` type exception
     PermissionState? ps;
     try {
-      ps = await _permissionCheck();
+      ps = await _permissionCheck(requestType);
     } catch (e) {
       _openErrorPermission(
         context,
@@ -351,7 +372,7 @@ class InstaAssetPicker {
       maxAssets: maxAssets,
       pageSize: pageSize,
       pathThumbnailSize: pathThumbnailSize,
-      requestType: RequestType.image,
+      requestType: requestType,
       sortPathDelegate: sortPathDelegate,
       sortPathsByModifiedDate: sortPathsByModifiedDate,
       filterOptions: filterOptions,
@@ -362,7 +383,6 @@ class InstaAssetPicker {
       initialPermission: ps,
       provider: provider,
       keepScrollOffset: false,
-      cropDelegate: cropDelegate,
       onCompleted: onCompleted,
       config: pickerConfig,
       locale: Localizations.maybeLocaleOf(context),

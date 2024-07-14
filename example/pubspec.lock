@@ -137,6 +137,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.2"
+  ffmpeg_kit_flutter_min:
+    dependency: "direct main"
+    description:
+      name: ffmpeg_kit_flutter_min
+      sha256: "123bfbc0e0b9e7cf6d32d8ba8e08b666d66af0f52c07683dd2305fbfc13f494a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.0.3"
+  ffmpeg_kit_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: ffmpeg_kit_flutter_platform_interface
+      sha256: addf046ae44e190ad0101b2fde2ad909a3cd08a2a109f6106d2f7048b7abedee
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.1"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -217,10 +233,10 @@ packages:
     dependency: transitive
     description:
       name: insta_assets_crop
-      sha256: c6ca1786b19e0d270843346c8205b1e90418f0c5146a8a4476ba618f768b0e89
+      sha256: "1ad0627d0d79e695063be940ba9df34699ddbab2d80ccdddbf00666dda0022c5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.1.0-dev.2"
   insta_assets_picker:
     dependency: "direct main"
     description:
@@ -308,6 +324,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.12.0"
+  mime:
+    dependency: "direct main"
+    description:
+      name: mime
+      sha256: "2e123074287cc9fd6c09de8336dae606d1ddb88d9ac47358826db698c176a1f2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5"
   nested:
     dependency: transitive
     description:
@@ -317,7 +341,7 @@ packages:
     source: hosted
     version: "1.0.0"
   path:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: path
       sha256: "087ce49c3f0dc39180befefc60fdb4acd8f8620e5682fe2476afd0b3688bb4af"

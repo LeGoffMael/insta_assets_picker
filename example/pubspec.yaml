@@ -17,9 +17,12 @@ dependencies:
     path: ../
 
   # for camera examples
-  path: ^1.8.3
   camera: ^0.10.6
   wechat_camera_picker: ^4.3.1
+
+  # for video examples
+  ffmpeg_kit_flutter_min: ^6.0.3
+  mime: ^1.0.5
 
 dev_dependencies:
   flutter_test:

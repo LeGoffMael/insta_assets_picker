@@ -14,22 +14,37 @@ class InstaAssetsCropSingleton {
   static List<InstaAssetsCropData> cropParameters = [];
 }
 
+class InstaAssetsExportData {
+  const InstaAssetsExportData({
+    required this.croppedFile,
+    required this.selectedData,
+  });
+
+  /// The cropped file, can be null if the asset is not an image or if the
+  /// exportation was skipped ([skipCropOnComplete]=true)
+  final File? croppedFile;
+
+  /// The selected data, contains the asset and it's crop values
+  final InstaAssetsCropData selectedData;
+}
+
 /// Contains all the parameters of the exportation
 class InstaAssetsExportDetails {
-  /// The list of the cropped files
-  final List<File> croppedFiles;
+  /// The export result, containing the selected assets, crop parameters
+  /// and possible crop file.
+  final List<InstaAssetsExportData> data;
 
-  /// The selected thumbnails, can provided to the picker to preselect those assets
+  /// The selected thumbnails, can be provided to the picker to preselect those assets
   final List<AssetEntity> selectedAssets;
 
-  /// The selected [aspectRatio] (1 or 4/5)
+  /// The selected [aspectRatio]
   final double aspectRatio;
 
   /// The [progress] param represents progress indicator between `0.0` and `1.0`.
   final double progress;
 
   const InstaAssetsExportDetails({
-    required this.croppedFiles,
+    required this.data,
     required this.selectedAssets,
     required this.aspectRatio,
     required this.progress,
@@ -44,6 +59,27 @@ class InstaAssetsCropData {
   // export crop params
   final double scale;
   final Rect? area;
+
+  /// Returns crop filter for ffmpeg in "out_w:out_h:x:y" format
+  String? get ffmpegCrop {
+    final area = this.area;
+    if (area == null) return null;
+
+    final w = area.width * asset.orientatedWidth;
+    final h = area.height * asset.orientatedHeight;
+    final x = area.left * asset.orientatedWidth;
+    final y = area.top * asset.orientatedHeight;
+
+    return '$w:$h:$x:$y';
+  }
+
+  /// Returns scale filter for ffmpeg in "iw*[scale]:ih*[scale]" format
+  String? get ffmpegScale {
+    final scale = cropParam?.scale;
+    if (scale == null) return null;
+
+    return 'iw*$scale:ih*$scale';
+  }
 
   const InstaAssetsCropData({
     required this.asset,
@@ -73,7 +109,7 @@ class InstaAssetsCropController {
   /// The index of the selected aspectRatio among the possibilities
   final ValueNotifier<int> cropRatioIndex;
 
-  /// Whether the image in the crop view is loaded
+  /// Whether the asset in the crop view is loaded
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
 
   /// The asset [AssetEntity] currently displayed in the crop view
@@ -183,13 +219,14 @@ class InstaAssetsCropController {
   /// Apply all the crop parameters to the list of [selectedAssets]
   /// and returns the exportation as a [Stream]
   Stream<InstaAssetsExportDetails> exportCropFiles(
-    List<AssetEntity> selectedAssets,
-  ) async* {
-    List<File> croppedFiles = [];
+    List<AssetEntity> selectedAssets, {
+    bool skipCrop = false,
+  }) async* {
+    final List<InstaAssetsExportData> data = [];
 
     /// Returns the [InstaAssetsExportDetails] with given progress value [p]
     InstaAssetsExportDetails makeDetail(double p) => InstaAssetsExportDetails(
-          croppedFiles: croppedFiles,
+          data: data,
           selectedAssets: selectedAssets,
           aspectRatio: aspectRatio,
           progress: p,
@@ -197,36 +234,45 @@ class InstaAssetsCropController {
 
     // start progress
     yield makeDetail(0);
-    final list = cropParameters;
+    final List<InstaAssetsCropData> list = cropParameters;
 
     final step = 1 / list.length;
 
-    for (var i = 0; i < list.length; i++) {
-      final file = await list[i].asset.originFile;
+    for (int i = 0; i < list.length; i++) {
+      final asset = list[i].asset;
 
-      final scale = list[i].scale;
-      final area = list[i].area;
-
-      if (file == null) {
-        throw 'error file is null';
-      }
-
-      // makes the sample file to not be too small
-      final sampledFile = await InstaAssetsCrop.sampleImage(
-        file: file,
-        preferredSize: (cropDelegate.preferredSize / scale).round(),
-      );
-
-      if (area == null) {
-        croppedFiles.add(sampledFile);
+      if (skipCrop || asset.type != AssetType.image) {
+        data.add(
+            InstaAssetsExportData(croppedFile: null, selectedData: list[i]));
       } else {
-        // crop the file with the area selected
-        final croppedFile =
-            await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
-        // delete the not needed sample file
-        sampledFile.delete();
+        final file = await asset.originFile;
 
-        croppedFiles.add(croppedFile);
+        final scale = list[i].scale;
+        final area = list[i].area;
+
+        if (file == null) {
+          throw 'error file is null';
+        }
+
+        // makes the sample file to not be too small
+        final sampledFile = await InstaAssetsCrop.sampleImage(
+          file: file,
+          preferredSize: (cropDelegate.preferredSize / scale).round(),
+        );
+
+        if (area == null) {
+          data.add(InstaAssetsExportData(
+              croppedFile: sampledFile, selectedData: list[i]));
+        } else {
+          // crop the file with the area selected
+          final croppedFile =
+              await InstaAssetsCrop.cropImage(file: sampledFile, area: area);
+          // delete the not needed sample file
+          sampledFile.delete();
+
+          data.add(InstaAssetsExportData(
+              croppedFile: croppedFile, selectedData: list[i]));
+        }
       }
 
       // increase progress

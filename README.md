@@ -15,7 +15,7 @@
 </p>
 
 
-An image picker based on Instagram picker UI. It is using the powerful [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker)
+An image (also with videos) picker based on Instagram picker UI. It is using the powerful [flutter_wechat_assets_picker](https://pub.dev/packages/wechat_assets_picker)
 package to handle the picker and a custom version of [image_crop](https://pub.dev/packages/image_crop) for crop.
 
 ## 🚀 Features
@@ -23,15 +23,15 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Instagram layout
     - Scroll behaviors, animation
     - Preview, select, unselect action logic
+- ✅ Image and Video ([but not video processing](#video)) support
 - ✅ Theme and language customization
-- ✅ Multiple images pick (with maximum limit)
-- ✅ Single image pick mode
+- ✅ Multiple assets pick (with maximum limit)
+- ✅ Single asset pick mode
 - ✅ Restore state of picker after pop
-- ✅ Select aspect ratios to crop all images with (default to 1:1 & 4:5)
-- ✅ Crop all images at once and receive a stream with a progress value
+- ✅ Select aspect ratios to crop all assets with (default to 1:1 & 4:5)
+- ✅ Crop all image assets at once and receive a stream with a progress value
 - ✅ Prepend or append a custom item in the assets list
 - ✅ Add custom action buttons
-- ❌ Videos are not supported
 
 ## 📸 Screenshots
 
@@ -58,7 +58,9 @@ For more details check out the [example](https://github.com/LeGoffMael/insta_ass
 ```dart
 Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
     context,
-    title: 'Select images',
+    pickerConfig: InstaAssetPickerConfig(
+      title: 'Select assets',
+    ),
     maxAssets: 10,
     onCompleted: (Stream<InstaAssetsExportDetails> stream) {
         // TODO : handle crop stream result
@@ -73,13 +75,19 @@ Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
 
 Fields in `InstaAssetsExportDetails`:
 
-| Name           | Type                | Description                                             |
-| -------------- | ------------------- | ------------------------------------------------------- |
-| croppedFiles   | `List<File>`        | List of all cropped files                               |
-| selectedAssets | `List<AssetEntity>` | Selected assets without crop                            |
-| aspectRatio    | `double`            | Selected aspect ratio (1 or 4/5)                        |
-| progress       | `double`            | Progress indicator of the exportation (between 0 and 1) |
+| Name           | Type                          | Description                                             |
+| -------------- | ----------------------------- | --------------------------------------------------------------------- |
+| data           | `List<InstaAssetsExportData>` | Contains the selected assets, crop parameters and possible crop file. |
+| selectedAssets | `List<AssetEntity>`           | Selected assets without crop                            |
+| aspectRatio    | `double`                      | Selected aspect ratio (1 or 4/5)                        |
+| progress       | `double`                      | Progress indicator of the exportation (between 0 and 1) |
 
+Fields in `InstaAssetsExportData`:
+
+| Name         | Type                  | Description                                                        |
+| ------------ | --------------------- | ------------------------------------------------------------------ |
+| croppedFile  | `File?`               | The cropped file. Can be null if video or if choose to skip crop.  |
+| selectedData | `InstaAssetsCropData` | The selected asset and it's crop parameter (area, scale, ratio...) |
 
 ### Picker configuration
 
@@ -98,24 +106,26 @@ Most of the components of the picker can be customized using theme.
 final theme = InstaAssetPicker.themeData(Theme.of(context).primaryColor);
 InstaAssetPicker.pickAssets(
     context,
-    pickerTheme: theme.copyWith(
-      canvasColor: Colors.black, // body background color
-      splashColor: Color.grey, // ontap splash color
-      colorScheme: theme.colorScheme.copyWith(
-        background: Colors.black87, // albums list background color
-      ),
-      appBarTheme: theme.appBarTheme.copyWith(
-        backgroundColor: Colors.black, // app bar background color
-        titleTextStyle: Theme.of(context)
-            .appBarTheme
-            .titleTextStyle
-            ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
-      ),
-      // edit `confirm` button style
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.blue,
-          disabledForegroundColor: Colors.red,
+    pickerConfig: InstaAssetPickerConfig(
+      pickerTheme: theme.copyWith(
+        canvasColor: Colors.black, // body background color
+        splashColor: Color.grey, // ontap splash color
+        colorScheme: theme.colorScheme.copyWith(
+          background: Colors.black87, // albums list background color
+        ),
+        appBarTheme: theme.appBarTheme.copyWith(
+          backgroundColor: Colors.black, // app bar background color
+          titleTextStyle: Theme.of(context)
+              .appBarTheme
+              .titleTextStyle
+              ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
+        ),
+        // edit `confirm` button style
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.blue,
+            disabledForegroundColor: Colors.red,
+          ),
         ),
       ),
     ),
@@ -126,24 +136,26 @@ InstaAssetPicker.pickAssets(
 ### Crop customization
 
 You can set the list of crop aspect ratios available.
-You can also set the preferred size, for the cropped images.
+You can also set the preferred size, for the cropped assets.
 
 ```dart
 InstaAssetPicker.pickAssets(
     context,
-    cropDelegate: InstaAssetCropDelegate(
-      // allows you to set the preferred size used when cropping the image.
-      // the final size will depends on the scale used when cropping.
-      preferredSize: 1080,
-      cropRatios: [
-      // - allow you to set the list of aspect ratios selectable,
-      // the default values are [1/1, 4/5] like instagram.
-      // - if you want to disable cropping, you can set only one parameter,
-      // in this case, the "crop" button will not be displayed (#10).
-      // - if the value of cropRatios is different than the default value,
-      // the "crop" button will display the selected ratio value (i.e.: 1:1)
-      // instead of unfold arrows.
-    ]),
+    pickerConfig: InstaAssetPickerConfig(
+      cropDelegate: InstaAssetCropDelegate(
+        // allows you to set the preferred size used when cropping the asset.
+        // the final size will depends on the scale used when cropping.
+        preferredSize: 1080,
+        cropRatios: [
+        // - allow you to set the list of aspect ratios selectable,
+        // the default values are [1/1, 4/5] like instagram.
+        // - if you want to disable cropping, you can set only one parameter,
+        // in this case, the "crop" button will not be displayed (#10).
+        // - if the value of cropRatios is different than the default value,
+        // the "crop" button will display the selected ratio value (i.e.: 1:1)
+        // instead of unfold arrows.
+      ]),
+    ),
     onCompleted: (_) {},
 );
 ```
@@ -157,6 +169,14 @@ However, since version `2.0.0`, it is now possible to trigger this action using 
 
 The ability to take a photo from the camera must be handled on your side, but the picker is now able to refresh the list and select the new photo.
 New [examples](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/pages/camera) have been written to show how to manage this process with the [camera](https://pub.dev/packages/camera) or [wechat_camera_picker](https://pub.dev/packages/wechat_camera_picker) package.
+
+### Video
+
+Video are now supported on version `3.0.0`. You can pick a video asset and select the crop area directly in the picker.
+However, as video processing is a heavy operation it is not handled by this package.
+Which means you must handle it yourself. If you want to preview the video result, you can use the `InstaAssetCropTransform` which will transform the Image or VideoPlayer to fit the selected crop area.
+
+The example app has been updated to support videos (+ camera recording) and shows [how to process the video](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/post_provider.dart#L84) using [ffmpeg_kit_flutter](https://pub.dev/packages/ffmpeg_kit_flutter).
 
 ## ✨ Credit
 
