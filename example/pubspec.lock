@@ -232,12 +232,11 @@ packages:
   insta_assets_crop:
     dependency: transitive
     description:
-      path: "."
-      ref: "feat/child-transform"
-      resolved-ref: f33ea33ab49ab03de8f02c5422432f8754d1cbb8
-      url: "https://github.com/LeGoffMael/image_crop"
-    source: git
-    version: "0.0.3"
+      name: insta_assets_crop
+      sha256: "1ad0627d0d79e695063be940ba9df34699ddbab2d80ccdddbf00666dda0022c5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0-dev.2"
   insta_assets_picker:
     dependency: "direct main"
     description:

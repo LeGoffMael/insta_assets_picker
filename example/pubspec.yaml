@@ -19,7 +19,7 @@ dependencies:
   # for camera examples
   camera: ^0.10.6
   wechat_camera_picker: ^4.3.1
-  
+
   # for video examples
   ffmpeg_kit_flutter_min: ^6.0.3
   mime: ^1.0.5
