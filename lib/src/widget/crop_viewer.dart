@@ -39,10 +39,10 @@ class CropViewerState extends State<CropViewer> {
   AssetEntity? _previousAsset;
 
   @override
-  void dispose() {
-    // save current crop position on dispose (#25)
+  void deactivate() {
+    // save current crop position before dispose (#25)
     saveCurrentCropChanges();
-    super.dispose();
+    super.deactivate();
   }
 
   /// Save the crop parameters state in [InstaAssetsCropController]
