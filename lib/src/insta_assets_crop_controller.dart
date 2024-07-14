@@ -109,7 +109,7 @@ class InstaAssetsCropController {
   /// The index of the selected aspectRatio among the possibilities
   final ValueNotifier<int> cropRatioIndex;
 
-  /// Whether the image in the crop view is loaded
+  /// Whether the asset in the crop view is loaded
   final ValueNotifier<bool> isCropViewReady = ValueNotifier<bool>(false);
 
   /// The asset [AssetEntity] currently displayed in the crop view

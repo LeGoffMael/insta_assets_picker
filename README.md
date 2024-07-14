@@ -23,15 +23,15 @@ package to handle the picker and a custom version of [image_crop](https://pub.de
 - ✅ Instagram layout
     - Scroll behaviors, animation
     - Preview, select, unselect action logic
+- ✅ Image and Video (no crop) support
 - ✅ Theme and language customization
-- ✅ Multiple images pick (with maximum limit)
-- ✅ Single image pick mode
+- ✅ Multiple assets pick (with maximum limit)
+- ✅ Single asset pick mode
 - ✅ Restore state of picker after pop
-- ✅ Select aspect ratios to crop all images with (default to 1:1 & 4:5)
-- ✅ Crop all images at once and receive a stream with a progress value
+- ✅ Select aspect ratios to crop all assets with (default to 1:1 & 4:5)
+- ✅ Crop all image assets at once and receive a stream with a progress value
 - ✅ Prepend or append a custom item in the assets list
 - ✅ Add custom action buttons
-- ❌ Videos are not supported
 
 ## 📸 Screenshots
 
@@ -58,7 +58,7 @@ For more details check out the [example](https://github.com/LeGoffMael/insta_ass
 ```dart
 Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
     context,
-    title: 'Select images',
+    title: 'Select assets',
     maxAssets: 10,
     onCompleted: (Stream<InstaAssetsExportDetails> stream) {
         // TODO : handle crop stream result
@@ -73,13 +73,19 @@ Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
 
 Fields in `InstaAssetsExportDetails`:
 
-| Name           | Type                | Description                                             |
-| -------------- | ------------------- | ------------------------------------------------------- |
-| croppedFiles   | `List<File>`        | List of all cropped files                               |
-| selectedAssets | `List<AssetEntity>` | Selected assets without crop                            |
-| aspectRatio    | `double`            | Selected aspect ratio (1 or 4/5)                        |
-| progress       | `double`            | Progress indicator of the exportation (between 0 and 1) |
+| Name           | Type                          | Description                                             |
+| -------------- | ----------------------------- | --------------------------------------------------------------------- |
+| data           | `List<InstaAssetsExportData>` | Contains the selected assets, crop parameters and possible crop file. |
+| selectedAssets | `List<AssetEntity>`           | Selected assets without crop                            |
+| aspectRatio    | `double`                      | Selected aspect ratio (1 or 4/5)                        |
+| progress       | `double`                      | Progress indicator of the exportation (between 0 and 1) |
 
+Fields in `InstaAssetsExportData`:
+
+| Name         | Type                  | Description                                                        |
+| ------------ | --------------------- | ------------------------------------------------------------------ |
+| croppedFile  | `File?`               | The cropped file. Can be null if video or if choose to skip crop.  |
+| selectedData | `InstaAssetsCropData` | The selected asset and it's crop parameter (area, scale, ratio...) |
 
 ### Picker configuration
 
@@ -126,13 +132,13 @@ InstaAssetPicker.pickAssets(
 ### Crop customization
 
 You can set the list of crop aspect ratios available.
-You can also set the preferred size, for the cropped images.
+You can also set the preferred size, for the cropped assets.
 
 ```dart
 InstaAssetPicker.pickAssets(
     context,
     cropDelegate: InstaAssetCropDelegate(
-      // allows you to set the preferred size used when cropping the image.
+      // allows you to set the preferred size used when cropping the asset.
       // the final size will depends on the scale used when cropping.
       preferredSize: 1080,
       cropRatios: [

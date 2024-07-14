@@ -8,8 +8,8 @@ class SinglePicker extends StatelessWidget with InstaPickerInterface {
   PickerDescription get description => const PickerDescription(
         icon: '☝️',
         label: 'Single Mode Picker',
-        description: 'Picker to select a single image. '
-            'Selecting a new image will replace the old one.',
+        description: 'Picker to select a single asset. '
+            'Selecting a new asset will replace the old one.',
       );
 
   @override
@@ -29,7 +29,7 @@ class MultiplePicker extends StatelessWidget with InstaPickerInterface {
         icon: '🖼️',
         label: 'Multiple Mode Picker',
         description:
-            'Picker for selecting multiple images (max $_kMultiplePickerMax).',
+            'Picker for selecting multiple assets (max $_kMultiplePickerMax).',
       );
 
   @override
