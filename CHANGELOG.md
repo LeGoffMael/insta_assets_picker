@@ -1,3 +1,22 @@
+# Changelog
+
+## 3.0.0-dev.1
+
+### Features
+
+- Video support [#50](https://github.com/LeGoffMael/insta_assets_picker/pull/50)
+  - crop must be handled manually
+  - new `requestType` param set to `RequestType.common` by default.
+  - new `previewThumbnailSize` & `skipCropOnComplete` config parameters.
+  - new `InstaAssetCropTransform` widget to preview the cropped asset.
+- Crop view initialization time is now drastically faster.
+
+### Breaking changes
+
+- new `InstaAssetPickerConfig` config class to provide picker configuration [#48](https://github.com/LeGoffMael/insta_assets_picker/pull/48)
+  - new `gridThumbnailSize`, `themeColor` & `selectPredicate` parameters
+- updated `InstaAssetsExportDetails` class, crop file are now nullable and all the crop parameters are provided in a new class called `InstaAssetsExportData`.
+
 ## 2.3.1
 
 - bump `wechat_assets_picker` to 9.1.0

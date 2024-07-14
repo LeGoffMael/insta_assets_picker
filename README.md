@@ -58,7 +58,9 @@ For more details check out the [example](https://github.com/LeGoffMael/insta_ass
 ```dart
 Future<List<AssetEntity>?> callPicker() => InstaAssetPicker.pickAssets(
     context,
-    title: 'Select assets',
+    pickerConfig: InstaAssetPickerConfig(
+      title: 'Select assets',
+    ),
     maxAssets: 10,
     onCompleted: (Stream<InstaAssetsExportDetails> stream) {
         // TODO : handle crop stream result
@@ -104,24 +106,26 @@ Most of the components of the picker can be customized using theme.
 final theme = InstaAssetPicker.themeData(Theme.of(context).primaryColor);
 InstaAssetPicker.pickAssets(
     context,
-    pickerTheme: theme.copyWith(
-      canvasColor: Colors.black, // body background color
-      splashColor: Color.grey, // ontap splash color
-      colorScheme: theme.colorScheme.copyWith(
-        background: Colors.black87, // albums list background color
-      ),
-      appBarTheme: theme.appBarTheme.copyWith(
-        backgroundColor: Colors.black, // app bar background color
-        titleTextStyle: Theme.of(context)
-            .appBarTheme
-            .titleTextStyle
-            ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
-      ),
-      // edit `confirm` button style
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: Colors.blue,
-          disabledForegroundColor: Colors.red,
+    pickerConfig: InstaAssetPickerConfig(
+      pickerTheme: theme.copyWith(
+        canvasColor: Colors.black, // body background color
+        splashColor: Color.grey, // ontap splash color
+        colorScheme: theme.colorScheme.copyWith(
+          background: Colors.black87, // albums list background color
+        ),
+        appBarTheme: theme.appBarTheme.copyWith(
+          backgroundColor: Colors.black, // app bar background color
+          titleTextStyle: Theme.of(context)
+              .appBarTheme
+              .titleTextStyle
+              ?.copyWith(color: Colors.white), // change app bar title text style to be like app theme
+        ),
+        // edit `confirm` button style
+        textButtonTheme: TextButtonThemeData(
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.blue,
+            disabledForegroundColor: Colors.red,
+          ),
         ),
       ),
     ),
@@ -137,19 +141,21 @@ You can also set the preferred size, for the cropped assets.
 ```dart
 InstaAssetPicker.pickAssets(
     context,
-    cropDelegate: InstaAssetCropDelegate(
-      // allows you to set the preferred size used when cropping the asset.
-      // the final size will depends on the scale used when cropping.
-      preferredSize: 1080,
-      cropRatios: [
-      // - allow you to set the list of aspect ratios selectable,
-      // the default values are [1/1, 4/5] like instagram.
-      // - if you want to disable cropping, you can set only one parameter,
-      // in this case, the "crop" button will not be displayed (#10).
-      // - if the value of cropRatios is different than the default value,
-      // the "crop" button will display the selected ratio value (i.e.: 1:1)
-      // instead of unfold arrows.
-    ]),
+    pickerConfig: InstaAssetPickerConfig(
+      cropDelegate: InstaAssetCropDelegate(
+        // allows you to set the preferred size used when cropping the asset.
+        // the final size will depends on the scale used when cropping.
+        preferredSize: 1080,
+        cropRatios: [
+        // - allow you to set the list of aspect ratios selectable,
+        // the default values are [1/1, 4/5] like instagram.
+        // - if you want to disable cropping, you can set only one parameter,
+        // in this case, the "crop" button will not be displayed (#10).
+        // - if the value of cropRatios is different than the default value,
+        // the "crop" button will display the selected ratio value (i.e.: 1:1)
+        // instead of unfold arrows.
+      ]),
+    ),
     onCompleted: (_) {},
 );
 ```
