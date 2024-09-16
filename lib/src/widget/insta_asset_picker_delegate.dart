@@ -59,6 +59,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           textDelegate: config.textDelegate,
           gridThumbnailSize: config.gridThumbnailSize,
           previewThumbnailSize: config.previewThumbnailSize,
+          pathNameBuilder: config.pathNameBuilder,
           shouldRevertGrid: false,
         );
 
