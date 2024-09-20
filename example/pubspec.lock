@@ -193,10 +193,10 @@ packages:
     dependency: transitive
     description:
       name: fraction
-      sha256: "09e9504c9177bbd77df56e5d147abfbb3b43360e64bf61510059c14d6a82d524"
+      sha256: ac0d9904bb8211eb28606bdf623ff9f222c53240d8e9b927a07c149d356eddc2
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "5.0.3"
   html:
     dependency: transitive
     description:
@@ -589,10 +589,10 @@ packages:
     dependency: transitive
     description:
       name: wechat_assets_picker
-      sha256: f4b3eb0662f9a9f0453a591f056f5f63244586b772b62b79730a54e501b02671
+      sha256: aea82a6b523e118197187c6371301de5d15ce5572f353b575b5dcdeb2d17d44a
       url: "https://pub.dev"
     source: hosted
-    version: "9.1.0"
+    version: "9.2.2"
   wechat_camera_picker:
     dependency: "direct main"
     description:
@@ -605,10 +605,10 @@ packages:
     dependency: transitive
     description:
       name: wechat_picker_library
-      sha256: a47cdb227955f64494fe55bc42d91a76bfc626a446075d4284a070f1e1297b4e
+      sha256: "886cdf80a708fa955c2d7e6a2349c9b4519b322cd941e8c7334512c25294b1b1"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.2"
   win32:
     dependency: transitive
     description:

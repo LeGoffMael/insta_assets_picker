@@ -220,6 +220,7 @@ class _InnerCropViewState extends State<InnerCropView>
         LocallyAvailableBuilder(
           key: ValueKey<String>(widget.asset.id),
           asset: widget.asset,
+          isOriginal: true,
           builder: (BuildContext context, AssetEntity asset) =>
               insta_crop_view.Crop(
             key: widget.cropKey,
