@@ -48,6 +48,7 @@ class InstaAssetPickerConfig {
     this.textDelegate,
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
     this.previewThumbnailSize,
+    this.pathNameBuilder,
 
     /// [InstaAssetPickerBuilder] config
 
@@ -101,6 +102,9 @@ class InstaAssetPickerConfig {
 
   /// Preview thumbnail size in the crop viewer.
   final ThumbnailSize? previewThumbnailSize;
+
+  /// {@macro wechat_assets_picker.PathNameBuilder}
+  final PathNameBuilder<AssetPathEntity>? pathNameBuilder;
 
   /* [InstaAssetPickerBuilder] config */
 

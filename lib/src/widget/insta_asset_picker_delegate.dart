@@ -59,6 +59,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           textDelegate: config.textDelegate,
           gridThumbnailSize: config.gridThumbnailSize,
           previewThumbnailSize: config.previewThumbnailSize,
+          pathNameBuilder: config.pathNameBuilder,
           shouldRevertGrid: false,
         );
 
@@ -325,7 +326,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                   child: Text(
                     isPermissionLimited && p.path.isAll
                         ? textDelegate.accessiblePathName
-                        : p.path.name,
+                        : pathNameBuilder?.call(p.path) ?? p.path.name,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
