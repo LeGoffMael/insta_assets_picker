@@ -2,7 +2,7 @@
 
 This document gathered all breaking changes and migrations requirement between major versions.
 
-## 3.0.0-dev.1
+## 3.0.0
 
 ### InstaAssetPickerConfig
 
