@@ -36,9 +36,8 @@ class InstaAssetCropDelegate {
 class InstaAssetPickerConfig {
   const InstaAssetPickerConfig({
     /// [DefaultAssetPickerBuilderDelegate] config
-
+    required this.pickerTheme,
     this.gridCount = _kGridCount,
-    this.pickerTheme,
     this.specialItemPosition,
     this.specialItemBuilder,
     this.loadingIndicatorBuilder,
@@ -249,7 +248,7 @@ class InstaAssetPicker {
     required DefaultAssetPickerProvider Function() provider,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    InstaAssetPickerConfig pickerConfig = const InstaAssetPickerConfig(),
+    InstaAssetPickerConfig? pickerConfig,
   }) async {
     PermissionState? ps;
     try {
@@ -257,7 +256,8 @@ class InstaAssetPicker {
     } catch (e) {
       _openErrorPermission(
         context,
-        pickerConfig.textDelegate,
+        (pickerConfig?.textDelegate ??
+            InstaAssetPickerConfig(pickerTheme: ThemeData()).textDelegate),
         onPermissionDenied,
       );
       return [];
@@ -272,7 +272,7 @@ class InstaAssetPicker {
       provider: restoredProvider,
       keepScrollOffset: true,
       onCompleted: onCompleted,
-      config: pickerConfig,
+      config: pickerConfig ?? InstaAssetPickerConfig(pickerTheme: ThemeData()),
       locale: Localizations.maybeLocaleOf(context),
     );
 
@@ -342,7 +342,7 @@ class InstaAssetPicker {
     /// InstaAssetPickerBuilder parameters
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    InstaAssetPickerConfig pickerConfig = const InstaAssetPickerConfig(),
+    InstaAssetPickerConfig? pickerConfig,
 
     /// DefaultAssetPickerProvider parameters
     List<AssetEntity>? selectedAssets,
@@ -365,7 +365,8 @@ class InstaAssetPicker {
     } catch (e) {
       _openErrorPermission(
         context,
-        pickerConfig.textDelegate,
+        (pickerConfig?.textDelegate ??
+            InstaAssetPickerConfig(pickerTheme: ThemeData()).textDelegate),
         onPermissionDenied,
       );
       return [];
@@ -388,7 +389,7 @@ class InstaAssetPicker {
       provider: provider,
       keepScrollOffset: false,
       onCompleted: onCompleted,
-      config: pickerConfig,
+      config: pickerConfig ?? InstaAssetPickerConfig(pickerTheme: ThemeData()),
       locale: Localizations.maybeLocaleOf(context),
     );
 
