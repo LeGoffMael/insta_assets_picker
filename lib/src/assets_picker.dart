@@ -48,6 +48,7 @@ class InstaAssetPickerConfig {
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
     this.previewThumbnailSize,
     this.pathNameBuilder,
+    this.changeCropBasedOnImageSize,
 
     /// [InstaAssetPickerBuilder] config
 
@@ -128,6 +129,14 @@ class InstaAssetPickerConfig {
   ///
   /// Default is unselect all assets button.
   final InstaPickerActionsBuilder? actionsBuilder;
+
+  /// This [Function] is called when an asset is selected.
+  ///
+  /// It receives de [AssetEntity] selected and can change the crop based on imageSize.
+  /// For example, if your first image is vertical, you can set the crop to 4:5.
+  /// And if it is horizontal, you can set the crop to 16:9.
+  final Future<InstaAssetCropDelegate> Function(AssetEntity)?
+      changeCropBasedOnImageSize;
 }
 
 class InstaAssetPicker {
@@ -391,6 +400,7 @@ class InstaAssetPicker {
       onCompleted: onCompleted,
       config: pickerConfig ?? InstaAssetPickerConfig(pickerTheme: ThemeData()),
       locale: Localizations.maybeLocaleOf(context),
+      changeCropBasedOnImageSize: pickerConfig?.changeCropBasedOnImageSize,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
