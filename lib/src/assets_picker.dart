@@ -6,7 +6,7 @@ import 'package:insta_assets_picker/src/widget/insta_asset_picker_delegate.dart'
 
 const _kGridCount = 4;
 const _kInitializeDelayDuration = Duration(milliseconds: 250);
-const kDefaultInstaCropRatios = [1.0, 4 / 5];
+const kDefaultInstaCropRatios = [4 / 3, 3 / 4];
 
 class InstaAssetCropDelegate {
   const InstaAssetCropDelegate({
