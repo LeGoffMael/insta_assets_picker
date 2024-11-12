@@ -89,9 +89,7 @@ class _CameraPickerState extends State<CameraPicker> {
           final wrongSizeEntity = await PhotoManager.editor
               .saveImageWithPath(file.path, title: title);
           // TEMP FIX: Fetching it one more time seems to fix the issue
-          if (wrongSizeEntity != null) {
-            entity = await AssetEntity.fromId(wrongSizeEntity.id);
-          }
+          entity = await AssetEntity.fromId(wrongSizeEntity.id);
         }
       } else {
         debugPrint(
