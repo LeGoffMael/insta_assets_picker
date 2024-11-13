@@ -1,5 +1,3 @@
-library insta_assets_picker;
-
 export 'src/assets_picker.dart';
 export 'src/insta_assets_crop_controller.dart'
     show InstaAssetsExportDetails, InstaAssetsExportData, InstaAssetsCropData;
