@@ -395,6 +395,12 @@ class InstaAssetPicker {
     return AssetPicker.pickAssetsWithDelegate(
       context,
       delegate: builder,
+      permissionRequestOption: PermissionRequestOption(
+        androidPermission: AndroidPermission(
+          type: requestType,
+          mediaLocation: false,
+        ),
+      ),
       useRootNavigator: useRootNavigator,
       pageRouteBuilder: pageRouteBuilder,
     );
