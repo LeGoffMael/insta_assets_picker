@@ -256,7 +256,6 @@ class _InnerCropViewState extends State<InnerCropView>
                 // build video
                 : buildDefault(),
           ),
-          isOriginal: true,
         ),
 
         ValueListenableBuilder<bool>(

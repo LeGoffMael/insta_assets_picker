@@ -157,7 +157,6 @@ mixin InstaAssetVideoPlayerMixin<T extends InstaAssetVideoPlayerStatefulWidget>
         asset: widget.asset,
         isOriginal: false,
         builder: builder,
-        isOriginal: true,
       );
 
   @override
