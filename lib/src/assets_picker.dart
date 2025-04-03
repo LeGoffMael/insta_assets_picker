@@ -56,6 +56,7 @@ class InstaAssetPickerConfig {
     this.cropDelegate = const InstaAssetCropDelegate(),
     this.closeOnComplete = false,
     this.skipCropOnComplete = false,
+    this.disableCrop = false,
     this.actionsBuilder,
   });
 
@@ -124,6 +125,11 @@ class InstaAssetPickerConfig {
   ///
   /// Defaults to `false`.
   final bool skipCropOnComplete;
+
+  /// Whether to disable the crop view
+  ///
+  /// Defaults to `false`.
+  final bool disableCrop;
 
   /// The [Widget] to display on top of the assets grid view.
   ///

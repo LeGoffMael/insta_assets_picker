@@ -44,6 +44,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         title = config.title,
         closeOnComplete = config.closeOnComplete,
         skipCropOnComplete = config.skipCropOnComplete,
+        disableCrop = config.disableCrop,
         actionsBuilder = config.actionsBuilder,
         super(
           gridCount: config.gridCount,
@@ -83,6 +84,9 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   ///
   /// Defaults to `false`.
   final bool skipCropOnComplete;
+
+  /// Whether to disable the crop view
+  final bool disableCrop;
 
   // LOCAL PARAMETERS
 
@@ -540,6 +544,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                 textDelegate: textDelegate,
                                 provider: provider,
                                 opacity: opacity,
+                                disableCrop: disableCrop,
                                 height: cropViewHeight(context),
                                 // center the loader in the visible viewport of the crop view
                                 loaderWidget: Align(

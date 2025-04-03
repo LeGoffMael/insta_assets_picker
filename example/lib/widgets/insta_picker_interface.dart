@@ -90,6 +90,7 @@ mixin InstaPickerInterface on Widget {
         pickerConfig: InstaAssetPickerConfig(
           title: description.fullLabel,
           closeOnComplete: true,
+          disableCrop: true,
           pickerTheme: getPickerTheme(context),
           // skipCropOnComplete: true, // to test ffmpeg crop image
           // previewThumbnailSize: const ThumbnailSize(240, 240), // to improve thumbnails speed in crop view
