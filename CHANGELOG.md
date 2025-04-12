@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.2.0
+
+- bump `wechat_assets_picker` to 9.5.0
+- fixes android build error on flutter 3.29 [#60](https://github.com/LeGoffMael/insta_assets_picker/pull/60)
+- remove retired `ffmpeg_kit` package from example
+
+### Breaking changes
+
+- Migrate to Flutter 3.29, and drop supports for previous Flutter versions.
+
 ## 3.1.0
 
 - bump `wechat_assets_picker` to 9.2.2 & fix an issue with wechat_picker_library 1.0.3
