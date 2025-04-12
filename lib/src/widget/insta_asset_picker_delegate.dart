@@ -26,7 +26,7 @@ const _kActionsPadding = EdgeInsets.symmetric(horizontal: 8, vertical: 8);
 
 typedef InstaPickerActionsBuilder = List<Widget> Function(
   BuildContext context,
-  ThemeData? pickerTheme,
+  ThemeData pickerTheme,
   double height,
   VoidCallback unselectAll,
 );
@@ -364,7 +364,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   /// Returns the list ofactions that are displayed on top of the assets grid view
   Widget _buildActions(BuildContext context) {
     final double height = _kPathSelectorRowHeight - _kActionsPadding.vertical;
-    final ThemeData? theme = pickerTheme?.copyWith(
+    final ThemeData actionTheme = theme.copyWith(
       buttonTheme: const ButtonThemeData(padding: EdgeInsets.all(8)),
     );
 
@@ -383,14 +383,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                     mainAxisSize: MainAxisSize.min,
                     children: actionsBuilder!(
                       context,
-                      theme,
+                      actionTheme,
                       height,
                       unSelectAll,
                     ),
                   )
                 : InstaPickerCircleIconButton.unselectAll(
                     onTap: unSelectAll,
-                    theme: theme,
+                    theme: actionTheme,
                     size: height,
                   ),
           ],
@@ -552,7 +552,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
                                     ),
                                   ),
                                 ),
-                                theme: pickerTheme,
+                                theme: theme,
                               ),
                             ),
                             _buildActions(context),

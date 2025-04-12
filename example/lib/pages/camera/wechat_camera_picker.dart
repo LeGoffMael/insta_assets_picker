@@ -45,7 +45,7 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
             pickerTheme: getPickerTheme(context),
             actionsBuilder: (
               BuildContext context,
-              ThemeData? pickerTheme,
+              ThemeData pickerTheme,
               double height,
               VoidCallback unselectAll,
             ) =>

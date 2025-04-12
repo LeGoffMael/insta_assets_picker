@@ -17,8 +17,8 @@ class CropViewer extends StatefulWidget {
     required this.controller,
     required this.loaderWidget,
     required this.height,
+    required this.theme,
     this.opacity = 1.0,
-    this.theme,
     this.previewThumbnailSize,
   });
 
@@ -27,7 +27,7 @@ class CropViewer extends StatefulWidget {
   final InstaAssetsCropController controller;
   final Widget loaderWidget;
   final double height, opacity;
-  final ThemeData? theme;
+  final ThemeData theme;
   final ThumbnailSize? previewThumbnailSize;
 
   @override
@@ -132,7 +132,7 @@ class InnerCropView extends InstaAssetVideoPlayerStatefulWidget {
   final insta_crop_view.CropInternal? cropParam;
   final InstaAssetsCropController controller;
   final AssetPickerTextDelegate textDelegate;
-  final ThemeData? theme;
+  final ThemeData theme;
   final double height;
   final bool hideCropButton;
   final GlobalKey<insta_crop_view.CropState> cropKey;
@@ -227,7 +227,7 @@ class _InnerCropViewState extends State<InnerCropView>
             maximumScale: 10,
             aspectRatio: widget.controller.aspectRatio,
             disableResize: true,
-            backgroundColor: widget.theme!.canvasColor,
+            backgroundColor: widget.theme.canvasColor,
             initialParam: widget.cropParam,
             size: widget.asset.orientatedSize,
             child: widget.asset.type == AssetType.image
@@ -264,7 +264,7 @@ class _InnerCropViewState extends State<InnerCropView>
               ? Positioned.fill(
                   child: DecoratedBox(
                     decoration: BoxDecoration(
-                      color: widget.theme?.cardColor.withValues(alpha: .4),
+                      color: widget.theme.cardColor.withValues(alpha: .4),
                     ),
                     child: Center(child: buildInitializationError()),
                   ),
@@ -300,7 +300,7 @@ class _InnerCropViewState extends State<InnerCropView>
             widget.controller.nextCropRatio();
           }
         },
-        theme: widget.theme?.copyWith(
+        theme: widget.theme.copyWith(
           buttonTheme: const ButtonThemeData(padding: EdgeInsets.all(2)),
         ),
         size: 32,
@@ -330,7 +330,7 @@ class _InnerCropViewState extends State<InnerCropView>
         opacity: 0.6,
         child: InstaPickerCircleIconButton(
           onTap: playButtonCallback,
-          theme: widget.theme?.copyWith(
+          theme: widget.theme.copyWith(
             buttonTheme: const ButtonThemeData(padding: EdgeInsets.all(2)),
           ),
           size: 32,

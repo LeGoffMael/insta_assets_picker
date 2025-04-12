@@ -110,7 +110,7 @@ class _CameraPickerState extends State<CameraPicker> {
             pickerTheme: widget.getPickerTheme(context),
             actionsBuilder: (
               BuildContext context,
-              ThemeData? pickerTheme,
+              ThemeData pickerTheme,
               double height,
               VoidCallback unselectAll,
             ) =>
