@@ -217,10 +217,10 @@ packages:
     dependency: transitive
     description:
       name: insta_assets_crop
-      sha256: "0939bd618bdf6b7d6875411129017bf004b0e004f9bd7274c893374cf9b0aa9d"
+      sha256: "5167f9ebc06fc1dbd65631b911574e17d726f4f5a9a9740d4aca09742557e427"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "0.1.1"
   insta_assets_picker:
     dependency: "direct main"
     description:
