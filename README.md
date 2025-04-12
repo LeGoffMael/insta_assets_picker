@@ -176,7 +176,7 @@ Video are now supported on version `3.0.0`. You can pick a video asset and selec
 However, as video processing is a heavy operation it is not handled by this package.
 Which means you must handle it yourself. If you want to preview the video result, you can use the `InstaAssetCropTransform` which will transform the Image or VideoPlayer to fit the selected crop area.
 
-The example app has been updated to support videos (+ camera recording) and shows [how to process the video](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/post_provider.dart#L84) using [ffmpeg_kit_flutter](https://pub.dev/packages/ffmpeg_kit_flutter).
+The example app has been updated to support videos (+ camera recording) and shows [how to process the video](https://github.com/LeGoffMael/insta_assets_picker/tree/main/example/lib/post_provider.dart#L84) using the now retired [ffmpeg_kit_flutter](https://pub.dev/packages/ffmpeg_kit_flutter).
 
 ## ✨ Credit
 

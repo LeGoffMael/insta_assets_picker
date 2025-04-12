@@ -61,6 +61,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           previewThumbnailSize: config.previewThumbnailSize,
           pathNameBuilder: config.pathNameBuilder,
           shouldRevertGrid: false,
+          dragToSelect: false, // not yet supported with the inst_picker
         );
 
   /// The text title in the picker [AppBar].
@@ -637,7 +638,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
         border: Border.all(color: theme.unselectedWidgetColor, width: 1),
         color: isSelected
             ? themeColor
-            : theme.unselectedWidgetColor.withOpacity(.2),
+            : theme.unselectedWidgetColor.withValues(alpha: .2),
         shape: BoxShape.circle,
       ),
       child: FittedBox(
@@ -665,8 +666,8 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
               duration: switchingPathDuration,
               padding: const EdgeInsets.all(4),
               color: isPreview
-                  ? theme.unselectedWidgetColor.withOpacity(.5)
-                  : theme.colorScheme.surface.withOpacity(.1),
+                  ? theme.unselectedWidgetColor.withValues(alpha: .5)
+                  : theme.colorScheme.surface.withValues(alpha: .1),
               child: Align(
                 alignment: AlignmentDirectional.topEnd,
                 child: isSelected && !isSingleAssetMode

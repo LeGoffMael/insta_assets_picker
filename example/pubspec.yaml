@@ -4,8 +4,8 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 3.1.0
 
 environment:
-  sdk: ^3.2.0
-  flutter: '>=3.16.0'
+  sdk: ^3.4.0
+  flutter: '>=3.22.0'
 
 dependencies:
   flutter:
@@ -17,12 +17,12 @@ dependencies:
     path: ../
 
   # for camera examples
-  camera: ^0.10.6
-  wechat_camera_picker: ^4.3.1
+  camera: ^0.10.0
+  wechat_camera_picker: ^4.3.7
 
   # for video examples
-  ffmpeg_kit_flutter_min: ^6.0.3
-  mime: ^1.0.5
+  # ffmpeg_kit_flutter_min: ^6.0.3
+  mime: ^2.0.0
 
 dev_dependencies:
   flutter_test:

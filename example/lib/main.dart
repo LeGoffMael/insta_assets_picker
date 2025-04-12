@@ -6,7 +6,6 @@ import 'package:insta_assets_picker_demo/pages/camera/wechat_camera_picker.dart'
 import 'package:insta_assets_picker_demo/pages/restorable_picker.dart';
 import 'package:insta_assets_picker_demo/post_provider.dart';
 import 'package:insta_assets_picker_demo/widgets/insta_picker_interface.dart';
-import 'package:insta_assets_picker_demo/widgets/post.dart';
 import 'package:provider/provider.dart';
 
 const kDefaultColor = Colors.deepPurple;
@@ -73,17 +72,7 @@ class PickersScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Insta pickers'),
-        actions: [
-          IconButton(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const PostsPage()),
-            ),
-            icon: Icon(Icons.feed, semanticLabel: 'Feed'),
-          )
-        ],
-      ),
+      appBar: AppBar(title: const Text('Insta pickers')),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemBuilder: (BuildContext context, int index) {
