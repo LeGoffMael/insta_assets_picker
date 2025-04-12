@@ -107,8 +107,9 @@ class CropResultView extends StatelessWidget {
             Positioned.fill(
               child: DecoratedBox(
                 decoration: BoxDecoration(
-                  color:
-                      Theme.of(context).scaffoldBackgroundColor.withOpacity(.5),
+                  color: Theme.of(context)
+                      .scaffoldBackgroundColor
+                      .withValues(alpha: .5),
                 ),
               ),
             ),
@@ -262,7 +263,7 @@ class _PickerResultVideoPlayerState extends State<PickerResultPreview>
                 duration: kThemeAnimationDuration,
                 child: CircleAvatar(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.black.withOpacity(0.7),
+                  backgroundColor: Colors.black.withValues(alpha: .7),
                   radius: 24,
                   child: const Icon(Icons.play_arrow_rounded, size: 40),
                 ),
