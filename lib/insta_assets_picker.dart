@@ -1,3 +1,4 @@
+// ignore: unnecessary_library_name
 library insta_assets_picker;
 
 export 'src/assets_picker.dart';
