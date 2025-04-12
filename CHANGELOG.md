@@ -1,9 +1,14 @@
 # Changelog
 
+## 3.3.0
+
+- fix null pointer error when `pickerTheme` was not provided [#55](https://github.com/LeGoffMael/insta_assets_picker/pull/55)
+- `actionsBuilder` parameter in `InstaPickerActionsBuilder` now receives a non-nullable `ThemeData`
+
 ## 3.2.0
 
 - bump `wechat_assets_picker` to 9.5.0
-- fixes android build error on flutter 3.29 [#60](https://github.com/LeGoffMael/insta_assets_picker/pull/60)
+- fixes android build error on flutter 3.29 [#60](https://github.com/LeGoffMael/insta_assets_picker/issues/60)
 - remove retired `ffmpeg_kit` package from example
 
 ### Breaking changes
@@ -15,7 +20,7 @@
 - bump `wechat_assets_picker` to 9.2.2 & fix an issue with wechat_picker_library 1.0.3
 - exposes `pathNameBuilder` parameter to picker [#53](https://github.com/LeGoffMael/insta_assets_picker/pull/53)
 - fix permission issue on Android [#52](https://github.com/LeGoffMael/insta_assets_picker/pull/52)
-- fix android APK build error [#51](https://github.com/LeGoffMael/insta_assets_picker/pull/51)
+- fix android APK build error [#51](https://github.com/LeGoffMael/insta_assets_picker/issues/51)
 
 ## 3.0.0
 
