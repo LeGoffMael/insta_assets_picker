@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
-import 'package:insta_assets_picker_demo/post_provider.dart';
-import 'package:insta_assets_picker_demo/widgets/post.dart';
-import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 
 class PickerCropResultScreen extends StatelessWidget {
@@ -199,15 +196,18 @@ class CropResultView extends StatelessWidget {
                       result!.progress >= 1 &&
                       selectedAssets.isNotEmpty
                   ? () {
-                      context.read<PostProvider>().uploadNewPost(result!);
-                      // go back to main and open post list page
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => PostsPage(),
+                      // context.read<PostProvider>().uploadNewPost(result!);
+
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        behavior: SnackBarBehavior.floating,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
                         ),
-                        (route) => route.isFirst,
-                      );
+                        margin: const EdgeInsets.all(10),
+                        content: const Text(
+                            'Here you could export the videos and images and upload them to your server'),
+                        duration: const Duration(seconds: 2),
+                      ));
                     }
                   : null,
               icon: const Icon(Icons.cloud_upload),

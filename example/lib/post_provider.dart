@@ -1,11 +1,6 @@
 import 'dart:io';
-import 'package:ffmpeg_kit_flutter_min/ffmpeg_kit.dart';
-import 'package:ffmpeg_kit_flutter_min/ffmpeg_kit_config.dart';
-import 'package:ffmpeg_kit_flutter_min/return_code.dart';
 import 'package:flutter/foundation.dart';
 import 'package:insta_assets_picker/insta_assets_picker.dart';
-import 'package:insta_assets_picker_demo/utils.dart';
-import 'package:path_provider/path_provider.dart';
 
 class Post {
   const Post({
@@ -80,7 +75,8 @@ class PostProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Crop the missing files using FFmpeg
+  /// Save the image cropped files or crop the videos using FFmpeg
+  /// FFmpegKit package was retired. So example has been removed.
   Future<void> uploadNewPost(InstaAssetsExportDetails exportDetails) async {
     if (exportDetails.progress < 1 || exportDetails.selectedAssets.isEmpty)
       return;
@@ -114,42 +110,42 @@ class PostProvider with ChangeNotifier {
         throw 'Error: File cannot be fetched';
       }
 
-      final String extension = getFileExtension(originFile);
-      final String outputPath =
-          '${(await getTemporaryDirectory()).path}/output_${postId}_$i${extension}';
+      // final String extension = getFileExtension(originFile);
+      // final String outputPath =
+      //     '${(await getTemporaryDirectory()).path}/output_${postId}_$i${extension}';
 
-      final String? ffmpegCrop = item.selectedData.ffmpegCrop;
-      final String? ffmpegScale = item.selectedData.ffmpegScale;
-      final List<String> filters = [
-        if (ffmpegCrop != null) 'crop=${ffmpegCrop}',
-        if (ffmpegScale != null) 'scale=${ffmpegScale}'
-      ];
+      // final String? ffmpegCrop = item.selectedData.ffmpegCrop;
+      // final String? ffmpegScale = item.selectedData.ffmpegScale;
+      // final List<String> filters = [
+      //   if (ffmpegCrop != null) 'crop=${ffmpegCrop}',
+      //   if (ffmpegScale != null) 'scale=${ffmpegScale}'
+      // ];
 
-      FFmpegKitConfig.enableStatisticsCallback((stats) {
-        final asset = exportDetails.selectedAssets[i];
-        if (asset.type != AssetType.video) return;
-        final double val = stats.getTime() / asset.duration / 1000;
-        // update progress based on ffmpeg statistics
-        _updateProgress(postId, progressValue - step + step * val.clamp(0, 1));
-      });
-      final session = await FFmpegKit.execute(
-        "-y -i \'${originFile.path}\' ${filters.isNotEmpty ? "-vf \'${filters.join(",")}\'" : ''} -c:a copy \'$outputPath\'",
-      );
-      final returnCode = await session.getReturnCode();
+      // FFmpegKitConfig.enableStatisticsCallback((stats) {
+      //   final asset = exportDetails.selectedAssets[i];
+      //   if (asset.type != AssetType.video) return;
+      //   final double val = stats.getTime() / asset.duration / 1000;
+      //   // update progress based on ffmpeg statistics
+      //   _updateProgress(postId, progressValue - step + step * val.clamp(0, 1));
+      // });
+      // final session = await FFmpegKit.execute(
+      //   "-y -i \'${originFile.path}\' ${filters.isNotEmpty ? "-vf \'${filters.join(",")}\'" : ''} -c:a copy \'$outputPath\'",
+      // );
+      // final returnCode = await session.getReturnCode();
 
-      if (ReturnCode.isSuccess(returnCode)) {
-        // SUCCESS
-        files.add(File(outputPath));
-        _updateProgress(postId, progressValue);
-      } else if (ReturnCode.isCancel(returnCode)) {
-        // CANCEL
-        _updateProgress(postId, progressValue, hasError: true);
-        throw 'Error: FFmpeg execution got cancel.';
-      } else {
-        _updateProgress(postId, progressValue, hasError: true);
-        // ERROR
-        throw 'Error: FFmpeg failed.';
-      }
+      // if (ReturnCode.isSuccess(returnCode)) {
+      //   // SUCCESS
+      //   files.add(File(outputPath));
+      //   _updateProgress(postId, progressValue);
+      // } else if (ReturnCode.isCancel(returnCode)) {
+      //   // CANCEL
+      //   _updateProgress(postId, progressValue, hasError: true);
+      //   throw 'Error: FFmpeg execution got cancel.';
+      // } else {
+      //   _updateProgress(postId, progressValue, hasError: true);
+      //   // ERROR
+      //   throw 'Error: FFmpeg failed.';
+      // }
     }
 
     if (files.isEmpty) {
