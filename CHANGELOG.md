@@ -1,5 +1,9 @@
 # Changelog
 
+## 3.3.1
+
+- Upgrade wechat_assets_picker to 9.8.0 that support in 3.35
+
 ## 3.3.0
 
 - fix null pointer error when `pickerTheme` was not provided [#55](https://github.com/LeGoffMael/insta_assets_picker/pull/55)
