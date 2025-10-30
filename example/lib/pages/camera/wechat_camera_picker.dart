@@ -82,6 +82,9 @@ class WeChatCameraPicker extends StatelessWidget with InstaPickerInterface {
                 ),
               );
             },
+            changeCropBasedOnImageSize: (p0) async {
+              return InstaAssetCropDelegate(cropRatios: [1, 4 / 5, 16 / 9]);
+            },
             // since the list is revert, use prepend to be at the top
             specialItemPosition: SpecialItemPosition.prepend,
           ),

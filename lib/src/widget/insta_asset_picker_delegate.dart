@@ -37,10 +37,11 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     required super.provider,
     required this.onCompleted,
     required InstaAssetPickerConfig config,
+    this.changeCropBasedOnImageSize,
     super.keepScrollOffset,
     super.locale,
-  })  : _cropController =
-            InstaAssetsCropController(keepScrollOffset, config.cropDelegate),
+  })  : _cropController = InstaAssetsCropController(keepScrollOffset,
+            ValueNotifier<InstaAssetCropDelegate>(config.cropDelegate)),
         title = config.title,
         closeOnComplete = config.closeOnComplete,
         skipCropOnComplete = config.skipCropOnComplete,
@@ -80,6 +81,14 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   /// Defaults to `false`, like instagram
   final bool closeOnComplete;
 
+  /// This [Function] is called when an asset is selected.
+  ///
+  /// It receives de [AssetEntity] selected and can change the crop based on imageSize.
+  /// For example, if your first image is vertical, you can set the crop to 4:5.
+  /// And if it is horizontal, you can set the crop to 16:9.
+  final Future<InstaAssetCropDelegate> Function(AssetEntity)?
+      changeCropBasedOnImageSize;
+
   /// Should the picker automatically crop when the selection is confirmed
   ///
   /// Defaults to `false`.
@@ -110,6 +119,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
       _cropController.dispose();
       _cropViewPosition.dispose();
     }
+
     super.dispose();
   }
 
@@ -197,6 +207,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
     if (_cropController.isCropViewReady.value != true) {
       return;
     }
+
     // if is preview asset, unselect it
     if (provider.selectedAssets.isNotEmpty &&
         _cropController.previewAsset.value == currentAsset) {
@@ -206,9 +217,15 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
           : provider.selectedAssets.last;
       return;
     }
-
     _cropController.previewAsset.value = currentAsset;
     selectAsset(context, currentAsset, index, false);
+
+    InstaAssetCropDelegate? result =
+        await changeCropBasedOnImageSize?.call(currentAsset);
+    if (result != null) {
+      _cropController.cropDelegate.value =
+          InstaAssetCropDelegate(cropRatios: result.cropRatios);
+    }
   }
 
   /// Called when an asset is selected

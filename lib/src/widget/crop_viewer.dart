@@ -89,7 +89,7 @@ class CropViewerState extends State<CropViewer> {
 
             // hide crop button if an asset is selected or if there is only one crop
             final hideCropButton = selected.length > 1 ||
-                widget.controller.cropDelegate.cropRatios.length <= 1;
+                widget.controller.cropDelegate.value.cropRatios.length <= 1;
 
             return ValueListenableBuilder<int>(
               valueListenable: widget.controller.cropRatioIndex,
@@ -305,18 +305,18 @@ class _InnerCropViewState extends State<InnerCropView>
         ),
         size: 32,
         // if crop ratios are the default ones, build UI similar to instagram
-        icon:
-            widget.controller.cropDelegate.cropRatios == kDefaultInstaCropRatios
-                ? Transform.rotate(
-                    angle: 45 * math.pi / 180,
-                    child: Icon(
-                      widget.controller.aspectRatio == 1
-                          ? Icons.unfold_more
-                          : Icons.unfold_less,
-                    ),
-                  )
-                // otherwise simply display the selected aspect ratio
-                : Text(widget.controller.aspectRatioString),
+        icon: widget.controller.cropDelegate.value.cropRatios ==
+                kDefaultInstaCropRatios
+            ? Transform.rotate(
+                angle: 45 * math.pi / 180,
+                child: Icon(
+                  widget.controller.aspectRatio == 1
+                      ? Icons.unfold_more
+                      : Icons.unfold_less,
+                ),
+              )
+            // otherwise simply display the selected aspect ratio
+            : Text(widget.controller.aspectRatioString),
       ),
     );
   }

@@ -117,7 +117,7 @@ class InstaAssetsCropController {
       ValueNotifier<AssetEntity?>(null);
 
   /// Options related to crop
-  final InstaAssetCropDelegate cropDelegate;
+  final ValueNotifier<InstaAssetCropDelegate> cropDelegate;
 
   /// List of all the crop parameters set by the user
   List<InstaAssetsCropData> _cropParameters = [];
@@ -134,9 +134,9 @@ class InstaAssetsCropController {
   }
 
   double get aspectRatio {
-    assert(cropDelegate.cropRatios.isNotEmpty,
+    assert(cropDelegate.value.cropRatios.isNotEmpty,
         'The list of supported crop ratios cannot be empty.');
-    return cropDelegate.cropRatios[cropRatioIndex.value];
+    return cropDelegate.value.cropRatios[cropRatioIndex.value];
   }
 
   String get aspectRatioString {
@@ -147,7 +147,7 @@ class InstaAssetsCropController {
 
   /// Set the next available index as the selected crop ratio
   void nextCropRatio() {
-    if (cropRatioIndex.value < cropDelegate.cropRatios.length - 1) {
+    if (cropRatioIndex.value < cropDelegate.value.cropRatios.length - 1) {
       cropRatioIndex.value = cropRatioIndex.value + 1;
     } else {
       cropRatioIndex.value = 0;
@@ -257,7 +257,7 @@ class InstaAssetsCropController {
         // makes the sample file to not be too small
         final sampledFile = await InstaAssetsCrop.sampleImage(
           file: file,
-          preferredSize: (cropDelegate.preferredSize / scale).round(),
+          preferredSize: (cropDelegate.value.preferredSize / scale).round(),
         );
 
         if (area == null) {

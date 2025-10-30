@@ -36,9 +36,8 @@ class InstaAssetCropDelegate {
 class InstaAssetPickerConfig {
   const InstaAssetPickerConfig({
     /// [DefaultAssetPickerBuilderDelegate] config
-
+    required this.pickerTheme,
     this.gridCount = _kGridCount,
-    this.pickerTheme,
     this.specialItemPosition,
     this.specialItemBuilder,
     this.loadingIndicatorBuilder,
@@ -49,6 +48,7 @@ class InstaAssetPickerConfig {
     this.gridThumbnailSize = defaultAssetGridPreviewSize,
     this.previewThumbnailSize,
     this.pathNameBuilder,
+    this.changeCropBasedOnImageSize,
 
     /// [InstaAssetPickerBuilder] config
 
@@ -129,6 +129,14 @@ class InstaAssetPickerConfig {
   ///
   /// Default is unselect all assets button.
   final InstaPickerActionsBuilder? actionsBuilder;
+
+  /// This [Function] is called when an asset is selected.
+  ///
+  /// It receives de [AssetEntity] selected and can change the crop based on imageSize.
+  /// For example, if your first image is vertical, you can set the crop to 4:5.
+  /// And if it is horizontal, you can set the crop to 16:9.
+  final Future<InstaAssetCropDelegate> Function(AssetEntity)?
+      changeCropBasedOnImageSize;
 }
 
 class InstaAssetPicker {
@@ -249,7 +257,7 @@ class InstaAssetPicker {
     required DefaultAssetPickerProvider Function() provider,
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    InstaAssetPickerConfig pickerConfig = const InstaAssetPickerConfig(),
+    InstaAssetPickerConfig? pickerConfig,
   }) async {
     PermissionState? ps;
     try {
@@ -257,7 +265,8 @@ class InstaAssetPicker {
     } catch (e) {
       _openErrorPermission(
         context,
-        pickerConfig.textDelegate,
+        (pickerConfig?.textDelegate ??
+            InstaAssetPickerConfig(pickerTheme: ThemeData()).textDelegate),
         onPermissionDenied,
       );
       return [];
@@ -272,7 +281,7 @@ class InstaAssetPicker {
       provider: restoredProvider,
       keepScrollOffset: true,
       onCompleted: onCompleted,
-      config: pickerConfig,
+      config: pickerConfig ?? InstaAssetPickerConfig(pickerTheme: ThemeData()),
       locale: Localizations.maybeLocaleOf(context),
     );
 
@@ -342,7 +351,7 @@ class InstaAssetPicker {
     /// InstaAssetPickerBuilder parameters
     required Function(Stream<InstaAssetsExportDetails> exportDetails)
         onCompleted,
-    InstaAssetPickerConfig pickerConfig = const InstaAssetPickerConfig(),
+    InstaAssetPickerConfig? pickerConfig,
 
     /// DefaultAssetPickerProvider parameters
     List<AssetEntity>? selectedAssets,
@@ -365,7 +374,8 @@ class InstaAssetPicker {
     } catch (e) {
       _openErrorPermission(
         context,
-        pickerConfig.textDelegate,
+        (pickerConfig?.textDelegate ??
+            InstaAssetPickerConfig(pickerTheme: ThemeData()).textDelegate),
         onPermissionDenied,
       );
       return [];
@@ -388,8 +398,9 @@ class InstaAssetPicker {
       provider: provider,
       keepScrollOffset: false,
       onCompleted: onCompleted,
-      config: pickerConfig,
+      config: pickerConfig ?? InstaAssetPickerConfig(pickerTheme: ThemeData()),
       locale: Localizations.maybeLocaleOf(context),
+      changeCropBasedOnImageSize: pickerConfig?.changeCropBasedOnImageSize,
     );
 
     return AssetPicker.pickAssetsWithDelegate(
