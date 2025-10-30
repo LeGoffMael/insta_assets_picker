@@ -575,7 +575,7 @@ class InstaAssetPickerBuilder extends DefaultAssetPickerBuilderDelegate {
   Widget appleOSLayout(BuildContext context) => androidLayout(context);
 
   /// Returns the [ListView] containing the albums
-  Widget _buildListAlbums(context) {
+  Widget _buildListAlbums(BuildContext context) {
     return Consumer<DefaultAssetPickerProvider>(
         builder: (BuildContext context, provider, __) {
       if (isAppleOS(context)) return pathEntityListWidget(context);

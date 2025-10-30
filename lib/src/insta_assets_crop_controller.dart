@@ -126,7 +126,7 @@ class InstaAssetsCropController {
   /// is open with [InstaAssetPicker.restorableAssetsPicker]
   final bool keepMemory;
 
-  dispose() {
+  void dispose() {
     clear();
     isCropViewReady.dispose();
     cropRatioIndex.dispose();
