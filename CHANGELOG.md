@@ -1,8 +1,8 @@
 # Changelog
 
-## 3.3.1
+## 3.4.0
 
-- Upgrade wechat_assets_picker to 9.8.0 that support in 3.35
+- bump `wechat_assets_picker` to 9.8.0 that support in 3.35 [#66](https://github.com/LeGoffMael/insta_assets_picker/pull/66)
 
 ## 3.3.0
 

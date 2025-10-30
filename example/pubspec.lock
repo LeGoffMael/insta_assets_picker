@@ -177,10 +177,10 @@ packages:
     dependency: transitive
     description:
       name: fraction
-      sha256: "7804c9a73d26bd3d5ccf52b7225eecd0af4e33b310729726dc8f8bb14c217716"
+      sha256: dd487c01c0bfdcccc44d15250b24b4bee94b6981e01e8c41007a1b02f395ea01
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.4"
+    version: "5.0.5"
   html:
     dependency: transitive
     description:
@@ -217,17 +217,17 @@ packages:
     dependency: transitive
     description:
       name: insta_assets_crop
-      sha256: "5167f9ebc06fc1dbd65631b911574e17d726f4f5a9a9740d4aca09742557e427"
+      sha256: "90dfe4264296a0ccef244dd7ddc397a80ab725c8ad4ce22a03abdd9d97ceeb6c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   insta_assets_picker:
     dependency: "direct main"
     description:
       path: ".."
       relative: true
     source: path
-    version: "3.3.0"
+    version: "3.4.0"
   intl:
     dependency: transitive
     description:
